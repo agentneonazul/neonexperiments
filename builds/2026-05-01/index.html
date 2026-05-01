@@ -4,58 +4,46 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Skill Crystallizer</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg:       #07090A;
-      --surface:  rgba(255,255,255,0.04);
-      --surface2: rgba(255,255,255,0.07);
-      --border:   rgba(255,255,255,0.07);
-      --border-hi: rgba(52,232,160,0.3);
-      --accent:   #34E8A0;
-      --accent-dim: rgba(52,232,160,0.1);
-      --accent-glow: rgba(52,232,160,0.18);
-      --red:      #FF6B6B;
-      --amber:    #F59E0B;
-      --text:     #E8EEEB;
-      --text-2:   #6D8A78;
-      --text-3:   #344A3C;
-      --radius:   16px;
+      --bg:        #FAFAFA;
+      --white:     #FFFFFF;
+      --card:      #F2F3F4;
+      --card-2:    #ECEEF0;
+      --border:    #E4E6E8;
+      --border-hi: #C8CACD;
+      --black:     #111214;
+      --text:      #1A1C1E;
+      --text-2:    #5F6368;
+      --text-3:    #B0B4BB;
+      --accent:    #1A73E8;
+      --accent-bg: #EAF1FB;
+      --green:     #1E8E3E;
+      --green-bg:  #E6F4EA;
+      --red:       #D93025;
+      --red-bg:    #FCE8E6;
+      --radius:    16px;
       --radius-sm: 10px;
+      --radius-pill: 100px;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
     html { height: 100%; }
 
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: 'Inter', -apple-system, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       font-size: 15px;
       line-height: 1.6;
       min-height: 100dvh;
       display: flex;
       flex-direction: column;
-      overflow-x: hidden;
     }
 
-    /* ── Ambient background ─────────────────────────────────── */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 60% 40% at 15% 10%, rgba(52,232,160,0.055) 0%, transparent 65%),
-        radial-gradient(ellipse 50% 60% at 85% 80%, rgba(100,60,220,0.03) 0%, transparent 60%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* ── Layout ─────────────────────────────────────────────── */
+    /* ── App shell ─────────────────────────────────────────── */
     .app {
-      position: relative;
-      z-index: 1;
       display: flex;
       flex-direction: column;
       min-height: 100dvh;
@@ -76,195 +64,171 @@
     .wordmark {
       display: flex;
       align-items: center;
-      gap: 9px;
-    }
-    .wordmark-pulse {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-dim), 0 0 12px var(--accent-glow);
-      animation: breathe 3s ease-in-out infinite;
-    }
-    @keyframes breathe {
-      0%, 100% { box-shadow: 0 0 0 2px var(--accent-dim), 0 0 10px var(--accent-glow); }
-      50%       { box-shadow: 0 0 0 4px var(--accent-dim), 0 0 18px var(--accent-glow); }
-    }
-    .wordmark-text {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      font-weight: 400;
-      letter-spacing: 0.1em;
-      color: var(--text-2);
-      text-transform: uppercase;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
       gap: 8px;
     }
+    .wordmark-icon {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      background: var(--black);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .wordmark-text {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
     .icon-btn {
       width: 36px; height: 36px;
-      border-radius: 10px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      border-radius: var(--radius-pill);
+      background: var(--card);
+      border: none;
+      display: flex; align-items: center; justify-content: center;
       cursor: pointer;
       color: var(--text-2);
-      font-size: 15px;
-      transition: all 0.2s;
+      font-size: 16px;
+      transition: background 0.18s;
     }
-    .icon-btn:hover { background: var(--surface2); color: var(--text); }
+    .icon-btn:hover { background: var(--card-2); }
     .icon-btn:active { transform: scale(0.93); }
 
-    /* ── Progress track ─────────────────────────────────────── */
+    /* ── Progress ─────────────────────────────────────────────── */
     .progress-track {
       display: flex;
-      gap: 5px;
-      padding: 22px 0 0;
       align-items: center;
+      gap: 4px;
+      padding: 20px 0 0;
     }
     .progress-seg {
       flex: 1;
       height: 3px;
       border-radius: 2px;
-      background: rgba(255,255,255,0.06);
+      background: var(--border);
       position: relative;
       overflow: hidden;
-      transition: all 0.4s ease;
     }
     .progress-seg::after {
       content: '';
       position: absolute;
       inset: 0;
-      background: var(--accent);
-      border-radius: 2px;
+      background: var(--black);
       transform: scaleX(0);
       transform-origin: left;
-      transition: transform 0.5s cubic-bezier(0.4,0,0.2,1);
+      transition: transform 0.45s cubic-bezier(0.4,0,0.2,1);
     }
-    .progress-seg.done::after { transform: scaleX(1); opacity: 0.5; }
+    .progress-seg.done::after { transform: scaleX(1); opacity: 0.35; }
     .progress-seg.active::after { transform: scaleX(1); }
     .progress-dot {
-      width: 5px; height: 5px;
+      width: 4px; height: 4px;
       border-radius: 50%;
-      background: rgba(255,255,255,0.08);
+      background: var(--border);
       flex-shrink: 0;
-      transition: all 0.3s;
+      transition: background 0.3s;
     }
-    .progress-dot.active { background: var(--accent); box-shadow: 0 0 6px var(--accent-glow); }
-    .progress-dot.done   { background: rgba(52,232,160,0.35); }
+    .progress-dot.done   { background: rgba(0,0,0,0.2); }
+    .progress-dot.active { background: var(--black); }
 
-    /* ── Screens ─────────────────────────────────────────────── */
-    main { flex: 1; padding: 28px 0 32px; display: flex; flex-direction: column; gap: 16px; }
+    /* ── Main ───────────────────────────────────────────────── */
+    main { flex: 1; padding: 24px 0 32px; display: flex; flex-direction: column; gap: 14px; }
 
-    .screen {
-      display: none;
-      flex-direction: column;
-      gap: 16px;
-      flex: 1;
-    }
+    .screen { display: none; flex-direction: column; gap: 14px; flex: 1; }
     .screen.active {
       display: flex;
-      animation: screenIn 0.4s cubic-bezier(0.16,1,0.3,1) both;
+      animation: screenIn 0.38s cubic-bezier(0.16,1,0.3,1) both;
     }
     @keyframes screenIn {
-      from { opacity: 0; transform: translateY(14px); }
+      from { opacity: 0; transform: translateY(12px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
     .screen-label {
-      font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
-      font-weight: 400;
-      letter-spacing: 0.12em;
+      font-weight: 500;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--text-3);
+      font-family: 'JetBrains Mono', monospace;
     }
-
     .screen-title {
-      font-size: 22px;
-      font-weight: 600;
-      line-height: 1.25;
-      letter-spacing: -0.02em;
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.03em;
       color: var(--text);
     }
 
-    /* ── Glass card ─────────────────────────────────────────── */
+    /* ── Cards ──────────────────────────────────────────────── */
     .card {
-      background: var(--surface);
+      background: var(--white);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 20px;
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      transition: border-color 0.25s;
+      transition: border-color 0.2s;
     }
-    .card.lit { border-color: var(--border-hi); background: var(--accent-dim); }
+    .card.active-state {
+      border-color: var(--black);
+      background: var(--white);
+    }
 
     /* ── Mic ─────────────────────────────────────────────────── */
     .mic-stage {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 24px;
-      padding: 28px 0;
-    }
-    .mic-ring-outer {
-      position: relative;
-      width: 116px; height: 116px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .mic-ring-outer::before, .mic-ring-outer::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      border: 1px solid var(--accent);
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    .mic-ring-outer.live::before {
-      opacity: 0.15;
-      animation: ringPulse 2s ease-out infinite;
-    }
-    .mic-ring-outer.live::after {
-      opacity: 0.08;
-      animation: ringPulse 2s ease-out 0.6s infinite;
-    }
-    @keyframes ringPulse {
-      0%   { transform: scale(1);    opacity: 0.2; }
-      100% { transform: scale(1.45); opacity: 0; }
+      gap: 20px;
+      padding: 20px 0 8px;
     }
 
     .mic-btn {
-      width: 96px; height: 96px;
+      width: 88px; height: 88px;
       border-radius: 50%;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--border);
+      background: var(--black);
+      border: none;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 36px;
-      transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+      font-size: 32px;
+      transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
       position: relative;
       user-select: none;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.14);
     }
-    .mic-btn:hover {
-      background: rgba(255,255,255,0.08);
-      border-color: rgba(255,255,255,0.15);
-      transform: scale(1.04);
-    }
-    .mic-btn:active { transform: scale(0.94); }
+    .mic-btn:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(0,0,0,0.22); }
+    .mic-btn:active { transform: scale(0.93); }
     .mic-btn.live {
-      background: var(--accent-dim);
-      border-color: var(--border-hi);
-      box-shadow: 0 0 0 8px rgba(52,232,160,0.06), inset 0 0 0 1px var(--accent);
+      background: var(--red);
+      box-shadow: 0 4px 20px rgba(217,48,37,0.3);
+    }
+
+    /* Ring animation when live */
+    .mic-wrap {
+      position: relative;
+      width: 88px; height: 88px;
+    }
+    .mic-wrap::before, .mic-wrap::after {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(217,48,37,0.35);
+      opacity: 0;
+      pointer-events: none;
+    }
+    .mic-wrap.live::before {
+      opacity: 1;
+      animation: ringOut 1.8s ease-out infinite;
+    }
+    .mic-wrap.live::after {
+      opacity: 1;
+      animation: ringOut 1.8s ease-out 0.55s infinite;
+    }
+    @keyframes ringOut {
+      0%   { transform: scale(1);    opacity: 0.4; }
+      100% { transform: scale(1.5);  opacity: 0; }
     }
 
     /* Waveform */
@@ -273,40 +237,47 @@
       align-items: center;
       gap: 3px;
       height: 28px;
-      min-width: 80px;
     }
     .wb {
-      width: 2.5px;
+      width: 3px;
+      background: var(--text-3);
       border-radius: 2px;
-      background: var(--accent);
-      opacity: 0.22;
-      height: 3px;
-      transition: height 0.07s ease;
+      height: 4px;
+      transition: height 0.07s;
     }
-    .waveform.live .wb { opacity: 0.7; }
+    .waveform.live .wb { background: var(--text-2); }
 
     .mic-caption {
       font-size: 13px;
       color: var(--text-2);
-      font-family: 'JetBrains Mono', monospace;
-      letter-spacing: 0.04em;
+      font-weight: 500;
+      letter-spacing: 0.01em;
       display: flex;
       align-items: center;
       gap: 7px;
     }
-    .rec-dot {
+    .rec-indicator {
       display: none;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: var(--red);
+      font-weight: 600;
+    }
+    .rec-indicator .dot {
       width: 6px; height: 6px;
       border-radius: 50%;
       background: var(--red);
-      animation: blink 1.1s step-end infinite;
+      animation: blink 1s step-end infinite;
     }
-    .recording .rec-dot { display: block; }
-    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+    .recording .rec-indicator { display: flex; }
+    .recording .mic-caption-text { display: none; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
-    /* ── Textarea ─────────────────────────────────────────────── */
+    /* ── Textarea ────────────────────────────────────────────── */
     .field-label {
       font-size: 11px;
+      font-weight: 500;
       font-family: 'JetBrains Mono', monospace;
       letter-spacing: 0.09em;
       text-transform: uppercase;
@@ -315,7 +286,7 @@
     }
     textarea {
       width: 100%;
-      background: rgba(255,255,255,0.03);
+      background: var(--white);
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
       padding: 14px;
@@ -325,12 +296,12 @@
       line-height: 1.65;
       resize: none;
       outline: none;
-      transition: border-color 0.2s, background 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s;
       min-height: 100px;
     }
     textarea:focus {
-      border-color: rgba(255,255,255,0.14);
-      background: rgba(255,255,255,0.05);
+      border-color: var(--black);
+      box-shadow: 0 0 0 2px rgba(0,0,0,0.06);
     }
     textarea::placeholder { color: var(--text-3); }
 
@@ -350,40 +321,70 @@
       justify-content: center;
       gap: 8px;
       width: 100%;
-      padding: 15px 20px;
-      border-radius: var(--radius-sm);
+      padding: 15px 22px;
+      border-radius: var(--radius-pill);
       font-family: 'Inter', sans-serif;
       font-size: 15px;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
       border: none;
       letter-spacing: -0.01em;
-      transition: all 0.18s;
+      transition: all 0.16s;
       user-select: none;
     }
     .btn:active { transform: scale(0.97); }
+
     .btn-primary {
-      background: var(--accent);
-      color: #060A07;
+      background: var(--black);
+      color: #FFFFFF;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
     }
-    .btn-primary:hover { background: #4BEFAA; }
+    .btn-primary:hover {
+      background: #2C2E30;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+    }
     .btn-primary:disabled {
-      opacity: 0.22;
+      background: var(--card-2);
+      color: var(--text-3);
+      box-shadow: none;
       cursor: not-allowed;
       transform: none;
     }
     .btn-secondary {
-      background: var(--surface);
+      background: var(--card);
       color: var(--text-2);
-      border: 1px solid var(--border);
     }
-    .btn-secondary:hover { background: var(--surface2); color: var(--text); border-color: rgba(255,255,255,0.12); }
+    .btn-secondary:hover { background: var(--card-2); color: var(--text); }
 
-    .btn-row {
-      display: flex;
-      gap: 10px;
-    }
+    .btn-row { display: flex; gap: 10px; }
     .btn-row .btn { flex: 1; }
+
+    /* ── Tone pills (like Eloquent's Polish/Formal/Short) ────── */
+    .pill-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 14px;
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: var(--card);
+      color: var(--text-2);
+      transition: all 0.16s;
+      white-space: nowrap;
+    }
+    .pill.selected {
+      background: var(--black);
+      color: #FFF;
+    }
+    .pill:hover:not(.selected) { background: var(--card-2); }
 
     /* ── Processing ─────────────────────────────────────────── */
     .proc-list { display: flex; flex-direction: column; gap: 8px; }
@@ -391,97 +392,145 @@
       display: flex;
       align-items: flex-start;
       gap: 14px;
-      padding: 14px 16px;
+      padding: 16px;
       border-radius: var(--radius-sm);
-      background: rgba(255,255,255,0.025);
-      border: 1px solid transparent;
-      transition: all 0.3s;
+      background: var(--white);
+      border: 1px solid var(--border);
+      transition: all 0.25s;
     }
     .proc-item.active {
-      background: var(--accent-dim);
-      border-color: var(--border-hi);
+      background: var(--white);
+      border-color: var(--black);
     }
-    .proc-item.done { opacity: 0.5; }
-    .proc-icon {
-      font-size: 14px;
+    .proc-item.done { opacity: 0.45; }
+
+    .proc-icon-wrap {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--card);
+      display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
-      margin-top: 2px;
-      width: 18px;
-      text-align: center;
+      font-size: 13px;
+      transition: all 0.25s;
     }
-    .proc-item.active .proc-icon { animation: spin 1.2s linear infinite; display: inline-block; }
+    .proc-item.active .proc-icon-wrap {
+      background: var(--black);
+      color: #FFF;
+      animation: spin 1.3s linear infinite;
+    }
+    .proc-item.done .proc-icon-wrap {
+      background: var(--green-bg);
+      color: var(--green);
+    }
     @keyframes spin { to { transform: rotate(360deg); } }
+
     .proc-name {
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 600;
       color: var(--text);
-      line-height: 1.3;
+      line-height: 1.35;
     }
-    .proc-item.active .proc-name { color: var(--accent); }
     .proc-sub {
       font-size: 12px;
       color: var(--text-2);
-      font-family: 'JetBrains Mono', monospace;
       margin-top: 2px;
+      font-family: 'JetBrains Mono', monospace;
     }
 
-    /* ── Intent / clarify ─────────────────────────────────── */
-    .intent-chip {
+    /* ── Intent card ──────────────────────────────────────────── */
+    .intent-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+    .intent-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 8px;
+    }
+    .intent-body {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.65;
+    }
+    .domain-pill {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      background: rgba(52,232,160,0.08);
-      border: 1px solid rgba(52,232,160,0.18);
-      border-radius: 20px;
-      padding: 4px 12px;
-      font-size: 11px;
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--accent);
-      letter-spacing: 0.07em;
+      gap: 4px;
       margin-top: 10px;
-      align-self: flex-start;
+      padding: 4px 12px;
+      border-radius: var(--radius-pill);
+      background: var(--card);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-2);
+      font-family: 'JetBrains Mono', monospace;
     }
 
-    .question-block {
+    /* ── Questions ────────────────────────────────────────────── */
+    .q-block {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 10px;
     }
     .q-num {
       font-size: 11px;
       font-family: 'JetBrains Mono', monospace;
-      color: var(--accent);
-      letter-spacing: 0.1em;
-      opacity: 0.7;
+      color: var(--text-3);
+      font-weight: 500;
     }
     .q-text {
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 600;
       color: var(--text);
-      line-height: 1.45;
+      line-height: 1.4;
     }
     .q-input {
-      background: rgba(255,255,255,0.03);
+      background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 13px;
+      border-radius: var(--radius-sm);
+      padding: 11px 13px;
       color: var(--text);
       font-family: 'Inter', sans-serif;
-      font-size: 13px;
+      font-size: 14px;
       outline: none;
       transition: border-color 0.2s;
       resize: none;
       min-height: 52px;
       width: 100%;
     }
-    .q-input:focus { border-color: rgba(255,255,255,0.14); }
+    .q-input:focus { border-color: var(--black); }
     .q-input::placeholder { color: var(--text-3); }
 
-    /* ── Output ───────────────────────────────────────────── */
-    .output-box {
-      background: rgba(255,255,255,0.025);
+    /* ── Output ───────────────────────────────────────────────── */
+    .output-card {
+      background: var(--white);
       border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .output-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .output-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .output-body {
       padding: 16px;
       font-family: 'JetBrains Mono', monospace;
       font-size: 12px;
@@ -489,69 +538,65 @@
       color: var(--text);
       white-space: pre-wrap;
       overflow-y: auto;
-      max-height: 360px;
+      max-height: 380px;
       word-break: break-word;
     }
 
     .stats-row {
       display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .stat-chip {
+      display: inline-flex;
       align-items: center;
-      gap: 16px;
-    }
-    .stat {
-      display: flex;
-      align-items: baseline;
       gap: 5px;
-    }
-    .stat-val {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 15px;
+      padding: 5px 12px;
+      border-radius: var(--radius-pill);
+      background: var(--card);
+      font-size: 12px;
       font-weight: 500;
-      color: var(--accent);
-    }
-    .stat-label {
-      font-size: 11px;
-      color: var(--text-3);
+      color: var(--text-2);
       font-family: 'JetBrains Mono', monospace;
     }
+    .stat-chip span { color: var(--text); font-weight: 600; }
 
-    /* ── Error ─────────────────────────────────────────────── */
+    /* ── Error ─────────────────────────────────────────────────── */
     .error-block {
-      background: rgba(255,107,107,0.07);
-      border: 1px solid rgba(255,107,107,0.22);
+      background: var(--red-bg);
+      border: 1px solid rgba(217,48,37,0.2);
       border-radius: var(--radius-sm);
       padding: 14px;
       font-size: 13px;
       font-family: 'JetBrains Mono', monospace;
       color: var(--red);
-      line-height: 1.55;
+      line-height: 1.6;
+      white-space: pre-wrap;
       display: none;
     }
     .error-block.show { display: block; }
 
-    /* ── Settings sheet ─────────────────────────────────────── */
+    /* ── Settings sheet ──────────────────────────────────────── */
     .sheet-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.6);
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.4);
       z-index: 50;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s;
-      backdrop-filter: blur(4px);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.28s;
+      backdrop-filter: blur(2px);
     }
     .sheet-overlay.open { opacity: 1; pointer-events: all; }
 
     .sheet {
       position: fixed;
       bottom: 0; left: 0; right: 0;
-      background: #0D1210;
+      background: var(--white);
       border-top: 1px solid var(--border);
       border-radius: 24px 24px 0 0;
-      padding: 16px 24px 40px;
+      padding: 16px 24px 44px;
       z-index: 51;
       transform: translateY(100%);
-      transition: transform 0.38s cubic-bezier(0.16,1,0.3,1);
+      transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
       max-width: 480px;
       margin: 0 auto;
     }
@@ -559,33 +604,29 @@
 
     .sheet-handle {
       width: 36px; height: 4px;
-      background: rgba(255,255,255,0.1);
+      background: var(--border);
       border-radius: 2px;
-      margin: 0 auto 24px;
+      margin: 0 auto 22px;
     }
     .sheet-title {
-      font-size: 16px;
-      font-weight: 600;
+      font-size: 17px;
+      font-weight: 700;
       letter-spacing: -0.02em;
       margin-bottom: 20px;
       color: var(--text);
     }
 
-    .setting-row {
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-      margin-bottom: 16px;
-    }
+    .setting-row { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; }
     .setting-label {
       font-size: 11px;
+      font-weight: 500;
       font-family: 'JetBrains Mono', monospace;
       letter-spacing: 0.09em;
       text-transform: uppercase;
       color: var(--text-2);
     }
     .setting-input {
-      background: rgba(255,255,255,0.04);
+      background: var(--bg);
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
       padding: 12px 14px;
@@ -596,72 +637,54 @@
       width: 100%;
       transition: border-color 0.2s;
     }
-    .setting-input:focus { border-color: rgba(255,255,255,0.15); }
-    .setting-hint {
-      font-size: 11px;
-      color: var(--text-3);
-      font-family: 'JetBrains Mono', monospace;
-    }
+    .setting-input:focus { border-color: var(--black); }
+    .setting-hint { font-size: 11px; color: var(--text-3); font-family: 'JetBrains Mono', monospace; }
 
-    .connection-test {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 12px;
-    }
+    .connection-test { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
     .test-btn {
       flex-shrink: 0;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 14px;
+      background: var(--card);
+      border: none;
+      border-radius: var(--radius-pill);
+      padding: 8px 16px;
       color: var(--text-2);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: background 0.18s;
     }
-    .test-btn:hover { background: var(--surface2); color: var(--text); }
-    .test-status {
-      font-size: 12px;
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--text-3);
-    }
-    .test-status.ok  { color: var(--accent); }
+    .test-btn:hover { background: var(--card-2); }
+    .test-status { font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--text-3); }
+    .test-status.ok  { color: var(--green); }
     .test-status.err { color: var(--red); }
 
-    /* ── Toast ─────────────────────────────────────────────── */
+    /* ── Toast ────────────────────────────────────────────────── */
     .toast {
       position: fixed;
-      bottom: 28px;
-      left: 50%;
-      transform: translateX(-50%) translateY(70px);
-      background: rgba(52,232,160,0.12);
-      border: 1px solid rgba(52,232,160,0.3);
-      color: var(--accent);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      padding: 10px 20px;
-      border-radius: 20px;
-      backdrop-filter: blur(12px);
-      transition: transform 0.35s cubic-bezier(0.16,1,0.3,1);
+      bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(60px);
+      background: var(--black);
+      color: #FFF;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 11px 20px;
+      border-radius: var(--radius-pill);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      transition: transform 0.32s cubic-bezier(0.16,1,0.3,1);
       white-space: nowrap;
       z-index: 100;
     }
     .toast.show { transform: translateX(-50%) translateY(0); }
 
-    /* ── Footer ─────────────────────────────────────────────── */
+    /* ── Footer ───────────────────────────────────────────────── */
     footer {
       padding: 0 0 24px;
       text-align: center;
       font-size: 11px;
       font-family: 'JetBrains Mono', monospace;
       color: var(--text-3);
-      letter-spacing: 0.06em;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
     }
   </style>
 </head>
@@ -672,51 +695,50 @@
   <!-- Header -->
   <header class="header">
     <div class="wordmark">
-      <div class="wordmark-pulse"></div>
-      <span class="wordmark-text">Skill Crystallizer</span>
+      <div class="wordmark-icon">✦</div>
+      <span class="wordmark-text">Crystallizer</span>
     </div>
-    <div class="header-right">
-      <button class="icon-btn" id="settingsToggle" onclick="openSettings()" title="Settings">⚙</button>
-    </div>
+    <button class="icon-btn" onclick="openSettings()">⚙</button>
   </header>
 
   <!-- Progress -->
   <div class="progress-track" id="progressTrack"></div>
 
-  <!-- Main content -->
+  <!-- Screens -->
   <main>
 
-    <!-- ── Screen 1: Record ─────────────────────────────────── -->
+    <!-- ── S1: Record ──────────────────────────────────────── -->
     <div class="screen active" id="s1">
       <div>
-        <div class="screen-label">Step 1</div>
-        <div class="screen-title">Speak your idea</div>
+        <div class="screen-label">Step 1 of 4</div>
+        <div class="screen-title">Speak your idea.</div>
       </div>
 
       <div class="card" id="micCard">
         <div class="mic-stage">
-          <div class="mic-ring-outer" id="micRing">
+          <div class="mic-wrap" id="micWrap">
             <button class="mic-btn" id="micBtn" onclick="toggleRecording()">🎙</button>
           </div>
           <div class="waveform" id="waveform"></div>
           <div class="mic-caption" id="micCaption">
-            <span class="rec-dot" id="recDot"></span>
-            <span id="micLabel">tap to record</span>
+            <span class="mic-caption-text">Tap to record</span>
+            <div class="rec-indicator">
+              <div class="dot"></div>
+              Recording
+            </div>
           </div>
         </div>
       </div>
 
       <div>
-        <div class="field-label">transcript</div>
+        <div class="field-label">Transcript</div>
         <textarea
           id="transcriptBox"
-          placeholder="Your idea will transcribe here in real time. You can also type or paste directly."
-          rows="5"
+          placeholder="Transcription appears here. You can also type or paste directly."
+          rows="4"
           oninput="onTranscriptInput()"
         ></textarea>
-        <div class="field-meta">
-          <span id="charCount">0 chars</span>
-        </div>
+        <div class="field-meta"><span id="charCount">0 chars</span></div>
       </div>
 
       <div class="error-block" id="err1"></div>
@@ -729,30 +751,30 @@
       </button>
     </div>
 
-    <!-- ── Screen 2: Processing ──────────────────────────────── -->
+    <!-- ── S2: Processing ──────────────────────────────────── -->
     <div class="screen" id="s2">
       <div>
-        <div class="screen-label">Step 2</div>
-        <div class="screen-title">Distilling</div>
+        <div class="screen-label">Step 2 of 4</div>
+        <div class="screen-title">Distilling.</div>
       </div>
 
       <div class="proc-list">
         <div class="proc-item" id="proc-extract">
-          <div class="proc-icon">○</div>
+          <div class="proc-icon-wrap">○</div>
           <div>
             <div class="proc-name">Extracting intent</div>
-            <div class="proc-sub">stripping filler · isolating signal</div>
+            <div class="proc-sub">compress · isolate signal</div>
           </div>
         </div>
         <div class="proc-item" id="proc-gaps">
-          <div class="proc-icon">○</div>
+          <div class="proc-icon-wrap">○</div>
           <div>
             <div class="proc-name">Finding gaps</div>
-            <div class="proc-sub">what's missing · what's unclear</div>
+            <div class="proc-sub">missing context · ambiguities</div>
           </div>
         </div>
         <div class="proc-item" id="proc-questions">
-          <div class="proc-icon">○</div>
+          <div class="proc-icon-wrap">○</div>
           <div>
             <div class="proc-name">Forming questions</div>
             <div class="proc-sub">3–5 precise clarifications</div>
@@ -763,20 +785,20 @@
       <div class="error-block" id="err2"></div>
     </div>
 
-    <!-- ── Screen 3: Clarify ─────────────────────────────────── -->
+    <!-- ── S3: Clarify ──────────────────────────────────────── -->
     <div class="screen" id="s3">
       <div>
-        <div class="screen-label">Step 3</div>
-        <div class="screen-title">Clarify</div>
+        <div class="screen-label">Step 3 of 4</div>
+        <div class="screen-title">Clarify.</div>
       </div>
 
-      <div class="card">
-        <div class="field-label">Extracted intent</div>
-        <div id="intentText" style="font-size:14px;line-height:1.65;color:var(--text)"></div>
+      <div class="intent-card">
+        <div class="intent-label">Extracted intent</div>
+        <div class="intent-body" id="intentText"></div>
         <div id="domainChip"></div>
       </div>
 
-      <div id="questionsList" style="display:flex;flex-direction:column;gap:14px;"></div>
+      <div id="questionsList" style="display:flex;flex-direction:column;gap:10px;"></div>
 
       <button class="btn btn-primary" onclick="generateSkill()">
         Generate Skill File
@@ -787,28 +809,28 @@
       <button class="btn btn-secondary" onclick="goStep(1)">← Re-record</button>
     </div>
 
-    <!-- ── Screen 4: Output ──────────────────────────────────── -->
+    <!-- ── S4: Output ───────────────────────────────────────── -->
     <div class="screen" id="s4">
       <div>
-        <div class="screen-label">Step 4</div>
-        <div class="screen-title">Skill file</div>
+        <div class="screen-label">Step 4 of 4</div>
+        <div class="screen-title">Skill file.</div>
       </div>
 
       <div class="stats-row">
-        <div class="stat">
-          <span class="stat-val" id="tokenCount">—</span>
-          <span class="stat-label">tokens</span>
-        </div>
-        <div class="stat">
-          <span class="stat-val" id="compressionRate">—</span>
-          <span class="stat-label">% compressed</span>
-        </div>
+        <div class="stat-chip"><span id="tokenCount">—</span> tokens</div>
+        <div class="stat-chip"><span id="compressionRate">—</span>% compressed</div>
       </div>
 
-      <div class="output-box" id="skillOutput"></div>
+      <div class="output-card">
+        <div class="output-header">
+          <div class="output-title">SKILL.md</div>
+          <button class="test-btn" onclick="copySkill()">Copy</button>
+        </div>
+        <div class="output-body" id="skillOutput"></div>
+      </div>
 
       <div class="btn-row">
-        <button class="btn btn-primary" onclick="copySkill()">Copy</button>
+        <button class="btn btn-primary" onclick="copySkill()">Copy to clipboard</button>
         <button class="btn btn-secondary" onclick="downloadSkill()">↓ Save</button>
       </div>
       <button class="btn btn-secondary" onclick="reset()">Start over</button>
@@ -819,7 +841,7 @@
   <footer>neon experiments · 2026-05-01</footer>
 </div>
 
-<!-- Settings sheet -->
+<!-- Settings -->
 <div class="sheet-overlay" id="sheetOverlay" onclick="closeSettings()"></div>
 <div class="sheet" id="settingsSheet">
   <div class="sheet-handle"></div>
@@ -828,11 +850,10 @@
   <div class="setting-row">
     <div class="setting-label">Ollama Endpoint</div>
     <input class="setting-input" id="ollamaEndpoint" type="url"
-      placeholder="https://your-tunnel.loca.lt"
-      oninput="saveSettings()">
-    <div class="setting-hint"># localtunnel or localhost:11434</div>
+      placeholder="https://your-tunnel.loca.lt" oninput="saveSettings()">
+    <div class="setting-hint"># localtunnel or http://localhost:11434</div>
     <div class="connection-test">
-      <button class="test-btn" onclick="testConnection()">Test</button>
+      <button class="test-btn" onclick="testConnection()">Test connection</button>
       <span class="test-status" id="testStatus">—</span>
     </div>
   </div>
@@ -840,43 +861,34 @@
   <div class="setting-row">
     <div class="setting-label">Model</div>
     <input class="setting-input" id="modelName" type="text"
-      placeholder="gemma4:e4b"
-      oninput="saveSettings()">
+      placeholder="gemma4:e4b" oninput="saveSettings()">
   </div>
 
-  <button class="btn btn-secondary" style="margin-top:8px" onclick="closeSettings()">Done</button>
+  <button class="btn btn-primary" style="margin-top:8px" onclick="closeSettings()">Done</button>
 </div>
 
 <!-- Toast -->
-<div class="toast" id="toast">Copied ✓</div>
+<div class="toast" id="toast"></div>
 
 <script>
-// ── State ───────────────────────────────────────────────────
+// ── State ──────────────────────────────────────────────────
 const S = {
-  step: 1,
-  transcript: '',
-  intent: '',
-  domain: '',
-  questions: [],
-  skillFile: '',
-  recording: false,
-  recognition: null,
-  waveInterval: null,
+  step:1, transcript:'', intent:'', domain:'',
+  questions:[], skillFile:'', recording:false,
+  recognition:null, waveInterval:null,
 };
 
-// ── Settings ────────────────────────────────────────────────
+// ── Settings ───────────────────────────────────────────────
 const DEFAULT_ENDPOINT = 'https://lucky-worms-ring.loca.lt';
-const DEFAULT_MODEL = 'gemma4:e4b';
+const DEFAULT_MODEL    = 'gemma4:e4b';
 
 function loadSettings() {
-  document.getElementById('ollamaEndpoint').value =
-    localStorage.getItem('ollamaEndpoint') || DEFAULT_ENDPOINT;
-  document.getElementById('modelName').value =
-    localStorage.getItem('modelName') || DEFAULT_MODEL;
+  document.getElementById('ollamaEndpoint').value = localStorage.getItem('ollamaEndpoint') || DEFAULT_ENDPOINT;
+  document.getElementById('modelName').value      = localStorage.getItem('modelName') || DEFAULT_MODEL;
 }
 function saveSettings() {
   localStorage.setItem('ollamaEndpoint', document.getElementById('ollamaEndpoint').value);
-  localStorage.setItem('modelName', document.getElementById('modelName').value);
+  localStorage.setItem('modelName',      document.getElementById('modelName').value);
 }
 function getEndpoint() {
   return (localStorage.getItem('ollamaEndpoint') || DEFAULT_ENDPOINT).replace(/\/$/, '');
@@ -885,56 +897,47 @@ function getModel() {
   return localStorage.getItem('modelName') || DEFAULT_MODEL;
 }
 
-function openSettings() {
-  document.getElementById('sheetOverlay').classList.add('open');
-  document.getElementById('settingsSheet').classList.add('open');
-}
-function closeSettings() {
-  document.getElementById('sheetOverlay').classList.remove('open');
-  document.getElementById('settingsSheet').classList.remove('open');
-}
+function openSettings()  { document.getElementById('sheetOverlay').classList.add('open'); document.getElementById('settingsSheet').classList.add('open'); }
+function closeSettings() { document.getElementById('sheetOverlay').classList.remove('open'); document.getElementById('settingsSheet').classList.remove('open'); }
 
 async function testConnection() {
   const el = document.getElementById('testStatus');
-  el.className = 'test-status';
-  el.textContent = 'testing...';
+  el.className = 'test-status'; el.textContent = 'testing…';
   try {
-    const r = await fetch(`${getEndpoint()}/api/tags`, {
-      signal: AbortSignal.timeout(6000)
-    });
+    const r = await fetch(`${getEndpoint()}/api/tags`, { signal: AbortSignal.timeout(6000) });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const data = await r.json();
-    const names = (data.models || []).map(m => m.name.split(':')[0]).join(', ');
+    const names = (data.models||[]).map(m=>m.name.split(':')[0]).join(', ');
     el.className = 'test-status ok';
     el.textContent = `✓ ${names || 'connected'}`;
-  } catch (e) {
+  } catch(e) {
     el.className = 'test-status err';
-    el.textContent = e.message.includes('timeout') ? '✗ timeout' :
+    el.textContent = e.message.includes('timeout') ? '✗ timed out' :
                      e.message.includes('fetch')   ? '✗ unreachable' : `✗ ${e.message}`;
   }
 }
 
-// ── Progress ────────────────────────────────────────────────
+// ── Progress ───────────────────────────────────────────────
 function renderProgress(current) {
-  const track = document.getElementById('progressTrack');
-  track.innerHTML = '';
+  const t = document.getElementById('progressTrack');
+  t.innerHTML = '';
   for (let i = 1; i <= 4; i++) {
     const seg = document.createElement('div');
     seg.className = 'progress-seg' + (i < current ? ' done' : i === current ? ' active' : '');
-    track.appendChild(seg);
+    t.appendChild(seg);
     if (i < 4) {
       const dot = document.createElement('div');
       dot.className = 'progress-dot' + (i < current ? ' done' : i === current ? ' active' : '');
-      track.appendChild(dot);
+      t.appendChild(dot);
     }
   }
 }
 
-// ── Waveform ────────────────────────────────────────────────
+// ── Waveform ───────────────────────────────────────────────
 function initWaveform() {
   const wf = document.getElementById('waveform');
   wf.innerHTML = '';
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 18; i++) {
     const b = document.createElement('div');
     b.className = 'wb';
     wf.appendChild(b);
@@ -945,72 +948,55 @@ function animateWaveform(on) {
   const wf = document.getElementById('waveform');
   const bars = wf.querySelectorAll('.wb');
   wf.className = 'waveform' + (on ? ' live' : '');
-  if (!on) { bars.forEach(b => b.style.height = '3px'); return; }
+  if (!on) { bars.forEach(b => b.style.height = '4px'); return; }
   S.waveInterval = setInterval(() => {
-    bars.forEach(b => {
-      b.style.height = (Math.random() * 22 + 3) + 'px';
-    });
-  }, 75);
+    bars.forEach(b => { b.style.height = (Math.random() * 20 + 3) + 'px'; });
+  }, 80);
 }
 
-// ── Recording ───────────────────────────────────────────────
-function toggleRecording() {
-  S.recording ? stopRecording() : startRecording();
-}
+// ── Recording ──────────────────────────────────────────────
+function toggleRecording() { S.recording ? stopRecording() : startRecording(); }
 
 function startRecording() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) {
-    showError('err1', 'Speech recognition not supported. Use Chrome on Android or try pasting text.');
-    return;
-  }
+  if (!SR) { showError('err1','Speech recognition not supported. Use Chrome on Android or paste text.'); return; }
   S.recognition = new SR();
   S.recognition.continuous = true;
   S.recognition.interimResults = true;
   S.recognition.lang = 'en-US';
 
-  let final = document.getElementById('transcriptBox').value;
+  let finalText = document.getElementById('transcriptBox').value;
 
   S.recognition.onresult = (e) => {
     let interim = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
-      if (e.results[i].isFinal) final += e.results[i][0].transcript + ' ';
+      if (e.results[i].isFinal) finalText += e.results[i][0].transcript + ' ';
       else interim += e.results[i][0].transcript;
     }
-    document.getElementById('transcriptBox').value = final + interim;
+    document.getElementById('transcriptBox').value = finalText + interim;
     onTranscriptInput();
   };
-
   S.recognition.onerror = (e) => {
-    if (e.error !== 'no-speech') {
-      showError('err1', 'Microphone error: ' + e.error);
-      stopRecording();
-    }
+    if (e.error !== 'no-speech') { showError('err1', 'Mic error: ' + e.error); stopRecording(); }
   };
-
   S.recognition.start();
   S.recording = true;
 
   document.getElementById('micBtn').classList.add('live');
   document.getElementById('micBtn').textContent = '⏹';
-  document.getElementById('micRing').classList.add('live');
-  document.getElementById('micLabel').textContent = 'recording';
+  document.getElementById('micWrap').classList.add('live');
   document.getElementById('micCaption').classList.add('recording');
-  document.getElementById('micCard').classList.add('lit');
+  document.getElementById('micCard').classList.add('active-state');
   animateWaveform(true);
 }
 
 function stopRecording() {
-  S.recognition?.stop();
-  S.recognition = null;
-  S.recording = false;
-
+  S.recognition?.stop(); S.recognition = null; S.recording = false;
   document.getElementById('micBtn').classList.remove('live');
   document.getElementById('micBtn').textContent = '🎙';
-  document.getElementById('micRing').classList.remove('live');
-  document.getElementById('micLabel').textContent = 'tap to record';
+  document.getElementById('micWrap').classList.remove('live');
   document.getElementById('micCaption').classList.remove('recording');
-  document.getElementById('micCard').classList.remove('lit');
+  document.getElementById('micCard').classList.remove('active-state');
   animateWaveform(false);
 }
 
@@ -1020,7 +1006,7 @@ function onTranscriptInput() {
   document.getElementById('distillBtn').disabled = len < 10;
 }
 
-// ── Ollama ──────────────────────────────────────────────────
+// ── Ollama ─────────────────────────────────────────────────
 async function ollamaGenerate(prompt) {
   const r = await fetch(`${getEndpoint()}/api/generate`, {
     method: 'POST',
@@ -1029,18 +1015,16 @@ async function ollamaGenerate(prompt) {
     signal: AbortSignal.timeout(90000),
   });
   if (!r.ok) {
-    const text = await r.text().catch(() => '');
-    throw new Error(`Ollama responded ${r.status}${text ? ': ' + text.slice(0,120) : ''}`);
+    const t = await r.text().catch(() => '');
+    throw new Error(`Ollama ${r.status}${t ? ': ' + t.slice(0,100) : ''}`);
   }
-  const data = await r.json();
-  return data.response || '';
+  return (await r.json()).response || '';
 }
-
 function cleanJSON(raw) {
   return raw.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
 }
 
-// ── Step 2 ──────────────────────────────────────────────────
+// ── Distill ────────────────────────────────────────────────
 async function startDistill() {
   if (S.recording) stopRecording();
   S.transcript = document.getElementById('transcriptBox').value.trim();
@@ -1048,101 +1032,77 @@ async function startDistill() {
 
   goStep(2);
   clearError('err2');
-
-  // --- Proc: extract
   setProc('extract','active');
 
-  const prompt1 = `You are a Skill Crystallizer. Extract the core intent from this voice dictation and identify information gaps.
+  const p1 = `Extract the core intent from this voice dictation. Identify information gaps.
 
-VOICE DICTATION:
-"""
-${S.transcript}
-"""
+DICTATION:
+"""${S.transcript}"""
 
-Rules:
-- Strip ALL filler words, repetition, and tangents
-- Compress to 2-4 sentences maximum  
-- Identify 3-5 specific information gaps
-
-Return ONLY valid JSON (no markdown fencing):
-{"intent":"compressed intent here","domain":"one-word category (e.g. android-app, workflow, skill-file, content, tool)","missing":["gap 1","gap 2","gap 3"]}`;
+Rules: strip filler, compress to 2-4 sentences, find 3-5 gaps.
+Return ONLY valid JSON: {"intent":"...","domain":"one-word (e.g. skill-file, workflow, android-app)","missing":["gap1","gap2","gap3"]}`;
 
   let distilled;
   try {
-    const raw = await ollamaGenerate(prompt1);
-    distilled = JSON.parse(cleanJSON(raw));
-  } catch (e) {
-    const msg = e.message.includes('fetch') || e.message.includes('network') || e.message.includes('timeout')
-      ? `Cannot reach Ollama.\n\nCheck endpoint in ⚙ settings.\nCurrent: ${getEndpoint()}\n\nError: ${e.message}`
-      : `Distillation failed: ${e.message}`;
-    showError('err2', msg);
-    setProc('extract','');
-    return;
+    distilled = JSON.parse(cleanJSON(await ollamaGenerate(p1)));
+  } catch(e) {
+    const isNetwork = e.message.includes('fetch') || e.message.includes('network') || e.message.includes('timeout') || e.message.includes('unreachable');
+    showError('err2', isNetwork
+      ? `Cannot reach Ollama.\nEndpoint: ${getEndpoint()}\nTap ⚙ → Test connection to diagnose.\n\n${e.message}`
+      : `Distillation failed: ${e.message}`);
+    setProc('extract',''); return;
   }
 
-  S.intent = distilled.intent || '';
-  S.domain = distilled.domain || '';
-  const missing = distilled.missing || [];
+  S.intent  = distilled.intent  || '';
+  S.domain  = distilled.domain  || '';
+  const gaps = distilled.missing || [];
 
   setProc('extract','done');
   setProc('gaps','active');
-  await sleep(250);
+  await sleep(200);
   setProc('gaps','done');
-
-  // --- Proc: questions
   setProc('questions','active');
 
-  const prompt2 = `Generate 3-5 clarifying questions for this task.
-
+  const p2 = `Generate 3–5 clarifying questions for this task.
 INTENT: ${S.intent}
-GAPS: ${missing.join(' | ')}
-
-Rules:
-- Each question targets ONE specific gap
-- Specific, not open-ended
-- Order by importance
-
-Return ONLY valid JSON (no markdown fencing):
-{"questions":["question 1","question 2","question 3"]}`;
+GAPS: ${gaps.join(' | ')}
+Rules: each question targets ONE gap, specific not open-ended, ordered by importance.
+Return ONLY valid JSON: {"questions":["q1","q2","q3"]}`;
 
   let qData;
   try {
-    const raw = await ollamaGenerate(prompt2);
-    qData = JSON.parse(cleanJSON(raw));
+    qData = JSON.parse(cleanJSON(await ollamaGenerate(p2)));
   } catch {
-    qData = { questions: missing.slice(0,5) };
+    qData = { questions: gaps.slice(0,5) };
   }
 
   S.questions = qData.questions || [];
   setProc('questions','done');
-
-  await sleep(350);
-  buildClarifyScreen();
+  await sleep(300);
+  buildClarify();
   goStep(3);
 }
 
-function buildClarifyScreen() {
+function buildClarify() {
   document.getElementById('intentText').textContent = S.intent;
   document.getElementById('domainChip').innerHTML = S.domain
-    ? `<div class="intent-chip">◆ ${S.domain}</div>` : '';
-
+    ? `<div class="domain-pill">◆ ${S.domain}</div>` : '';
   const list = document.getElementById('questionsList');
   list.innerHTML = '';
   S.questions.forEach((q, i) => {
     const el = document.createElement('div');
-    el.className = 'question-block';
-    el.innerHTML = `
-      <div class="q-num">Q${i+1} of ${S.questions.length}</div>
+    el.className = 'q-block';
+    el.innerHTML = `<div class="q-num">Q${i+1} of ${S.questions.length}</div>
       <div class="q-text">${q}</div>
       <textarea class="q-input" id="ans-${i}" placeholder="your answer…" rows="2"></textarea>`;
     list.appendChild(el);
   });
 }
 
-// ── Step 4 ──────────────────────────────────────────────────
+// ── Generate ───────────────────────────────────────────────
 async function generateSkill() {
-  const answers = S.questions.map((q, i) => {
-    const a = document.getElementById(`ans-${i}`)?.value.trim() || '(not answered)';
+  const answers = S.questions.map((q,i) => {
+    const a = document.getElementById(`ans-${i}`)?.value.trim() || '(skipped)';
     return `Q: ${q}\nA: ${a}`;
   }).join('\n\n');
 
@@ -1151,133 +1111,104 @@ async function generateSkill() {
   document.getElementById('tokenCount').textContent = '—';
   document.getElementById('compressionRate').textContent = '—';
 
-  const skillPrompt = `Generate a complete SKILL.md file for an AI agent.
-
+  try {
+    const raw = await ollamaGenerate(`Generate a complete SKILL.md for an AI agent.
 INTENT: ${S.intent}
 DOMAIN: ${S.domain}
-
 CLARIFICATIONS:
 ${answers}
 
-Generate a SKILL.md following this exact format:
+Format:
 ---
-name: [kebab-case-name]
-description: "[one-sentence description of when this skill activates]"
+name: [kebab-case]
+description: "[one sentence: when this skill activates]"
 ---
-
 # [Skill Name]
-
 ## When to Activate
-[1-3 bullet points with specific triggers]
-
+[1-3 specific triggers]
 ## Context
-[2-4 sentences: what the skill does, what domain it operates in]
-
+[2-4 sentences]
 ## Process
-[Numbered steps, specific and actionable]
-
+[Numbered steps]
 ## Output Standards
-[What good output looks like — format, length, quality bar]
-
+[Format, length, quality bar]
 ## Hard Rules
-[3-5 non-negotiable constraints as bullet points]
-
-Output ONLY the markdown. No preamble. Start with ---.`;
-
-  try {
-    const raw = await ollamaGenerate(skillPrompt);
+[3-5 bullet constraints]
+Output ONLY markdown. Start with ---.`);
     S.skillFile = raw.trim();
     document.getElementById('skillOutput').textContent = S.skillFile;
-
     const origT = Math.round(S.transcript.split(/\s+/).length * 1.3);
     const skillT = Math.round(S.skillFile.split(/\s+/).length * 1.3);
-    const comp = Math.max(0, Math.round((1 - skillT / origT) * 100));
     document.getElementById('tokenCount').textContent = skillT;
-    document.getElementById('compressionRate').textContent = comp;
-  } catch (e) {
+    document.getElementById('compressionRate').textContent = Math.max(0, Math.round((1-skillT/origT)*100));
+  } catch(e) {
     document.getElementById('skillOutput').textContent = '✗ ' + e.message;
   }
 }
 
-// ── Nav ─────────────────────────────────────────────────────
+// ── Nav ────────────────────────────────────────────────────
 function goStep(n) {
   S.step = n;
   for (let i = 1; i <= 4; i++) {
-    const s = document.getElementById(`s${i}`);
-    s.className = 'screen' + (i === n ? ' active' : '');
+    document.getElementById(`s${i}`).className = 'screen' + (i===n?' active':'');
   }
   renderProgress(n);
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top:0, behavior:'smooth' });
 }
 
-// ── Proc helpers ────────────────────────────────────────────
+// ── Proc ───────────────────────────────────────────────────
 function setProc(id, state) {
   const el = document.getElementById(`proc-${id}`);
   if (!el) return;
   el.className = 'proc-item' + (state ? ` ${state}` : '');
-  const icon = el.querySelector('.proc-icon');
-  if (state === 'active') icon.textContent = '◌';
-  else if (state === 'done') icon.textContent = '✓';
-  else icon.textContent = '○';
+  const icon = el.querySelector('.proc-icon-wrap');
+  icon.textContent = state==='done' ? '✓' : state==='active' ? '◌' : '○';
 }
 
-// ── Error helpers ────────────────────────────────────────────
+// ── Errors ─────────────────────────────────────────────────
 function showError(id, msg) {
   const el = document.getElementById(id);
-  if (!el) return;
-  el.textContent = msg;
-  el.classList.add('show');
+  if (el) { el.textContent = msg; el.classList.add('show'); }
 }
 function clearError(id) {
   const el = document.getElementById(id);
   if (el) { el.textContent = ''; el.classList.remove('show'); }
 }
 
-// ── Clipboard ────────────────────────────────────────────────
+// ── Copy / Download ─────────────────────────────────────────
 async function copySkill() {
   try {
     await navigator.clipboard.writeText(S.skillFile);
     showToast('Copied to clipboard ✓');
-  } catch {
-    showToast('Select and copy manually');
-  }
+  } catch { showToast('Select text and copy manually'); }
 }
-
 function downloadSkill() {
-  const blob = new Blob([S.skillFile], { type: 'text/markdown' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `skill-${S.domain || 'output'}.md`;
-  a.click();
+  const blob = new Blob([S.skillFile], { type:'text/markdown' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = `skill-${S.domain||'output'}.md`; a.click();
   URL.revokeObjectURL(url);
 }
-
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
+  t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2200);
 }
 
-// ── Reset ────────────────────────────────────────────────────
+// ── Reset ──────────────────────────────────────────────────
 function reset() {
-  Object.assign(S, { step:1, transcript:'', intent:'', domain:'', questions:[], skillFile:'', recording:false, recognition:null, waveInterval:null });
+  Object.assign(S,{step:1,transcript:'',intent:'',domain:'',questions:[],skillFile:'',recording:false,recognition:null,waveInterval:null});
   document.getElementById('transcriptBox').value = '';
   document.getElementById('charCount').textContent = '0 chars';
   document.getElementById('distillBtn').disabled = true;
   clearError('err1'); clearError('err2');
   ['extract','gaps','questions'].forEach(id => setProc(id,''));
-  initWaveform();
-  goStep(1);
+  initWaveform(); goStep(1);
 }
+function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
 
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-// ── Init ─────────────────────────────────────────────────────
-loadSettings();
-initWaveform();
-renderProgress(1);
+// ── Init ───────────────────────────────────────────────────
+loadSettings(); initWaveform(); renderProgress(1);
 </script>
 </body>
 </html>
