@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Skill Crystallizer — Neon</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0D0F0E;
+      --surface: #141916;
+      --surface-2: #1C201E;
+      --surface-3: #242824;
+      --mint: #4DFFA0;
+      --mint-dim: rgba(77, 255, 160, 0.12);
+      --mint-glow: rgba(77, 255, 160, 0.25);
+      --text: #E8EDE9;
+      --text-2: #8A9E8D;
+      --text-3: #4A5E4D;
+      --border: rgba(77, 255, 160, 0.08);
+      --border-active: rgba(77, 255, 160, 0.3);
+      --red: #FF6B6B;
+      --amber: #FFB347;
+      --radius: 12px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+      padding: 20px 20px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo-dot {
+      width: 8px; height: 8px;
+      background: var(--mint);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--mint-glow);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 10px var(--mint-glow); }
+      50% { opacity: 0.6; box-shadow: 0 0 4px var(--mint-glow); }
+    }
+    .logo-text {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      color: var(--mint);
+      letter-spacing: 0.08em;
+    }
+    .settings-btn {
+      background: none; border: none; cursor: pointer;
+      color: var(--text-3); font-size: 18px; padding: 4px;
+      transition: color 0.2s;
+    }
+    .settings-btn:hover { color: var(--text-2); }
+
+    /* Settings panel */
+    .settings-panel {
+      display: none;
+      margin: 16px 20px 0;
+      background: var(--surface);
+      border: 1px solid var(--border-active);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+    .settings-panel.open { display: block; }
+    .settings-label {
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      color: var(--mint);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .settings-input {
+      width: 100%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .settings-input:focus { border-color: var(--border-active); }
+    .settings-hint {
+      font-size: 12px;
+      color: var(--text-3);
+      margin-top: 6px;
+      font-family: 'DM Mono', monospace;
+    }
+    .settings-row { margin-top: 12px; }
+
+    /* Progress steps */
+    .steps {
+      display: flex;
+      gap: 0;
+      padding: 20px 20px 0;
+      overflow: hidden;
+    }
+    .step {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-3);
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.05em;
+      position: relative;
+      padding-bottom: 12px;
+    }
+    .step::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 1px;
+      background: var(--surface-3);
+      transition: background 0.4s;
+    }
+    .step.active { color: var(--mint); }
+    .step.active::after { background: var(--mint); }
+    .step.done { color: var(--text-2); }
+    .step.done::after { background: var(--text-3); }
+    .step-num {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--surface-2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px;
+      flex-shrink: 0;
+      transition: all 0.3s;
+    }
+    .step.active .step-num {
+      background: var(--mint);
+      color: var(--bg);
+      box-shadow: 0 0 8px var(--mint-glow);
+    }
+    .step.done .step-num { background: var(--surface-3); }
+    .step-label { display: none; }
+    @media (min-width: 400px) { .step-label { display: inline; } }
+
+    /* Main */
+    main {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-width: 640px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Panels */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    .panel.active { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .panel-label {
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      color: var(--mint);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    /* Record panel */
+    .record-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .mic-btn {
+      width: 88px; height: 88px;
+      border-radius: 50%;
+      background: var(--surface-2);
+      border: 2px solid var(--border);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      transition: all 0.2s;
+      position: relative;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .mic-btn:active { transform: scale(0.95); }
+    .mic-btn.recording {
+      border-color: var(--mint);
+      box-shadow: 0 0 0 8px var(--mint-dim), 0 0 20px var(--mint-glow);
+      animation: recordPulse 1.5s ease-in-out infinite;
+    }
+    .mic-btn.recording::before {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      border: 1px solid var(--mint);
+      opacity: 0.3;
+      animation: ripple 1.5s ease-out infinite;
+    }
+    @keyframes recordPulse {
+      0%, 100% { box-shadow: 0 0 0 8px var(--mint-dim), 0 0 20px var(--mint-glow); }
+      50% { box-shadow: 0 0 0 16px rgba(77,255,160,0.05), 0 0 30px var(--mint-glow); }
+    }
+    @keyframes ripple {
+      from { transform: scale(1); opacity: 0.3; }
+      to { transform: scale(1.4); opacity: 0; }
+    }
+
+    .waveform {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      height: 32px;
+      min-width: 120px;
+      justify-content: center;
+    }
+    .wave-bar {
+      width: 3px;
+      background: var(--mint);
+      border-radius: 2px;
+      opacity: 0.3;
+      transition: height 0.1s ease;
+      height: 4px;
+    }
+    .recording .wave-bar { opacity: 1; }
+
+    .mic-status {
+      font-size: 13px;
+      color: var(--text-2);
+      text-align: center;
+      font-family: 'DM Mono', monospace;
+    }
+    .mic-status .status-dot {
+      display: inline-block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--red);
+      margin-right: 6px;
+      animation: statusBlink 1s step-end infinite;
+    }
+    @keyframes statusBlink {
+      0%, 100% { opacity: 1; } 50% { opacity: 0; }
+    }
+
+    .transcript-box {
+      width: 100%;
+      min-height: 100px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .transcript-box:focus { border-color: var(--border-active); }
+    .transcript-box::placeholder { color: var(--text-3); }
+
+    .char-count {
+      font-size: 11px;
+      color: var(--text-3);
+      font-family: 'DM Mono', monospace;
+      text-align: right;
+    }
+
+    /* Buttons */
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary {
+      background: var(--mint);
+      color: var(--bg);
+    }
+    .btn-primary:hover { background: #6EFFB3; }
+    .btn-primary:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-ghost {
+      background: var(--surface-2);
+      color: var(--text-2);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { border-color: var(--border-active); color: var(--text); }
+
+    /* Processing */
+    .processing-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .proc-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      background: var(--surface-2);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      transition: all 0.3s;
+    }
+    .proc-step.active {
+      border-color: var(--border-active);
+      background: var(--mint-dim);
+    }
+    .proc-step.done { opacity: 0.7; }
+    .proc-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .proc-step.active .proc-icon { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .proc-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .proc-detail {
+      font-size: 12px;
+      color: var(--text-2);
+      font-family: 'DM Mono', monospace;
+      margin-top: 4px;
+    }
+    .proc-step.active .proc-title { color: var(--mint); }
+
+    /* Intent display */
+    .intent-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border-active);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    .intent-label {
+      font-size: 10px;
+      font-family: 'DM Mono', monospace;
+      color: var(--mint);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 6px;
+    }
+    .intent-text {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .domain-tag {
+      display: inline-block;
+      background: var(--mint-dim);
+      color: var(--mint);
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      padding: 2px 8px;
+      border-radius: 20px;
+      margin-top: 8px;
+    }
+
+    /* Questions */
+    .questions-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .question-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .question-text {
+      font-size: 14px;
+      color: var(--text);
+      font-weight: 500;
+    }
+    .question-num {
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      color: var(--mint);
+      margin-bottom: 2px;
+    }
+    .answer-input {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+      resize: none;
+      min-height: 60px;
+    }
+    .answer-input:focus { border-color: var(--border-active); }
+    .answer-input::placeholder { color: var(--text-3); }
+
+    /* Output */
+    .skill-output {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      line-height: 1.7;
+      color: var(--text);
+      white-space: pre-wrap;
+      max-height: 400px;
+      overflow-y: auto;
+      margin-bottom: 14px;
+    }
+
+    .output-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .output-actions .btn {
+      flex: 1;
+      padding: 12px;
+      font-size: 14px;
+    }
+
+    .copy-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(60px);
+      background: var(--mint);
+      color: var(--bg);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      padding: 10px 20px;
+      border-radius: 20px;
+      transition: transform 0.3s ease;
+      z-index: 100;
+    }
+    .copy-toast.show { transform: translateX(-50%) translateY(0); }
+
+    .token-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      color: var(--text-3);
+      margin-bottom: 14px;
+    }
+    .token-badge span { color: var(--mint); }
+
+    /* Error */
+    .error-msg {
+      background: rgba(255, 107, 107, 0.08);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 13px;
+      color: var(--red);
+      font-family: 'DM Mono', monospace;
+      margin-top: 12px;
+    }
+
+    /* Footer */
+    footer {
+      padding: 16px 20px;
+      text-align: center;
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      color: var(--text-3);
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">
+    <div class="logo-dot"></div>
+    <span class="logo-text">SKILL CRYSTALLIZER</span>
+  </div>
+  <button class="settings-btn" onclick="toggleSettings()" title="Settings">⚙</button>
+</header>
+
+<div class="settings-panel" id="settingsPanel">
+  <div class="settings-label">Ollama Endpoint</div>
+  <input class="settings-input" id="ollamaEndpoint" type="url"
+    placeholder="http://localhost:11434"
+    value="http://localhost:11434"
+    oninput="saveSettings()">
+  <div class="settings-hint"># tunnel URL or localhost:11434</div>
+  <div class="settings-row">
+    <div class="settings-label">Model</div>
+    <input class="settings-input" id="modelName" type="text"
+      placeholder="gemma4:e4b"
+      value="gemma4:e4b"
+      oninput="saveSettings()">
+  </div>
+</div>
+
+<nav class="steps">
+  <div class="step active" id="step-1">
+    <div class="step-num">1</div>
+    <span class="step-label">Record</span>
+  </div>
+  <div class="step" id="step-2">
+    <div class="step-num">2</div>
+    <span class="step-label">Distill</span>
+  </div>
+  <div class="step" id="step-3">
+    <div class="step-num">3</div>
+    <span class="step-label">Clarify</span>
+  </div>
+  <div class="step" id="step-4">
+    <div class="step-num">4</div>
+    <span class="step-label">Skill</span>
+  </div>
+</nav>
+
+<main>
+
+  <!-- STEP 1: Record -->
+  <div class="panel active" id="panel-1">
+    <div class="panel-label">// voice input</div>
+    <div class="record-area">
+      <button class="mic-btn" id="micBtn" onclick="toggleRecording()">🎙</button>
+      <div class="waveform" id="waveform">
+        <!-- bars injected by JS -->
+      </div>
+      <div class="mic-status" id="micStatus">tap to record</div>
+    </div>
+
+    <textarea
+      class="transcript-box"
+      id="transcriptBox"
+      placeholder="Transcription appears here as you speak. You can also type or paste directly."
+      rows="5"
+      oninput="updateCharCount()"
+    ></textarea>
+    <div class="char-count" id="charCount">0 chars</div>
+
+    <div id="step1Error"></div>
+
+    <button class="btn btn-primary" id="distillBtn"
+      style="margin-top:16px"
+      onclick="startDistill()"
+      disabled>
+      Distill →
+    </button>
+  </div>
+
+  <!-- STEP 2: Processing -->
+  <div class="panel" id="panel-2">
+    <div class="panel-label">// distilling</div>
+    <div class="processing-steps">
+      <div class="proc-step" id="proc-compress">
+        <div class="proc-icon">⟳</div>
+        <div>
+          <div class="proc-title">Extracting intent</div>
+          <div class="proc-detail">stripping filler · finding signal</div>
+        </div>
+      </div>
+      <div class="proc-step" id="proc-gaps">
+        <div class="proc-icon">○</div>
+        <div>
+          <div class="proc-title">Identifying gaps</div>
+          <div class="proc-detail">what's missing · what's unclear</div>
+        </div>
+      </div>
+      <div class="proc-step" id="proc-questions">
+        <div class="proc-icon">○</div>
+        <div>
+          <div class="proc-title">Forming clarifying questions</div>
+          <div class="proc-detail">3–5 specific questions</div>
+        </div>
+      </div>
+    </div>
+    <div id="step2Error"></div>
+  </div>
+
+  <!-- STEP 3: Clarify -->
+  <div class="panel" id="panel-3">
+    <div class="panel-label">// clarify</div>
+
+    <div class="intent-card" id="intentCard">
+      <div class="intent-label">Extracted Intent</div>
+      <div class="intent-text" id="intentText"></div>
+      <div id="domainTag"></div>
+    </div>
+
+    <div class="questions-list" id="questionsList"></div>
+
+    <button class="btn btn-primary" onclick="generateSkill()">
+      Generate Skill File →
+    </button>
+    <button class="btn btn-ghost" style="margin-top:8px" onclick="goStep(1)">
+      ← Re-record
+    </button>
+  </div>
+
+  <!-- STEP 4: Output -->
+  <div class="panel" id="panel-4">
+    <div class="panel-label">// skill file</div>
+    <div class="token-badge">
+      ⬡ <span id="tokenCount">—</span> tokens · <span id="compressionRate">—</span>% compression
+    </div>
+    <div class="skill-output" id="skillOutput"></div>
+    <div class="output-actions">
+      <button class="btn btn-primary" onclick="copySkill()">Copy</button>
+      <button class="btn btn-ghost" onclick="downloadSkill()">↓ Download</button>
+    </div>
+    <button class="btn btn-ghost" style="margin-top:10px" onclick="reset()">Start Over</button>
+  </div>
+
+</main>
+
+<div class="copy-toast" id="copyToast">Copied to clipboard ✓</div>
+
+<footer>neon experiments · 2026-05-01</footer>
+
+<script>
+  // ── State ──────────────────────────────────────────────────────
+  let state = {
+    step: 1,
+    transcript: '',
+    intent: '',
+    domain: '',
+    questions: [],
+    skillFile: '',
+    recording: false,
+    recognition: null,
+    waveInterval: null
+  };
+
+  // ── Settings ───────────────────────────────────────────────────
+  function loadSettings() {
+    const ep = localStorage.getItem('ollamaEndpoint') || 'http://localhost:11434';
+    const m = localStorage.getItem('modelName') || 'gemma4:e4b';
+    document.getElementById('ollamaEndpoint').value = ep;
+    document.getElementById('modelName').value = m;
+  }
+  function saveSettings() {
+    localStorage.setItem('ollamaEndpoint', document.getElementById('ollamaEndpoint').value);
+    localStorage.setItem('modelName', document.getElementById('modelName').value);
+  }
+  function getEndpoint() {
+    return (localStorage.getItem('ollamaEndpoint') || 'http://localhost:11434').replace(/\/$/, '');
+  }
+  function getModel() {
+    return localStorage.getItem('modelName') || 'gemma4:e4b';
+  }
+  function toggleSettings() {
+    document.getElementById('settingsPanel').classList.toggle('open');
+  }
+
+  // ── Waveform ───────────────────────────────────────────────────
+  function initWaveform() {
+    const wf = document.getElementById('waveform');
+    wf.innerHTML = '';
+    for (let i = 0; i < 18; i++) {
+      const bar = document.createElement('div');
+      bar.className = 'wave-bar';
+      bar.style.height = '4px';
+      wf.appendChild(bar);
+    }
+  }
+  function animateWaveform(active) {
+    clearInterval(state.waveInterval);
+    const bars = document.querySelectorAll('.wave-bar');
+    if (!active) {
+      bars.forEach(b => b.style.height = '4px');
+      return;
+    }
+    state.waveInterval = setInterval(() => {
+      bars.forEach(b => {
+        const h = Math.random() * 24 + 4;
+        b.style.height = h + 'px';
+      });
+    }, 80);
+  }
+
+  // ── Recording ──────────────────────────────────────────────────
+  function toggleRecording() {
+    if (state.recording) stopRecording();
+    else startRecording();
+  }
+
+  function startRecording() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
+      setError('step1Error', 'Speech recognition not supported in this browser. Use Chrome on Android.');
+      return;
+    }
+    state.recognition = new SR();
+    state.recognition.continuous = true;
+    state.recognition.interimResults = true;
+    state.recognition.lang = 'en-US';
+
+    let finalText = document.getElementById('transcriptBox').value;
+
+    state.recognition.onresult = (e) => {
+      let interim = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        if (e.results[i].isFinal) finalText += e.results[i][0].transcript + ' ';
+        else interim += e.results[i][0].transcript;
+      }
+      document.getElementById('transcriptBox').value = finalText + interim;
+      updateCharCount();
+    };
+
+    state.recognition.onerror = (e) => {
+      if (e.error !== 'no-speech') {
+        setError('step1Error', 'Mic error: ' + e.error);
+        stopRecording();
+      }
+    };
+
+    state.recognition.start();
+    state.recording = true;
+
+    const btn = document.getElementById('micBtn');
+    btn.classList.add('recording');
+    btn.textContent = '⏹';
+    document.getElementById('micStatus').innerHTML = '<span class="status-dot"></span>recording';
+    animateWaveform(true);
+  }
+
+  function stopRecording() {
+    if (state.recognition) {
+      state.recognition.stop();
+      state.recognition = null;
+    }
+    state.recording = false;
+    const btn = document.getElementById('micBtn');
+    btn.classList.remove('recording');
+    btn.textContent = '🎙';
+    document.getElementById('micStatus').textContent = 'tap to record';
+    animateWaveform(false);
+  }
+
+  function updateCharCount() {
+    const t = document.getElementById('transcriptBox').value;
+    document.getElementById('charCount').textContent = t.length + ' chars';
+    document.getElementById('distillBtn').disabled = t.trim().length < 10;
+  }
+
+  // ── Ollama API ─────────────────────────────────────────────────
+  async function ollamaGenerate(prompt, onToken) {
+    const endpoint = getEndpoint();
+    const model = getModel();
+
+    const res = await fetch(`${endpoint}/api/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model, prompt, stream: false })
+    });
+
+    if (!res.ok) throw new Error(`Ollama ${res.status}: ${await res.text()}`);
+    const data = await res.json();
+    return data.response || '';
+  }
+
+  // ── Step 2: Distill ────────────────────────────────────────────
+  async function startDistill() {
+    if (state.recording) stopRecording();
+    state.transcript = document.getElementById('transcriptBox').value.trim();
+    if (!state.transcript) return;
+
+    goStep(2);
+
+    // Step A: Compress + identify gaps
+    setProc('compress', 'active');
+    const distillPrompt = `You are a Skill Crystallizer. A user spoke this voice dictation. Your job is to extract core intent and identify gaps.
+
+RAW DICTATION:
+"""
+${state.transcript}
+"""
+
+Rules:
+- Strip ALL filler words, repetition, tangents
+- Keep only the signal: what does the user actually want to build or accomplish?
+- Compress to 100-200 words maximum
+- Identify what information is missing or unclear
+
+Return ONLY valid JSON with no markdown fencing:
+{"intent":"compressed intent in 2-4 sentences","domain":"one-word category (e.g. android-app, skill-file, workflow, content)","missing":["specific gap 1","specific gap 2","specific gap 3"]}`;
+
+    let distillResult;
+    try {
+      const raw = await ollamaGenerate(distillPrompt);
+      distillResult = JSON.parse(raw.replace(/```json?\n?/g, '').replace(/```/g, '').trim());
+    } catch (e) {
+      setError('step2Error', 'Failed to parse distillation. Check Ollama endpoint in settings. Error: ' + e.message);
+      setProc('compress', '');
+      return;
+    }
+
+    state.intent = distillResult.intent || '';
+    state.domain = distillResult.domain || '';
+    const missing = distillResult.missing || [];
+
+    setProc('compress', 'done');
+    setProc('gaps', 'active');
+    await sleep(300);
+    setProc('gaps', 'done');
+
+    // Step B: Generate questions
+    setProc('questions', 'active');
+    const questionPrompt = `Based on this intent and gaps, generate exactly 3-5 clarifying questions.
+
+INTENT: ${state.intent}
+GAPS: ${missing.join('; ')}
+
+Rules:
+- Each question targets ONE specific gap
+- Specific, not open-ended ("Which Android version?" not "Tell me more about the platform")
+- Order by importance (most critical first)
+- Maximum 5 questions
+
+Return ONLY valid JSON with no markdown fencing:
+{"questions":["question 1","question 2","question 3"]}`;
+
+    let qResult;
+    try {
+      const raw = await ollamaGenerate(questionPrompt);
+      qResult = JSON.parse(raw.replace(/```json?\n?/g, '').replace(/```/g, '').trim());
+    } catch (e) {
+      // Fallback: use missing as questions
+      qResult = { questions: missing.slice(0, 5) };
+    }
+
+    state.questions = qResult.questions || [];
+    setProc('questions', 'done');
+
+    await sleep(400);
+    buildClarifyPanel();
+    goStep(3);
+  }
+
+  function buildClarifyPanel() {
+    document.getElementById('intentText').textContent = state.intent;
+    const tag = document.getElementById('domainTag');
+    if (state.domain) {
+      tag.innerHTML = `<span class="domain-tag">${state.domain}</span>`;
+    }
+
+    const list = document.getElementById('questionsList');
+    list.innerHTML = '';
+    state.questions.forEach((q, i) => {
+      const item = document.createElement('div');
+      item.className = 'question-item';
+      item.innerHTML = `
+        <div class="question-num">Q${i+1}</div>
+        <div class="question-text">${q}</div>
+        <textarea class="answer-input" id="answer-${i}" placeholder="your answer..." rows="2"></textarea>
+      `;
+      list.appendChild(item);
+    });
+  }
+
+  // ── Step 4: Generate Skill ─────────────────────────────────────
+  async function generateSkill() {
+    const answers = state.questions.map((q, i) => {
+      const a = document.getElementById(`answer-${i}`)?.value.trim() || '(not answered)';
+      return `Q: ${q}\nA: ${a}`;
+    }).join('\n\n');
+
+    goStep(4);
+    document.getElementById('skillOutput').textContent = 'Generating skill file...';
+    document.getElementById('tokenCount').textContent = '—';
+    document.getElementById('compressionRate').textContent = '—';
+
+    const skillPrompt = `Generate a complete SKILL.md file for an AI agent. Be concise and token-efficient.
+
+INTENT: ${state.intent}
+DOMAIN: ${state.domain}
+
+CLARIFICATIONS:
+${answers}
+
+Generate a SKILL.md following this exact format:
+---
+name: [kebab-case-name]
+description: "[one sentence description of when this skill activates]"
+---
+
+# [Skill Name]
+
+## When to Activate
+[1-3 bullet points of specific triggers]
+
+## Context
+[2-4 sentences: what this skill does, what domain it operates in]
+
+## Process
+[Numbered steps, specific and actionable]
+
+## Output Standards
+[What good output looks like — format, length, quality bar]
+
+## Hard Rules
+[3-5 non-negotiable constraints as bullet points]
+
+Output ONLY the markdown. No preamble, no explanation. Start with ---.`;
+
+    try {
+      const raw = await ollamaGenerate(skillPrompt);
+      state.skillFile = raw.trim();
+      document.getElementById('skillOutput').textContent = state.skillFile;
+
+      // Token estimate
+      const origTokens = Math.round(state.transcript.split(/\s+/).length * 1.3);
+      const skillTokens = Math.round(state.skillFile.split(/\s+/).length * 1.3);
+      const compression = Math.round((1 - skillTokens / origTokens) * 100);
+      document.getElementById('tokenCount').textContent = skillTokens;
+      document.getElementById('compressionRate').textContent = Math.max(0, compression);
+    } catch (e) {
+      document.getElementById('skillOutput').textContent = 'Error: ' + e.message;
+    }
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────
+  function goStep(n) {
+    state.step = n;
+    [1,2,3,4].forEach(i => {
+      const stepEl = document.getElementById(`step-${i}`);
+      const panelEl = document.getElementById(`panel-${i}`);
+      stepEl.className = 'step' + (i === n ? ' active' : i < n ? ' done' : '');
+      panelEl.className = 'panel' + (i === n ? ' active' : '');
+    });
+    window.scrollTo(0, 0);
+  }
+
+  function setProc(id, state) {
+    const el = document.getElementById(`proc-${id}`);
+    el.className = 'proc-step' + (state ? ` ${state}` : '');
+    if (state === 'active') el.querySelector('.proc-icon').textContent = '⟳';
+    else if (state === 'done') el.querySelector('.proc-icon').textContent = '✓';
+  }
+
+  function setError(containerId, msg) {
+    document.getElementById(containerId).innerHTML = `<div class="error-msg">${msg}</div>`;
+  }
+
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  async function copySkill() {
+    try {
+      await navigator.clipboard.writeText(state.skillFile);
+      const toast = document.getElementById('copyToast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    } catch(e) {
+      // Fallback
+      document.getElementById('skillOutput').select?.();
+    }
+  }
+
+  function downloadSkill() {
+    const blob = new Blob([state.skillFile], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `skill-${state.domain || 'output'}-${Date.now()}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function reset() {
+    state = { step: 1, transcript: '', intent: '', domain: '', questions: [], skillFile: '', recording: false, recognition: null, waveInterval: null };
+    document.getElementById('transcriptBox').value = '';
+    document.getElementById('charCount').textContent = '0 chars';
+    document.getElementById('distillBtn').disabled = true;
+    document.getElementById('step1Error').innerHTML = '';
+    document.getElementById('step2Error').innerHTML = '';
+    ['compress','gaps','questions'].forEach(id => setProc(id, ''));
+    initWaveform();
+    goStep(1);
+  }
+
+  // ── Init ───────────────────────────────────────────────────────
+  loadSettings();
+  initWaveform();
+  document.getElementById('transcriptBox').addEventListener('input', updateCharCount);
+</script>
+</body>
+</html>

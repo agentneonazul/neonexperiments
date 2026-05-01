@@ -4,31 +4,40 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Neon Experiments</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #F4EDE4; color: #2D4A3E; font-family: 'DM Sans', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; }
-    h1 { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 700; color: #2D4A3E; margin-bottom: 8px; }
-    p.sub { font-size: 0.95rem; color: #7A756F; margin-bottom: 48px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; width: 100%; max-width: 960px; }
-    .card { background: #fff; border-radius: 12px; padding: 28px; text-decoration: none; color: inherit; border: 1px solid #E8E0D8; transition: box-shadow 0.15s; }
-    .card:hover { box-shadow: 0 4px 20px rgba(45,74,62,0.12); }
-    .card-date { font-size: 0.75rem; color: #B5B0AA; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
-    .card-title { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; color: #2D4A3E; margin-bottom: 8px; }
-    .card-desc { font-size: 0.875rem; color: #7A756F; line-height: 1.6; }
-    .tag { display: inline-block; margin-top: 14px; font-size: 0.75rem; background: #E8C0AD; color: #2D4A3E; border-radius: 20px; padding: 3px 12px; font-weight: 500; }
+    body { background: #0D0F0E; color: #E8EDE9; font-family: 'DM Sans', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; }
+    .logo-dot { width: 8px; height: 8px; background: #4DFFA0; border-radius: 50%; box-shadow: 0 0 12px rgba(77,255,160,0.4); display: inline-block; margin-right: 10px; }
+    h1 { font-family: 'DM Mono', monospace; font-size: 1.4rem; font-weight: 400; color: #4DFFA0; margin-bottom: 6px; display: flex; align-items: center; }
+    p.sub { font-size: 0.85rem; color: #4A5E4D; font-family: 'DM Mono', monospace; margin-bottom: 48px; padding-left: 18px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; width: 100%; max-width: 860px; }
+    .card { background: #141916; border-radius: 12px; padding: 24px; text-decoration: none; color: inherit; border: 1px solid rgba(77,255,160,0.08); transition: border-color 0.2s, box-shadow 0.2s; }
+    .card:hover { border-color: rgba(77,255,160,0.25); box-shadow: 0 4px 20px rgba(77,255,160,0.06); }
+    .card-date { font-size: 0.7rem; color: #4A5E4D; font-family: 'DM Mono', monospace; margin-bottom: 10px; letter-spacing: 0.08em; }
+    .card-title { font-size: 1.1rem; font-weight: 600; color: #E8EDE9; margin-bottom: 8px; }
+    .card-desc { font-size: 0.85rem; color: #8A9E8D; line-height: 1.6; }
+    .tag { display: inline-block; margin-top: 14px; font-size: 0.7rem; background: rgba(77,255,160,0.1); color: #4DFFA0; border-radius: 20px; padding: 3px 10px; font-family: 'DM Mono', monospace; }
+    footer { margin-top: 48px; font-size: 0.7rem; font-family: 'DM Mono', monospace; color: #2A3E2D; }
   </style>
 </head>
 <body>
-  <h1>Neon Experiments</h1>
-  <p class="sub">Nightly builds from the Amber Miro OS</p>
+  <h1><span class="logo-dot"></span>neon experiments</h1>
+  <p class="sub">// nightly builds from the amber miro os</p>
   <div class="grid">
+    <a class="card" href="builds/2026-05-01/">
+      <div class="card-date">May 1, 2026</div>
+      <div class="card-title">Skill Crystallizer</div>
+      <div class="card-desc">Voice dictation → intent extraction → clarifying questions → SKILL.md. Powered by Gemma 4 via Ollama.</div>
+      <span class="tag">tool · voice · agent</span>
+    </a>
     <a class="card" href="builds/2026-04-30/">
       <div class="card-date">April 30, 2026</div>
       <div class="card-title">The $25K Map</div>
       <div class="card-desc">Interactive revenue scenario planner for Amber Miro Creative. Five streams, real-time modeling, path to $25K/year.</div>
-      <span class="tag">Amber Miro Creative</span>
+      <span class="tag">amber miro creative</span>
     </a>
   </div>
+  <footer>github.com/agentneonazul/neonexperiments</footer>
 </body>
 </html>
