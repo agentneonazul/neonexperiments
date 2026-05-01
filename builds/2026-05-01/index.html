@@ -879,7 +879,7 @@ const S = {
 };
 
 // ── Settings ───────────────────────────────────────────────
-const DEFAULT_ENDPOINT = 'https://lucky-worms-ring.loca.lt';
+const DEFAULT_ENDPOINT = 'https://tough-carrots-fetch.loca.lt';
 const DEFAULT_MODEL    = 'gemma4:e4b';
 
 function loadSettings() {
@@ -904,7 +904,7 @@ async function testConnection() {
   const el = document.getElementById('testStatus');
   el.className = 'test-status'; el.textContent = 'testing…';
   try {
-    const r = await fetch(`${getEndpoint()}/api/tags`, { signal: AbortSignal.timeout(6000) });
+    const r = await fetch(`${getEndpoint()}/api/tags`, { signal: AbortSignal.timeout(6000), headers: { 'bypass-tunnel-reminder': 'true' } });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const data = await r.json();
     const names = (data.models||[]).map(m=>m.name.split(':')[0]).join(', ');
@@ -1010,7 +1010,7 @@ function onTranscriptInput() {
 async function ollamaGenerate(prompt) {
   const r = await fetch(`${getEndpoint()}/api/generate`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'bypass-tunnel-reminder': 'true' },
     body: JSON.stringify({ model: getModel(), prompt, stream: false }),
     signal: AbortSignal.timeout(90000),
   });
