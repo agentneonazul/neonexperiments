@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Commission Quote · Amber Miro Creative</title>
+  <style>
+    :root {
+      --green: #2D5A3D;
+      --green-light: #4A7C5C;
+      --blush: #E8C4B0;
+      --blush-light: #F5DDD0;
+      --warm-grey: #8B8178;
+      --warm-grey-light: #D4CFC9;
+      --gold: #C4943A;
+      --gold-light: #E8C06A;
+      --cream: #F7F2ED;
+      --dark: #1C1A18;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: var(--cream);
+      color: var(--dark);
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--green);
+      color: var(--cream);
+      padding: 3rem 2rem 2.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: -60%;
+      left: -8%;
+      width: 55%;
+      height: 220%;
+      background: var(--green-light);
+      opacity: 0.25;
+      border-radius: 50%;
+    }
+
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: -40%;
+      right: -4%;
+      width: 42%;
+      height: 180%;
+      background: var(--gold);
+      opacity: 0.12;
+      border-radius: 50%;
+    }
+
+    .header-content { position: relative; z-index: 1; }
+
+    .wordmark {
+      font-size: 0.7rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--blush);
+      margin-bottom: 0.75rem;
+    }
+
+    h1 {
+      font-size: 2.75rem;
+      font-weight: normal;
+      line-height: 1.05;
+      margin-bottom: 0.6rem;
+      letter-spacing: -0.01em;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: var(--warm-grey-light);
+      font-style: italic;
+      max-width: 420px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 4rem;
+    }
+
+    .section {
+      background: white;
+      border-radius: 2px;
+      padding: 2rem 2rem 1.75rem;
+      margin-bottom: 1.25rem;
+      border-left: 4px solid var(--gold);
+      box-shadow: 0 2px 16px rgba(0,0,0,0.05);
+    }
+
+    .section-title {
+      font-size: 0.68rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+    }
+
+    .field-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    @media (max-width: 560px) {
+      .field-group { grid-template-columns: 1fr; }
+      h1 { font-size: 2rem; }
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    label {
+      font-size: 0.7rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--warm-grey);
+    }
+
+    select, input[type="text"] {
+      -webkit-appearance: none;
+      appearance: none;
+      background: var(--cream);
+      border: 1px solid var(--warm-grey-light);
+      border-radius: 2px;
+      padding: 0.65rem 0.9rem;
+      font-family: 'Georgia', serif;
+      font-size: 0.95rem;
+      color: var(--dark);
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+
+    select:focus, input:focus {
+      outline: none;
+      border-color: var(--green);
+    }
+
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%238B8178' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.85rem center;
+      padding-right: 2.5rem;
+      cursor: pointer;
+    }
+
+    .toggle-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    @media (max-width: 560px) {
+      .toggle-row { grid-template-columns: 1fr; }
+    }
+
+    .toggle-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .toggle-field {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+    }
+
+    .toggle-field input[type="checkbox"] { display: none; }
+
+    .toggle {
+      width: 38px;
+      height: 21px;
+      background: var(--warm-grey-light);
+      border-radius: 10.5px;
+      position: relative;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 15px;
+      height: 15px;
+      background: white;
+      border-radius: 50%;
+      transition: left 0.18s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+    }
+
+    .toggle-field input:checked + .toggle { background: var(--green); }
+    .toggle-field input:checked + .toggle::after { left: 20px; }
+
+    .toggle-label {
+      font-size: 0.875rem;
+      color: var(--dark);
+      line-height: 1.3;
+    }
+
+    .note {
+      font-size: 0.775rem;
+      color: var(--warm-grey);
+      font-style: italic;
+      line-height: 1.55;
+      margin-top: 0.3rem;
+      padding-left: calc(38px + 0.75rem);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--warm-grey-light);
+      margin: 1.75rem 0 1.5rem;
+      opacity: 0.6;
+    }
+
+    /* Quote card */
+    .quote-card {
+      background: var(--green);
+      color: var(--cream);
+      border-radius: 2px;
+      padding: 2rem 2rem 1.75rem;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 4px 24px rgba(45, 90, 61, 0.25);
+    }
+
+    .quote-eyebrow {
+      font-size: 0.65rem;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--blush);
+      opacity: 0.85;
+      margin-bottom: 0.75rem;
+    }
+
+    .price-display {
+      font-size: 3.25rem;
+      font-weight: normal;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.3rem;
+    }
+
+    .price-sub {
+      font-size: 0.8rem;
+      color: var(--warm-grey-light);
+      font-style: italic;
+      margin-bottom: 1.75rem;
+      opacity: 0.85;
+    }
+
+    .quote-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.12);
+    }
+
+    @media (max-width: 560px) {
+      .quote-grid { grid-template-columns: 1fr 1fr; }
+      .price-display { font-size: 2.5rem; }
+    }
+
+    .quote-stat {
+      display: flex;
+      flex-direction: column;
+      gap: 0.22rem;
+    }
+
+    .stat-label {
+      font-size: 0.62rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--blush);
+      opacity: 0.75;
+    }
+
+    .stat-value {
+      font-size: 0.95rem;
+      line-height: 1.3;
+    }
+
+    /* Message section */
+    .message-wrap {
+      background: var(--blush-light);
+      border: 1px solid var(--blush);
+      border-radius: 2px;
+      padding: 1.5rem 1.5rem 1.25rem;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+      line-height: 1.75;
+      color: var(--dark);
+      white-space: pre-wrap;
+      font-family: 'Georgia', serif;
+    }
+
+    .btn-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .copy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--gold);
+      color: white;
+      border: none;
+      border-radius: 2px;
+      padding: 0.7rem 1.4rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-family: 'Georgia', serif;
+      transition: background 0.2s;
+    }
+
+    .copy-btn:hover { background: var(--green); }
+    .copy-btn.copied { background: var(--green-light); }
+
+    .edit-note {
+      font-size: 0.775rem;
+      color: var(--warm-grey);
+      font-style: italic;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      font-size: 0.72rem;
+      color: var(--warm-grey);
+      letter-spacing: 0.08em;
+      border-top: 1px solid var(--warm-grey-light);
+      opacity: 0.8;
+    }
+
+    footer a {
+      color: var(--green);
+      text-decoration: none;
+    }
+
+    /* Animate in */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .quote-card { animation: fadeUp 0.3s ease; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-content">
+    <div class="wordmark">Amber Miro Creative</div>
+    <h1>Commission<br>Quote Generator</h1>
+    <div class="subtitle">Configure the work. Get a quote and a ready-to-send client message — instantly.</div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- THE WORK -->
+  <div class="section">
+    <div class="section-title">The Work</div>
+
+    <div class="field-group">
+      <div class="field">
+        <label>Medium</label>
+        <select id="medium">
+          <option value="oil">Oil on canvas</option>
+          <option value="acrylic">Acrylic on canvas</option>
+          <option value="watercolor">Watercolor on paper</option>
+          <option value="gouache">Gouache on paper</option>
+          <option value="mixed">Mixed media</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Size</label>
+        <select id="size">
+          <option value="xs">Small — under 8×10"</option>
+          <option value="sm" selected>Medium — 11×14" to 16×20"</option>
+          <option value="md">Large — 18×24" to 24×30"</option>
+          <option value="lg">XL — 30×40" and above</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <div class="field">
+        <label>Complexity</label>
+        <select id="complexity">
+          <option value="simple">Simple — abstract, minimal</option>
+          <option value="moderate" selected>Moderate — 1–2 subjects</option>
+          <option value="complex">Complex — detailed, multiple subjects</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Figurative Subjects</label>
+        <select id="subjects">
+          <option value="0">None</option>
+          <option value="1" selected>1 person or pet</option>
+          <option value="2">2 people or pets</option>
+          <option value="3">3 or more</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTIONS -->
+  <div class="section">
+    <div class="section-title">Options</div>
+
+    <div class="toggle-row">
+      <div class="toggle-item">
+        <label class="toggle-field">
+          <input type="checkbox" id="rush">
+          <div class="toggle"></div>
+          <span class="toggle-label">Rush timeline (under 3 weeks)</span>
+        </label>
+        <div class="note">Adds 25% to base price.</div>
+      </div>
+      <div class="toggle-item">
+        <label class="toggle-field">
+          <input type="checkbox" id="framed">
+          <div class="toggle"></div>
+          <span class="toggle-label">Include professional framing</span>
+        </label>
+        <div class="note">Flat fee by size added to total.</div>
+      </div>
+    </div>
+
+    <div class="toggle-row" style="margin-top:1rem;">
+      <div class="toggle-item">
+        <label class="toggle-field">
+          <input type="checkbox" id="shipping">
+          <div class="toggle"></div>
+          <span class="toggle-label">Include US shipping estimate</span>
+        </label>
+        <div class="note">Flat-rate estimate by size.</div>
+      </div>
+      <div class="toggle-item">
+        <label class="toggle-field">
+          <input type="checkbox" id="rights">
+          <div class="toggle"></div>
+          <span class="toggle-label">Commercial use rights</span>
+        </label>
+        <div class="note">Adds 40% licensing fee.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLIENT CONTEXT -->
+  <div class="section">
+    <div class="section-title">Client Context</div>
+
+    <div class="field-group">
+      <div class="field">
+        <label>Client First Name</label>
+        <input type="text" id="clientName" placeholder="e.g. Sarah">
+      </div>
+      <div class="field">
+        <label>Occasion (optional)</label>
+        <input type="text" id="occasion" placeholder="e.g. wedding gift, birthday">
+      </div>
+    </div>
+  </div>
+
+  <!-- QUOTE OUTPUT -->
+  <div class="quote-card" id="quoteCard">
+    <div class="quote-eyebrow">Your Quote</div>
+    <div class="price-display" id="priceDisplay">—</div>
+    <div class="price-sub">50% deposit to begin · balance due on completion</div>
+    <div class="quote-grid">
+      <div class="quote-stat">
+        <div class="stat-label">Deposit</div>
+        <div class="stat-value" id="statDeposit">—</div>
+      </div>
+      <div class="quote-stat">
+        <div class="stat-label">Timeline</div>
+        <div class="stat-value" id="statTimeline">—</div>
+      </div>
+      <div class="quote-stat">
+        <div class="stat-label">Framing</div>
+        <div class="stat-value" id="statFraming">Not included</div>
+      </div>
+      <div class="quote-stat">
+        <div class="stat-label">Shipping</div>
+        <div class="stat-value" id="statShipping">Not included</div>
+      </div>
+      <div class="quote-stat">
+        <div class="stat-label">Revisions</div>
+        <div class="stat-value">2 rounds</div>
+      </div>
+      <div class="quote-stat">
+        <div class="stat-label">Rights</div>
+        <div class="stat-value" id="statRights">Personal use</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GENERATED MESSAGE -->
+  <div class="section">
+    <div class="section-title">Ready-to-Send Message</div>
+    <div class="message-wrap" id="messageBox"></div>
+    <div class="btn-row">
+      <button class="copy-btn" onclick="copyMessage()" id="copyBtn">Copy message</button>
+      <span class="edit-note">Edit before sending — this is a starting point, not a script.</span>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Built by Neon &nbsp;·&nbsp; <a href="https://ambermiro.com" target="_blank">ambermiro.com</a>
+</footer>
+
+<script>
+  const PRICING = {
+    size: {
+      xs: { low: 150, high: 250 },
+      sm: { low: 350, high: 550 },
+      md: { low: 650, high: 950 },
+      lg: { low: 1050, high: 1650 }
+    },
+    complexity: {
+      simple:   { low: 0,   high: 0   },
+      moderate: { low: 100, high: 150 },
+      complex:  { low: 250, high: 375 }
+    },
+    subjects: {
+      '0': { low: 0,   high: 0   },
+      '1': { low: 75,  high: 100 },
+      '2': { low: 150, high: 225 },
+      '3': { low: 275, high: 375 }
+    },
+    medium: {
+      oil:        { low: 100, high: 150 },
+      acrylic:    { low: 50,  high: 75  },
+      watercolor: { low: 0,   high: 0   },
+      gouache:    { low: 0,   high: 25  },
+      mixed:      { low: 75,  high: 100 }
+    },
+    framing: { xs: 75, sm: 135, md: 190, lg: 295 },
+    shipping: { xs: 28, sm: 48, md: 78, lg: 125 },
+    timeline: {
+      xs: { normal: '2–3 weeks', rush: '1 week'   },
+      sm: { normal: '4–6 weeks', rush: '2–3 weeks' },
+      md: { normal: '6–10 weeks', rush: '3–5 weeks' },
+      lg: { normal: '10–16 weeks', rush: '5–8 weeks' }
+    }
+  };
+
+  const MEDIUM_LABELS = {
+    oil: 'oil on canvas',
+    acrylic: 'acrylic on canvas',
+    watercolor: 'watercolor on paper',
+    gouache: 'gouache on paper',
+    mixed: 'mixed media'
+  };
+
+  const SIZE_LABELS = {
+    xs: 'small-format',
+    sm: 'medium-format',
+    md: 'large-format',
+    lg: 'XL-format'
+  };
+
+  function fmt(n) { return '$' + n.toLocaleString(); }
+
+  function calc() {
+    const medium     = document.getElementById('medium').value;
+    const size       = document.getElementById('size').value;
+    const complexity = document.getElementById('complexity').value;
+    const subjects   = document.getElementById('subjects').value;
+    const rush       = document.getElementById('rush').checked;
+    const framed     = document.getElementById('framed').checked;
+    const shipping   = document.getElementById('shipping').checked;
+    const rights     = document.getElementById('rights').checked;
+    const clientName = document.getElementById('clientName').value.trim();
+    const occasion   = document.getElementById('occasion').value.trim();
+
+    let low  = PRICING.size[size].low  + PRICING.complexity[complexity].low  + PRICING.subjects[subjects].low  + PRICING.medium[medium].low;
+    let high = PRICING.size[size].high + PRICING.complexity[complexity].high + PRICING.subjects[subjects].high + PRICING.medium[medium].high;
+
+    if (rush)   { low = Math.round(low * 1.25);  high = Math.round(high * 1.25); }
+    if (rights) { low = Math.round(low * 1.4);   high = Math.round(high * 1.4);  }
+
+    const framingFee  = framed   ? PRICING.framing[size]  : 0;
+    const shippingFee = shipping ? PRICING.shipping[size] : 0;
+
+    const totalLow  = low  + framingFee + shippingFee;
+    const totalHigh = high + framingFee + shippingFee;
+    const depLow    = Math.round(totalLow  * 0.5);
+    const depHigh   = Math.round(totalHigh * 0.5);
+
+    const timeline = PRICING.timeline[size][rush ? 'rush' : 'normal'];
+
+    // Update quote card
+    document.getElementById('priceDisplay').textContent  = `${fmt(totalLow)} – ${fmt(totalHigh)}`;
+    document.getElementById('statDeposit').textContent   = `${fmt(depLow)} – ${fmt(depHigh)}`;
+    document.getElementById('statTimeline').textContent  = timeline;
+    document.getElementById('statFraming').textContent   = framed   ? `+${fmt(framingFee)}`  : 'Not included';
+    document.getElementById('statShipping').textContent  = shipping ? `~${fmt(shippingFee)}` : 'Not included';
+    document.getElementById('statRights').textContent    = rights   ? 'Commercial use'       : 'Personal use';
+
+    // Build message
+    const greeting    = clientName ? `Hi ${clientName},` : 'Hi there,';
+    const occasionStr = occasion   ? ` for ${occasion}`  : '';
+    const medLabel    = MEDIUM_LABELS[medium];
+    const sizeLabel   = SIZE_LABELS[size];
+
+    const framingLine  = framed   ? `\n  Framing: included (+${fmt(framingFee)})` : '';
+    const shippingLine = shipping ? `\n  Shipping: ~${fmt(shippingFee)} within the US` : '';
+    const rightsLine   = rights   ? `\n  Commercial use rights: included` : '';
+
+    const msg =
+`${greeting}
+
+Thank you so much for reaching out — I'd love to work on this with you.
+
+Based on what you've described — a ${sizeLabel} ${medLabel}${occasionStr} — here's my quote:
+
+  Price range: ${fmt(totalLow)} – ${fmt(totalHigh)}
+  Deposit to begin: ${fmt(depLow)} – ${fmt(depHigh)} (50%)
+  Balance due: on completion
+  Estimated timeline: ${timeline}${framingLine}${shippingLine}${rightsLine}
+  Revision rounds: 2 included
+
+The final price within that range depends on your reference material and any specific details — I'll confirm the exact number before we lock anything in.
+
+To get started I just need:
+  • A brief description or reference image(s)
+  • Your mailing address (for shipping/delivery)
+  • Confirmation of the deposit
+
+Let me know if you have any questions — happy to talk it through. Looking forward to this!
+
+Warmly,
+Amber`;
+
+    document.getElementById('messageBox').textContent = msg;
+  }
+
+  function copyMessage() {
+    const text = document.getElementById('messageBox').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copyBtn');
+      btn.textContent = 'Copied ✓';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copy message';
+        btn.classList.remove('copied');
+      }, 2200);
+    });
+  }
+
+  // Wire up all inputs
+  ['medium','size','complexity','subjects','rush','framed','shipping','rights']
+    .forEach(id => document.getElementById(id).addEventListener('change', calc));
+
+  ['clientName','occasion']
+    .forEach(id => document.getElementById(id).addEventListener('input', calc));
+
+  calc();
+</script>
+
+</body>
+</html>

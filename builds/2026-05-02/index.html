@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ada Fen — Content Engine</title>
+<style>
+  :root {
+    --bg:        #080810;
+    --surface:   #0f0f1e;
+    --surface-2: #16162a;
+    --surface-3: #1e1e38;
+    --purple:    #7c5cfc;
+    --purple-dim:#4a3a9a;
+    --teal:      #00d4b8;
+    --teal-dim:  #007a6a;
+    --pink:      #e040fb;
+    --pink-dim:  #7a1f82;
+    --gold:      #ffd166;
+    --text:      #e2e2f0;
+    --text-2:    #9090b8;
+    --text-3:    #5050780;
+    --border:    rgba(124,92,252,0.18);
+    --border-2:  rgba(124,92,252,0.08);
+    --glow:      rgba(124,92,252,0.15);
+    --teal-glow: rgba(0,212,184,0.12);
+    --pink-glow: rgba(224,64,251,0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Helvetica Neue', 'Arial', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* BACKGROUND GRID */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,92,252,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,92,252,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ATMOSPHERIC ORBS */
+  .orb-1 {
+    position: fixed; top: -200px; right: -100px;
+    width: 600px; height: 600px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(124,92,252,0.12) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+  .orb-2 {
+    position: fixed; bottom: -200px; left: -100px;
+    width: 500px; height: 500px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,212,184,0.08) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* LAYOUT */
+  .shell {
+    position: relative; z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 24px;
+  }
+
+  /* HEADER */
+  .header {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    margin-bottom: 56px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+  }
+  .wordmark {
+    display: flex; flex-direction: column;
+  }
+  .wordmark-name {
+    font-size: 52px;
+    font-weight: 800;
+    letter-spacing: -2px;
+    line-height: 1;
+    background: linear-gradient(135deg, #e2e2f0 0%, var(--purple) 50%, var(--teal) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .wordmark-sub {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--text-2);
+    margin-top: 4px;
+  }
+  .header-meta {
+    text-align: right;
+  }
+  .header-meta .badge {
+    display: inline-block;
+    padding: 5px 12px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--purple);
+    margin-bottom: 8px;
+  }
+  .header-meta .date-range {
+    display: block;
+    font-size: 13px;
+    color: var(--text-2);
+  }
+
+  /* SECTION HEADERS */
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--purple);
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  h2 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+  .section-intro {
+    color: var(--text-2);
+    font-size: 14px;
+    margin-bottom: 28px;
+  }
+
+  /* PILLARS */
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 56px;
+  }
+  @media (max-width: 900px) {
+    .pillars-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  .pillar-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.2s ease;
+    cursor: default;
+  }
+  .pillar-card:hover {
+    border-color: var(--pillar-color);
+    box-shadow: 0 0 20px var(--pillar-glow);
+    transform: translateY(-2px);
+  }
+  .pillar-icon {
+    font-size: 24px;
+    margin-bottom: 10px;
+    display: block;
+  }
+  .pillar-name {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--pillar-color);
+    margin-bottom: 6px;
+  }
+  .pillar-desc {
+    font-size: 12px;
+    color: var(--text-2);
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+  .pillar-formats {
+    display: flex; flex-wrap: wrap; gap: 4px;
+  }
+  .pillar-tag {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: var(--pillar-bg);
+    color: var(--pillar-color);
+    border: 1px solid var(--pillar-border);
+  }
+
+  /* PILLAR COLORS */
+  .pillar-sound  { --pillar-color: var(--purple); --pillar-glow: var(--glow); --pillar-bg: rgba(124,92,252,0.08); --pillar-border: rgba(124,92,252,0.2); }
+  .pillar-vision { --pillar-color: var(--teal);   --pillar-glow: var(--teal-glow); --pillar-bg: rgba(0,212,184,0.08); --pillar-border: rgba(0,212,184,0.2); }
+  .pillar-story  { --pillar-color: var(--pink);   --pillar-glow: var(--pink-glow); --pillar-bg: rgba(224,64,251,0.08); --pillar-border: rgba(224,64,251,0.2); }
+  .pillar-live   { --pillar-color: var(--gold);   --pillar-glow: rgba(255,209,102,0.12); --pillar-bg: rgba(255,209,102,0.08); --pillar-border: rgba(255,209,102,0.2); }
+
+  /* PLATFORM STRATEGY */
+  .platforms-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 56px;
+  }
+  @media (max-width: 700px) {
+    .platforms-grid { grid-template-columns: 1fr; }
+  }
+  .platform-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .platform-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 16px;
+  }
+  .platform-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .platform-name {
+    font-size: 15px; font-weight: 700;
+  }
+  .platform-handle {
+    font-size: 12px; color: var(--text-2);
+  }
+  .platform-cadence {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .cadence-pill {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  .platform-mix {
+    list-style: none;
+  }
+  .platform-mix li {
+    font-size: 12px;
+    color: var(--text-2);
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border-2);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .platform-mix li:last-child { border-bottom: none; }
+  .mix-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* CALENDAR */
+  .calendar-section { margin-bottom: 56px; }
+  .week-tabs {
+    display: flex; gap: 8px; margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .week-tab {
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-2);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    letter-spacing: 0.5px;
+  }
+  .week-tab.active, .week-tab:hover {
+    background: var(--surface-3);
+    border-color: var(--purple);
+    color: var(--text);
+  }
+  .week-tab.active {
+    color: var(--purple);
+    box-shadow: 0 0 10px var(--glow);
+  }
+
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+  }
+  @media (max-width: 900px) {
+    .calendar-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 500px) {
+    .calendar-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .day-header {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-2);
+    text-align: center;
+    padding: 8px 0;
+  }
+  @media (max-width: 900px) { .day-header { display: none; } }
+
+  .day-card {
+    background: var(--surface);
+    border: 1px solid var(--border-2);
+    border-radius: 8px;
+    padding: 12px;
+    min-height: 110px;
+    display: flex; flex-direction: column;
+    transition: all 0.15s ease;
+    cursor: pointer;
+  }
+  .day-card:hover {
+    border-color: var(--border);
+    background: var(--surface-2);
+  }
+  .day-card.rest {
+    opacity: 0.4;
+    cursor: default;
+  }
+  .day-date {
+    font-size: 10px;
+    color: var(--text-2);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .day-posts {
+    display: flex; flex-direction: column; gap: 5px;
+    flex: 1;
+  }
+  .post-item {
+    display: flex; align-items: flex-start; gap: 5px;
+  }
+  .post-platform {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .post-text {
+    font-size: 11px;
+    color: var(--text-2);
+    line-height: 1.4;
+  }
+  .post-pillar-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+
+  /* Platform badge colors */
+  .ig  { background: rgba(224,64,251,0.15); color: #e040fb; }
+  .tt  { background: rgba(0,212,184,0.15);  color: #00d4b8; }
+  .bc  { background: rgba(255,209,102,0.15); color: #ffd166; }
+  .sc  { background: rgba(255,120,50,0.15); color: #ff7832; }
+
+  /* GROWTH MILESTONES */
+  .milestones-section { margin-bottom: 56px; }
+  .milestones-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  @media (max-width: 800px) {
+    .milestones-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  .milestone-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .milestone-card.current {
+    border-color: var(--purple);
+    box-shadow: 0 0 20px var(--glow);
+  }
+  .milestone-card.current::before {
+    content: 'NOW';
+    position: absolute;
+    top: 12px; right: 12px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--purple);
+    background: rgba(124,92,252,0.12);
+    padding: 2px 8px;
+    border-radius: 20px;
+    border: 1px solid rgba(124,92,252,0.3);
+  }
+  .milestone-num {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 2px;
+  }
+  .milestone-platform {
+    font-size: 11px;
+    color: var(--text-2);
+    margin-bottom: 12px;
+  }
+  .milestone-progress-bar {
+    height: 3px;
+    background: var(--surface-3);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .milestone-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--purple), var(--teal));
+    transition: width 1s cubic-bezier(0.4,0,0.2,1);
+  }
+  .milestone-unlocks {
+    font-size: 11px;
+    color: var(--text-2);
+  }
+  .milestone-unlocks strong {
+    color: var(--teal);
+  }
+
+  /* IDEAS BANK */
+  .ideas-section { margin-bottom: 56px; }
+  .ideas-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  @media (max-width: 800px) {
+    .ideas-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 500px) {
+    .ideas-grid { grid-template-columns: 1fr; }
+  }
+  .idea-card {
+    background: var(--surface);
+    border: 1px solid var(--border-2);
+    border-radius: 8px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .idea-card:hover {
+    border-color: var(--border);
+    background: var(--surface-2);
+    transform: translateX(2px);
+  }
+  .idea-card.used {
+    opacity: 0.4;
+  }
+  .idea-card.used .idea-title::after {
+    content: ' ✓';
+    color: var(--teal);
+  }
+  .idea-pillar-stripe {
+    width: 3px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    align-self: stretch;
+  }
+  .idea-body {}
+  .idea-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+  .idea-platform {
+    font-size: 10px;
+    color: var(--text-2);
+  }
+
+  /* RELEASE TRACKER */
+  .releases-section { margin-bottom: 56px; }
+  .releases-list {
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .release-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .release-status {
+    width: 8px; height: 8px; border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .status-released { background: var(--teal); box-shadow: 0 0 6px var(--teal); }
+  .status-mix      { background: var(--purple); box-shadow: 0 0 6px var(--purple); }
+  .status-idea     { background: var(--surface-3); border: 1px solid var(--border); }
+  .release-name {
+    font-size: 14px; font-weight: 600; flex: 1;
+  }
+  .release-stage {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  .stage-released { background: rgba(0,212,184,0.12); color: var(--teal); }
+  .stage-mix      { background: rgba(124,92,252,0.12); color: var(--purple); }
+  .stage-idea     { background: var(--surface-3); color: var(--text-2); }
+  .release-note {
+    font-size: 12px; color: var(--text-2);
+    width: 200px; text-align: right;
+  }
+
+  /* FOOTER */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .footer-left {
+    font-size: 11px; color: var(--text-2);
+  }
+  .footer-left strong { color: var(--purple); }
+  .footer-link {
+    font-size: 11px;
+    color: var(--teal);
+    text-decoration: none;
+    letter-spacing: 0.5px;
+  }
+  .footer-link:hover { text-decoration: underline; }
+
+  /* WEEK VISIBILITY */
+  .week-panel { display: none; }
+  .week-panel.active { display: contents; }
+
+  /* Utility */
+  .mb-56 { margin-bottom: 56px; }
+</style>
+</head>
+<body>
+
+<div class="orb-1"></div>
+<div class="orb-2"></div>
+
+<div class="shell">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="wordmark">
+      <div class="wordmark-name">Ada Fen</div>
+      <div class="wordmark-sub">Content Engine — May 2026</div>
+    </div>
+    <div class="header-meta">
+      <span class="badge">v1.0</span>
+      <span class="date-range">May 3 – May 30, 2026</span>
+    </div>
+  </header>
+
+  <!-- CONTENT PILLARS -->
+  <section class="mb-56">
+    <div class="section-label">01 — Content Pillars</div>
+    <h2>Four signals. One frequency.</h2>
+    <p class="section-intro">Every post traces back to one of these four pillars. No filler. No brand noise. Each post earns its space.</p>
+
+    <div class="pillars-grid">
+
+      <div class="pillar-card pillar-sound">
+        <span class="pillar-icon">🎛</span>
+        <div class="pillar-name">Sound</div>
+        <p class="pillar-desc">The music, the process, the obsession. Production clips, stems, loops in progress. What's being made and how.</p>
+        <div class="pillar-formats">
+          <span class="pillar-tag">Production clips</span>
+          <span class="pillar-tag">Track teasers</span>
+          <span class="pillar-tag">Loop reveals</span>
+          <span class="pillar-tag">Behind the DAW</span>
+        </div>
+      </div>
+
+      <div class="pillar-card pillar-vision">
+        <span class="pillar-icon">🌑</span>
+        <div class="pillar-name">Vision</div>
+        <p class="pillar-desc">The aesthetic. The feeling. Moodboards, visual references, cover art process, the visual world Ada Fen inhabits.</p>
+        <div class="pillar-formats">
+          <span class="pillar-tag">Moodboards</span>
+          <span class="pillar-tag">Color stories</span>
+          <span class="pillar-tag">Art direction</span>
+          <span class="pillar-tag">Cover process</span>
+        </div>
+      </div>
+
+      <div class="pillar-card pillar-story">
+        <span class="pillar-icon">✦</span>
+        <div class="pillar-name">Story</div>
+        <p class="pillar-desc">The personal layer. The why behind the what. Influences, late-night thoughts, what being Ada Fen actually feels like.</p>
+        <div class="pillar-formats">
+          <span class="pillar-tag">Influence maps</span>
+          <span class="pillar-tag">Voice notes</span>
+          <span class="pillar-tag">Text cards</span>
+          <span class="pillar-tag">Origin posts</span>
+        </div>
+      </div>
+
+      <div class="pillar-card pillar-live">
+        <span class="pillar-icon">⚡</span>
+        <div class="pillar-name">Presence</div>
+        <p class="pillar-desc">Live energy, audience interaction, collabs, and the moments when the project meets the world in real time.</p>
+        <div class="pillar-formats">
+          <span class="pillar-tag">Show content</span>
+          <span class="pillar-tag">Q&amp;A responses</span>
+          <span class="pillar-tag">Collabs</span>
+          <span class="pillar-tag">Bandcamp drops</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PLATFORM STRATEGY -->
+  <section class="mb-56">
+    <div class="section-label">02 — Platform Strategy</div>
+    <h2>Where to show up. How to show up there.</h2>
+    <p class="section-intro">Not everywhere. Just the two platforms that match the sound and the audience.</p>
+
+    <div class="platforms-grid">
+
+      <div class="platform-card">
+        <div class="platform-header">
+          <div class="platform-icon" style="background:rgba(224,64,251,0.12)">📸</div>
+          <div>
+            <div class="platform-name">Instagram</div>
+            <div class="platform-handle">@adafenmusic</div>
+          </div>
+        </div>
+        <div class="platform-cadence">
+          <span class="cadence-pill" style="background:rgba(224,64,251,0.12);color:#e040fb">4–5×/week</span>
+          <span class="cadence-pill" style="background:rgba(224,64,251,0.08);color:#b040c8">Grid + Reels + Stories</span>
+        </div>
+        <ul class="platform-mix">
+          <li><span class="mix-dot" style="background:#e040fb"></span>Reels: 30–60s production/vibe clips — 2×/week</li>
+          <li><span class="mix-dot" style="background:#e040fb"></span>Grid: moodboard + art direction stills — 1–2×/week</li>
+          <li><span class="mix-dot" style="background:#e040fb"></span>Stories: daily-ish behind the scenes, polls, Q&amp;A</li>
+          <li><span class="mix-dot" style="background:#e040fb"></span>Carousels: track breakdowns + text storytelling — 1×/week</li>
+          <li><span class="mix-dot" style="background:#e040fb"></span>Link in bio: always points to latest release/Bandcamp</li>
+        </ul>
+      </div>
+
+      <div class="platform-card">
+        <div class="platform-header">
+          <div class="platform-icon" style="background:rgba(0,212,184,0.12)">♪</div>
+          <div>
+            <div class="platform-name">TikTok</div>
+            <div class="platform-handle">@adafenmusic</div>
+          </div>
+        </div>
+        <div class="platform-cadence">
+          <span class="cadence-pill" style="background:rgba(0,212,184,0.12);color:#00d4b8">3–4×/week</span>
+          <span class="cadence-pill" style="background:rgba(0,212,184,0.08);color:#009980">Short-form video</span>
+        </div>
+        <ul class="platform-mix">
+          <li><span class="mix-dot" style="background:#00d4b8"></span>"How I made this" — 30s process breakdown — 1×/week</li>
+          <li><span class="mix-dot" style="background:#00d4b8"></span>Synth/gear texture content — slow, moody, sonic — 1×/week</li>
+          <li><span class="mix-dot" style="background:#00d4b8"></span>Original audio as TikTok sound — on every drop</li>
+          <li><span class="mix-dot" style="background:#00d4b8"></span>"Describe Ada Fen in 3 words" engagement post — 1×/2 weeks</li>
+          <li><span class="mix-dot" style="background:#00d4b8"></span>Trending sound + Ada Fen visual overlay — reactive 1×/week</li>
+        </ul>
+      </div>
+
+      <div class="platform-card">
+        <div class="platform-header">
+          <div class="platform-icon" style="background:rgba(255,209,102,0.12)">🎧</div>
+          <div>
+            <div class="platform-name">Bandcamp</div>
+            <div class="platform-handle">adafen.bandcamp.com</div>
+          </div>
+        </div>
+        <div class="platform-cadence">
+          <span class="cadence-pill" style="background:rgba(255,209,102,0.12);color:#ffd166">Release-driven</span>
+        </div>
+        <ul class="platform-mix">
+          <li><span class="mix-dot" style="background:#ffd166"></span>Every track/EP drop gets a Bandcamp post with full liner notes</li>
+          <li><span class="mix-dot" style="background:#ffd166"></span>Name-your-price on early demos to grow follower list</li>
+          <li><span class="mix-dot" style="background:#ffd166"></span>Bandcamp Fridays — always drop or update pricing on those days</li>
+          <li><span class="mix-dot" style="background:#ffd166"></span>Fan collection incentives: early access for followers</li>
+        </ul>
+      </div>
+
+      <div class="platform-card">
+        <div class="platform-header">
+          <div class="platform-icon" style="background:rgba(255,120,50,0.12)">☁</div>
+          <div>
+            <div class="platform-name">SoundCloud</div>
+            <div class="platform-handle">soundcloud.com/adafen</div>
+          </div>
+        </div>
+        <div class="platform-cadence">
+          <span class="cadence-pill" style="background:rgba(255,120,50,0.12);color:#ff7832">Monthly</span>
+        </div>
+        <ul class="platform-mix">
+          <li><span class="mix-dot" style="background:#ff7832"></span>Private WIP links shared with close community in Stories</li>
+          <li><span class="mix-dot" style="background:#ff7832"></span>Full tracks uploaded same day as Bandcamp drops</li>
+          <li><span class="mix-dot" style="background:#ff7832"></span>Repost rotation with producers in the same sonic space</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 4-WEEK CALENDAR -->
+  <section class="calendar-section">
+    <div class="section-label">03 — Content Calendar</div>
+    <h2>Four weeks. One post at a time.</h2>
+    <p class="section-intro">Click any week. Click any card to mark it done. Color = pillar.</p>
+
+    <div class="week-tabs">
+      <button class="week-tab active" onclick="switchWeek(1, this)">Week 1 · May 3–9</button>
+      <button class="week-tab" onclick="switchWeek(2, this)">Week 2 · May 10–16</button>
+      <button class="week-tab" onclick="switchWeek(3, this)">Week 3 · May 17–23</button>
+      <button class="week-tab" onclick="switchWeek(4, this)">Week 4 · May 24–30</button>
+    </div>
+
+    <div class="calendar-grid" id="calendar-grid">
+
+      <!-- Day headers -->
+      <div class="day-header">Mon</div>
+      <div class="day-header">Tue</div>
+      <div class="day-header">Wed</div>
+      <div class="day-header">Thu</div>
+      <div class="day-header">Fri</div>
+      <div class="day-header">Sat</div>
+      <div class="day-header">Sun</div>
+
+      <!-- WEEK 1 -->
+      <div class="week-panel active" id="w1">
+        <!-- Mon May 5 -->
+        <div class="day-card" onclick="toggleDone(this)">
+          <div class="day-date">Mon · May 5</div>
+          <div class="day-posts">
+            <div class="post-item">
+              <span class="post-platform ig">IG</span>
+              <span class="post-pillar-dot" style="background:#7c5cfc"></span>
+              <span class="post-text">Reel: "First 30 seconds of the new track. Still unnamed." DAW screen + hands on synth. No caption needed.</span>
+            </div>
+          </div>
+        </div>
+        <!-- Tue May 6 -->
+        <div class="day-card" onclick="toggleDone(this)">
+          <div class="day-date">Tue · May 6</div>
+          <div class="day-posts">
+            <div class="post-item">
+              <span class="post-platform tt">TT</span>
+              <span class="post-pillar-dot" style="background:#00d4b8"></span>
+              <span class="post-text">"How I made this synth texture" — 30s. Slow zoom on oscillator. Let the sound speak.</span>
+            </div>
+          </div>
+        </div>
+        <!-- Wed May 7 -->
+        <div class="day-card" onclick="toggleDone(this)">
+          <div class="day-date">Wed · May 7</div>
+          <div class="day-posts">
+            <div class="post-item">
+              <span class="post-platform ig">IG</span>
+              <span class="post-pillar-dot" style="background:#00d4b8"></span>
+              <span class="post-text">Moodboard carousel: 5 images that are the visual space of the next EP. No text. Let people ask.</span>
+            </div>
+          </div>
+        </div>
+        <!-- Thu May 8 -->
+        <div class="day-card" onclick="toggleDone(this)">
+          <div class="day-date">Thu · May 8</div>
+          <div class="day-posts">
+            <div class="post-item">
+              <span class="post-platform tt">TT</span>
+              <span class="post-pillar-dot" style="background:#e040fb"></span>
+              <span class="post-text">Text card over track audio: "Ada Fen is what happens when you can't sleep and refuse to be sad about it."</span>
+            </div>
+            <div class="post-item">
+              <span class="post-platform ig">IG</span>
+              <span class="post-pillar-dot" style="background:#e040fb"></span>
+              <span class="post-text">Story: behind-the-scenes shot of the studio setup. Poll: "Name the vibe in one word."</span>
+            </div>
+          </div>
+        </div>
+        <!-- Fri May 9 -->
+        <div class="day-card" onclick="toggleDone(this)">
+          <div class="day-date">Fri · May 9</div>
+          <div class="day-posts">
+            <div class="post-item">
+              <span class="post-platform bc">BC</span>
+              <span class="post-pillar-dot" style="background:#ffd166"></span>
+              <span class="post-text">Bandcamp Friday: name-your-price window on the earliest demo. Link in bio updated. IG Story to match.</span>
+            </div>
+          </div>
+        </div>
+        <!-- Sat May 10 -->
+        <div class="day-card" onclick="toggleDone(this)">
+          <div class="day-date">Sat · May 10</div>
+          <div class="day-posts">
+            <div class="post-item">
+              <span class="post-platform ig">IG</span>
+              <span class="post-pillar-dot" style="background:#7c5cfc"></span>
+              <span class="post-text">Reel: loop in progress — 20s of a bassline being built in real time. No context. Just the sound evolving.</span>
+            </div>
+          </div>
+        </div>
+        <!-- Sun May 11 -->
+        <div class="day-card rest" title="Rest day">
+          <div class="day-date">Sun · May 11</div>
+          <div class="day-posts">
+            <div class="post-item"><span class="post-text" style="color:#444">Rest. Or Story if inspired.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WEEK 2 -->
+      <div class="week-panel" id="w2">
+        <!-- Mon May 12 -->
+        <div class="day-card" onclick="toggleDone(this)">
+          <div class="day-date">Mon · May 12</div>
+          <div class="day-posts">
+            <div class="post-item">
+              <span class="post-platform ig">IG</span>
+              <span class="post-pillar-dot" style="background:#e040fb"></span>
+              <span class="post-text">Carousel: "3 artists that made Ada Fen inevitable." Brief, personal, no listicle energy. End card: new track teaser.</span>
+            </div>
+          </div>
+        </div>
+        <!-- Tue May 13 -->
+        <div class="day-card" onclick="toggleDone(this)">
+          <div class="day-date">Tue · May 13</div>
+          <div class="day-posts">
+            <div class="post-item">
+              <span class="post-platform tt">TT</span>
+              <span class="post-pillar-dot" style="background:#7c5cfc"></span>
+              <span class="post-text">"I made this at 3am" — 20s clip over the track fragment. Minimal caption. Let the hour explain everything.</span>
+            </div>
+          </div>
+        </div>
+        <!-- Wed May 14 -->
+        <div class="day-card" onclick="toggleDone(this)">
+          <div class="day-date">Wed · May 14</div>
+          <div class="day-posts">
+            <div class="post-item">
+              <span class="post-platform ig">IG</span>
+              <span class="post-pillar-dot" style="background:#00d4b8"></span>
+              <span class="post-text">Grid still: cover art process — WIP of the next single visual. Dark, moody crop. No release date, no hype.</span>
+            </div>
+          </div>
+        </div>
+        <!-- Thu May 15 -->
+        <div class="day-card" onclick="toggleDone(this)">
+          <div class="day-date">Thu · May 15</div>
+          <div class="day-posts">
+            <div class="post-item">
+              <span class="post-platform tt">TT</span>
+              <span class="post-pillar-dot" style="background:#00d4b8"></span>
+              <span class="post-text">"Describe Ada Fen in 3 words" engagement drop — just a text card + the best track fragment. Pin the best reply.</span>
+            </div>
+            <div class="post-item">
+              <span class="post-platform ig">IG</span>
+              <span class="post-pillar-dot" style="background:#e040fb"></span>
+              <span class="post-text">Story Q&amp;A: "What does Ada Fen sound like at 3am?" — use a Threads-style text card, archive the best answers.</span>
+            </div>
+          </div>
+        </div>
+        <!-- Fri May 16 -->
+        <div class="day-card" onclick="toggleDone(this)">
+          <div class="day-date">Fri · May 16</div>
+          <div class="day-posts">
+            <div class="post-item">
+              <span class="post-platform ig">IG</span>
+              <span class="post-pillar-dot" style="background:#7c5cfc"></span>
+              <span class="post-text">Reel: 40s of the full intro section of the new track. First "complete moment" drop. No caption except the title word.</span>
+            </div>
+          </div>
+        </div>
+        <!-- Sat May 17 -->
+        <div class="day-card" onclick="toggleDone(this)">
+          <div class="day-date">Sat · May 17</div>
+          <div class="day-posts">
+            <div class="post-item">
+              <span class="post-platform sc">SC</span>
+              <span class="post-pillar-dot" style="background:#ff7832"></span>
+              <span class="post-text">SoundCloud: upload private WIP. Share link via IG Stories to close followers with caption "early eyes only."</span>
+            </div>
+          </div>
+        </div>
+        <!-- Sun May 18 -->
+        <div class="day-card rest">
+          <div class="day-date">Sun · May 18</div>
+          <div class="day-posts">
+            <div class="post-item"><span class="post-text" style="color:#444">Rest.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WEEK 3 -->
+      <div class="week-panel" id="w3">
+        <!-- Mon May 19 -->
+        <div class="day-card" onclick="toggleDone(this)">
+          <div class="day-date">Mon · May 19</div>
+          <div class="day-posts">
+            <div class="post-item">
+              <span class="post-platform tt">TT</span>
+              <span class="post-pillar-dot" style="background:#7c5cfc"></span>
+              <span class="post-text">"How the drop was built" — reverse engineering TikTok. Start from the finished sound, work backward. 45s max.</span>
+            </div>
+          </div>
+        </div>
+        <!-- Tue May 20 -->
+        <div class="day-card" onclick="toggleDone(this)">
+          <div class="day-date">Tue · May 20</div>
+          <div class="day-posts">
+            <div class="post-item">
+              <span class="post-platform ig">IG</span>
+              <span class="post-pillar-dot" style="background:#e040fb"></span>
+              <span class="post-text">Text card: a fragment of lyric or concept that's guiding the EP. Single sentence. Moody background. No context.</span>
+            </div>
+          </div>
+        </div>
+        <!-- Wed May 21 -->
+        <div class="day-card" onclick="toggleDone(this)">
+          <div class="day-date">Wed · May 21</div>
+          <div class="day-posts">
+            <div class="post-item">
+              <span class="post-platform ig">IG</span>
+              <span class="post-pillar-dot" style="background:#00d4b8"></span>
+              <span class="post-text">Grid: final cover art reveal for the upcoming single. Just the image. Let people react. Respond to every comment this day.</span>
+            </div>
+          </div>
+        </div>
+        <!-- Thu May 22 -->
+        <div class="day-card" onclick="toggleDone(this)">
+          <div class="day-date">Thu · May 22</div>
+          <div class="day-posts">
+            <div class="post-item">
+              <span class="post-platform tt">TT</span>
+              <span class="post-pillar-dot" style="background:#e040fb"></span>
+              <span class="post-text">Story time: the origin of "Ada Fen" as a name/persona — told in 60s, quietly. No hype, just truth.</span>
+            </div>
+            <div class="post-item">
+              <span class="post-platform ig">IG</span>
+              <span class="post-pillar-dot" style="background:#ffd166"></span>
+              <span class="post-text">Story: countdown sticker — "Single drops in X days." Link in bio updated to pre-save / Bandcamp.</span>
+            </div>
+          </div>
+        </div>
+        <!-- Fri May 23 — SINGLE DROP -->
+        <div class="day-card" onclick="toggleDone(this)" style="border-color:var(--purple);box-shadow:0 0 16px var(--glow)">
+          <div class="day-date" style="color:var(--purple);font-weight:700">Fri · May 23 🎛 SINGLE DROP</div>
+          <div class="day-posts">
+            <div class="post-item">
+              <span class="post-platform ig">IG</span>
+              <span class="post-pillar-dot" style="background:#7c5cfc"></span>
+              <span class="post-text">Release Reel: full 60s of the track + cover art. Caption: title + Bandcamp link. Pin to grid.</span>
+            </div>
+            <div class="post-item">
+              <span class="post-platform tt">TT</span>
+              <span class="post-pillar-dot" style="background:#7c5cfc"></span>
+              <span class="post-text">TikTok: "It's out." — same 60s clip. Original audio registered. Comment reply engagement all day.</span>
+            </div>
+            <div class="post-item">
+              <span class="post-platform bc">BC</span>
+              <span class="post-pillar-dot" style="background:#ffd166"></span>
+              <span class="post-text">Bandcamp: full release live. Name-your-price for 48 hours.</span>
+            </div>
+          </div>
+        </div>
+        <!-- Sat May 24 -->
+        <div class="day-card" onclick="toggleDone(this)">
+          <div class="day-date">Sat · May 24</div>
+          <div class="day-posts">
+            <div class="post-item">
+              <span class="post-platform ig">IG</span>
+              <span class="post-pillar-dot" style="background:#00d4b8"></span>
+              <span class="post-text">Post-drop moodboard: the visual world of the single. Referential images + one frame of the cover art.</span>
+            </div>
+          </div>
+        </div>
+        <!-- Sun May 25 -->
+        <div class="day-card rest">
+          <div class="day-date">Sun · May 25</div>
+          <div class="day-posts">
+            <div class="post-item"><span class="post-text" style="color:#444">Rest. Watch the numbers.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WEEK 4 -->
+      <div class="week-panel" id="w4">
+        <!-- Mon May 26 -->
+        <div class="day-card" onclick="toggleDone(this)">
+          <div class="day-date">Mon · May 26</div>
+          <div class="day-posts">
+            <div class="post-item">
+              <span class="post-platform tt">TT</span>
+              <span class="post-pillar-dot" style="background:#7c5cfc"></span>
+              <span class="post-text">"The making of [single name]" — 60s process video. What nobody heard in the final version.</span>
+            </div>
+          </div>
+        </div>
+        <!-- Tue May 27 -->
+        <div class="day-card" onclick="toggleDone(this)">
+          <div class="day-date">Tue · May 27</div>
+          <div class="day-posts">
+            <div class="post-item">
+              <span class="post-platform ig">IG</span>
+              <span class="post-pillar-dot" style="background:#e040fb"></span>
+              <span class="post-text">Carousel: "What I learned making this track" — 4 cards, honest, specific. No inspiration-porn. Close with what's next.</span>
+            </div>
+          </div>
+        </div>
+        <!-- Wed May 28 -->
+        <div class="day-card" onclick="toggleDone(this)">
+          <div class="day-date">Wed · May 28</div>
+          <div class="day-posts">
+            <div class="post-item">
+              <span class="post-platform tt">TT</span>
+              <span class="post-pillar-dot" style="background:#00d4b8"></span>
+              <span class="post-text">Gear texture post: just the synth, slow, moody. New sonic teaser underneath — 10 seconds of the next thing.</span>
+            </div>
+          </div>
+        </div>
+        <!-- Thu May 29 -->
+        <div class="day-card" onclick="toggleDone(this)">
+          <div class="day-date">Thu · May 29</div>
+          <div class="day-posts">
+            <div class="post-item">
+              <span class="post-platform ig">IG</span>
+              <span class="post-pillar-dot" style="background:#7c5cfc"></span>
+              <span class="post-text">Reel: first fragment of Track 2. "Untitled. May 2026." — the loop to close out the month. Sets up June.</span>
+            </div>
+            <div class="post-item">
+              <span class="post-platform ig">IG</span>
+              <span class="post-pillar-dot" style="background:#ffd166"></span>
+              <span class="post-text">Story: "What should I work on this summer?" — simple poll. Two options. Let the audience co-own the direction.</span>
+            </div>
+          </div>
+        </div>
+        <!-- Fri May 30 -->
+        <div class="day-card" onclick="toggleDone(this)">
+          <div class="day-date">Fri · May 30</div>
+          <div class="day-posts">
+            <div class="post-item">
+              <span class="post-platform ig">IG</span>
+              <span class="post-pillar-dot" style="background:#e040fb"></span>
+              <span class="post-text">Month retrospective text card: "May was ___." One word, one image. Honest. Invite replies.</span>
+            </div>
+          </div>
+        </div>
+        <!-- Sat May 31 -->
+        <div class="day-card" onclick="toggleDone(this)">
+          <div class="day-date">Sat · May 31</div>
+          <div class="day-posts">
+            <div class="post-item">
+              <span class="post-platform sc">SC</span>
+              <span class="post-pillar-dot" style="background:#ff7832"></span>
+              <span class="post-text">SoundCloud: upload Track 2 WIP (private link). Stories tease for June. "Something is almost done."</span>
+            </div>
+          </div>
+        </div>
+        <!-- Sun Jun 1 -->
+        <div class="day-card rest">
+          <div class="day-date">Sun · Jun 1</div>
+          <div class="day-posts">
+            <div class="post-item"><span class="post-text" style="color:#444">Rest. June starts tomorrow.</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- GROWTH MILESTONES -->
+  <section class="milestones-section">
+    <div class="section-label">04 — Growth Milestones</div>
+    <h2>What each milestone unlocks.</h2>
+    <p class="section-intro">Follower counts aren't the point — they're the unlock condition for the next move.</p>
+
+    <div class="milestones-grid">
+      <div class="milestone-card current">
+        <div class="milestone-num" style="color:var(--purple)">500</div>
+        <div class="milestone-platform">Instagram followers</div>
+        <div class="milestone-progress-bar"><div class="milestone-fill" style="width:40%"></div></div>
+        <div class="milestone-unlocks">Unlocks: <strong>Instagram Music profile + contact button</strong>. Start collecting emails via bio link.</div>
+      </div>
+      <div class="milestone-card">
+        <div class="milestone-num" style="color:var(--teal)">1K</div>
+        <div class="milestone-platform">Instagram followers</div>
+        <div class="milestone-progress-bar"><div class="milestone-fill" style="width:20%"></div></div>
+        <div class="milestone-unlocks">Unlocks: <strong>Collab pitch to 2–3 producers</strong> in the same sonic space. IG adds credibility.</div>
+      </div>
+      <div class="milestone-card">
+        <div class="milestone-num" style="color:var(--pink)">1K</div>
+        <div class="milestone-platform">TikTok followers</div>
+        <div class="milestone-progress-bar"><div class="milestone-fill" style="width:15%"></div></div>
+        <div class="milestone-unlocks">Unlocks: <strong>TikTok Creator tools + live access</strong>. First live session: produce a loop live.</div>
+      </div>
+      <div class="milestone-card">
+        <div class="milestone-num" style="color:var(--gold)">50</div>
+        <div class="milestone-platform">Bandcamp followers</div>
+        <div class="milestone-progress-bar"><div class="milestone-fill" style="width:30%"></div></div>
+        <div class="milestone-unlocks">Unlocks: <strong>Paid release strategy</strong>. Switch from name-your-price to tiered pricing on next drop.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- IDEAS BANK -->
+  <section class="ideas-section">
+    <div class="section-label">05 — Ideas Bank</div>
+    <h2>Pull from here when the calendar needs filling.</h2>
+    <p class="section-intro">Click to mark used. Click again to unmark.</p>
+
+    <div class="ideas-grid" id="ideas-bank">
+      <div class="idea-card" onclick="this.classList.toggle('used')">
+        <div class="idea-pillar-stripe" style="background:#7c5cfc"></div>
+        <div class="idea-body">
+          <div class="idea-title">The plugin that changed everything</div>
+          <div class="idea-platform">TT · Sound pillar · 30–45s</div>
+        </div>
+      </div>
+      <div class="idea-card" onclick="this.classList.toggle('used')">
+        <div class="idea-pillar-stripe" style="background:#00d4b8"></div>
+        <div class="idea-body">
+          <div class="idea-title">Moodboard for the EP that doesn't exist yet</div>
+          <div class="idea-platform">IG carousel · Vision pillar</div>
+        </div>
+      </div>
+      <div class="idea-card" onclick="this.classList.toggle('used')">
+        <div class="idea-pillar-stripe" style="background:#e040fb"></div>
+        <div class="idea-body">
+          <div class="idea-title">"The track that made me start Ada Fen"</div>
+          <div class="idea-platform">IG Reel + TT · Story pillar</div>
+        </div>
+      </div>
+      <div class="idea-card" onclick="this.classList.toggle('used')">
+        <div class="idea-pillar-stripe" style="background:#7c5cfc"></div>
+        <div class="idea-body">
+          <div class="idea-title">Cover: something classic, Ada Fen version</div>
+          <div class="idea-platform">TT · Sound pillar · high discovery potential</div>
+        </div>
+      </div>
+      <div class="idea-card" onclick="this.classList.toggle('used')">
+        <div class="idea-pillar-stripe" style="background:#ffd166"></div>
+        <div class="idea-body">
+          <div class="idea-title">Bandcamp fan message response</div>
+          <div class="idea-platform">IG Story · Presence pillar</div>
+        </div>
+      </div>
+      <div class="idea-card" onclick="this.classList.toggle('used')">
+        <div class="idea-pillar-stripe" style="background:#00d4b8"></div>
+        <div class="idea-body">
+          <div class="idea-title">The color palette of the next track</div>
+          <div class="idea-platform">IG grid still · Vision pillar</div>
+        </div>
+      </div>
+      <div class="idea-card" onclick="this.classList.toggle('used')">
+        <div class="idea-pillar-stripe" style="background:#7c5cfc"></div>
+        <div class="idea-body">
+          <div class="idea-title">Two versions of the same 4 bars</div>
+          <div class="idea-platform">TT side-by-side · Sound pillar</div>
+        </div>
+      </div>
+      <div class="idea-card" onclick="this.classList.toggle('used')">
+        <div class="idea-pillar-stripe" style="background:#e040fb"></div>
+        <div class="idea-body">
+          <div class="idea-title">"Why 3am?" — the honest answer</div>
+          <div class="idea-platform">TT text card + audio · Story pillar</div>
+        </div>
+      </div>
+      <div class="idea-card" onclick="this.classList.toggle('used')">
+        <div class="idea-pillar-stripe" style="background:#ffd166"></div>
+        <div class="idea-body">
+          <div class="idea-title">Live session: one loop, built start to finish</div>
+          <div class="idea-platform">IG Live or TT Live · Presence pillar</div>
+        </div>
+      </div>
+      <div class="idea-card" onclick="this.classList.toggle('used')">
+        <div class="idea-pillar-stripe" style="background:#00d4b8"></div>
+        <div class="idea-body">
+          <div class="idea-title">The desk at 1am — just a photo</div>
+          <div class="idea-platform">IG grid · Vision pillar · no caption</div>
+        </div>
+      </div>
+      <div class="idea-card" onclick="this.classList.toggle('used')">
+        <div class="idea-pillar-stripe" style="background:#7c5cfc"></div>
+        <div class="idea-body">
+          <div class="idea-title">3 tracks that are DNA references for the EP</div>
+          <div class="idea-platform">TT with audio clips · Sound pillar</div>
+        </div>
+      </div>
+      <div class="idea-card" onclick="this.classList.toggle('used')">
+        <div class="idea-pillar-stripe" style="background:#e040fb"></div>
+        <div class="idea-body">
+          <div class="idea-title">The scrapped version of a track</div>
+          <div class="idea-platform">TT or IG Reel · Story pillar · vulnerability</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RELEASE TRACKER -->
+  <section class="releases-section">
+    <div class="section-label">06 — Release Tracker</div>
+    <h2>What's in the pipeline.</h2>
+    <p class="section-intro">Keep this updated as things move.</p>
+
+    <div class="releases-list">
+      <div class="release-item">
+        <div class="release-status status-released"></div>
+        <div class="release-name">Ada Fen · Early Demos EP</div>
+        <span class="release-stage stage-released">Released</span>
+        <div class="release-note">Name-your-price on Bandcamp</div>
+      </div>
+      <div class="release-item">
+        <div class="release-status status-mix"></div>
+        <div class="release-name">Single #1 — [Untitled · May 2026]</div>
+        <span class="release-stage stage-mix">In progress</span>
+        <div class="release-note">Target drop: May 23, 2026</div>
+      </div>
+      <div class="release-item">
+        <div class="release-status status-idea"></div>
+        <div class="release-name">Track 2 — [Concept phase]</div>
+        <span class="release-stage stage-idea">Idea</span>
+        <div class="release-note">WIP fragments collected</div>
+      </div>
+      <div class="release-item">
+        <div class="release-status status-idea"></div>
+        <div class="release-name">EP #1 — [Summer 2026]</div>
+        <span class="release-stage stage-idea">Planned</span>
+        <div class="release-note">Concept forming · Q3 target</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-left">Built by <strong>Neon</strong> · Ada Fen Content Engine · May 2026</div>
+    <a href="https://adafenmusic.com" class="footer-link" target="_blank">adafenmusic.com ↗</a>
+  </footer>
+
+</div>
+
+<script>
+  // Week switcher
+  function switchWeek(num, btn) {
+    document.querySelectorAll('.week-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.week-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('w' + num).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  // Day card done toggle
+  function toggleDone(card) {
+    if (card.classList.contains('rest')) return;
+    card.classList.toggle('done');
+    if (card.classList.contains('done')) {
+      card.style.opacity = '0.45';
+      card.style.textDecoration = 'line-through';
+    } else {
+      card.style.opacity = '';
+      card.style.textDecoration = '';
+    }
+    saveState();
+  }
+
+  // Milestone progress bars — animate on load
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.querySelectorAll('.milestone-fill').forEach(bar => {
+        const w = bar.style.width;
+        bar.style.width = '0';
+        requestAnimationFrame(() => {
+          setTimeout(() => { bar.style.width = w; }, 50);
+        });
+      });
+    }, 300);
+    loadState();
+  });
+
+  // Persist done/used state via localStorage
+  function saveState() {
+    const doneCards = [];
+    document.querySelectorAll('.day-card.done').forEach((card, i) => {
+      doneCards.push(card.querySelector('.day-date')?.textContent);
+    });
+    const usedIdeas = [];
+    document.querySelectorAll('.idea-card.used').forEach(card => {
+      usedIdeas.push(card.querySelector('.idea-title')?.textContent);
+    });
+    localStorage.setItem('adafen-engine-done', JSON.stringify(doneCards));
+    localStorage.setItem('adafen-engine-used', JSON.stringify(usedIdeas));
+  }
+
+  function loadState() {
+    try {
+      const done = JSON.parse(localStorage.getItem('adafen-engine-done') || '[]');
+      const used = JSON.parse(localStorage.getItem('adafen-engine-used') || '[]');
+      document.querySelectorAll('.day-card:not(.rest)').forEach(card => {
+        const dateText = card.querySelector('.day-date')?.textContent;
+        if (done.includes(dateText)) {
+          card.classList.add('done');
+          card.style.opacity = '0.45';
+          card.style.textDecoration = 'line-through';
+        }
+      });
+      document.querySelectorAll('.idea-card').forEach(card => {
+        const title = card.querySelector('.idea-title')?.textContent;
+        if (used.includes(title)) card.classList.add('used');
+      });
+    } catch(e) {}
+  }
+</script>
+</body>
+</html>
