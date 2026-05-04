@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ada Fen — Electronic Press Kit</title>
+  <meta name="description" content="Ada Fen — moody electronic pop & synthwave. Press kit for booking, features, and playlist submissions." />
+  <style>
+    /* ─── TOKENS ─── */
+    :root {
+      --black:   #080810;
+      --deep:    #0d0d1a;
+      --surface: #12121f;
+      --panel:   #1a1a2e;
+      --border:  rgba(139, 92, 246, 0.18);
+      --violet:  #8b5cf6;
+      --cyan:    #22d3ee;
+      --rose:    #f43f5e;
+      --gold:    #fbbf24;
+      --mist:    rgba(139, 92, 246, 0.07);
+      --white:   #f1f0f5;
+      --mid:     #a09ab8;
+      --dim:     #5a546e;
+
+      --font-head: 'Georgia', 'Times New Roman', serif;
+      --font-body: 'Helvetica Neue', 'Arial', sans-serif;
+      --font-mono: 'Courier New', monospace;
+    }
+
+    /* ─── RESET ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    a { color: var(--cyan); text-decoration: none; transition: opacity 0.2s; }
+    a:hover { opacity: 0.75; }
+
+    /* ─── GRID NOISE BACKGROUND ─── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(139,92,246,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(139,92,246,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ─── SCAN LINE OVERLAY ─── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.15) 2px,
+        rgba(0,0,0,0.15) 4px
+      );
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ─── ALL CONTENT ABOVE OVERLAYS ─── */
+    .page { position: relative; z-index: 2; }
+
+    /* ─── NAV ─── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 48px;
+      background: rgba(8,8,16,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: var(--font-head);
+      font-size: 1.1rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--white);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--mid);
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--cyan); opacity: 1; }
+
+    .nav-badge {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--dim);
+      font-family: var(--font-mono);
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 48px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Radial glow behind hero text */
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--violet);
+      margin-bottom: 24px;
+      animation: fadeUp 0.8s ease both;
+    }
+
+    .hero-name {
+      font-family: var(--font-head);
+      font-size: clamp(5rem, 16vw, 14rem);
+      font-weight: normal;
+      letter-spacing: -0.02em;
+      line-height: 0.9;
+      color: var(--white);
+      animation: fadeUp 0.8s ease 0.1s both;
+      position: relative;
+    }
+
+    /* Chromatic aberration effect on name */
+    .hero-name::before,
+    .hero-name::after {
+      content: 'Ada Fen';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+    }
+
+    .hero-name::before {
+      color: var(--cyan);
+      clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+      transform: translate(-2px, 0);
+      opacity: 0.5;
+      mix-blend-mode: screen;
+    }
+
+    .hero-name::after {
+      color: var(--rose);
+      clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+      transform: translate(2px, 0);
+      opacity: 0.4;
+      mix-blend-mode: screen;
+    }
+
+    .hero-tagline {
+      margin-top: 32px;
+      font-size: 1.05rem;
+      color: var(--mid);
+      letter-spacing: 0.05em;
+      max-width: 480px;
+      animation: fadeUp 0.8s ease 0.2s both;
+    }
+
+    .hero-tagline em {
+      font-style: normal;
+      color: var(--violet);
+    }
+
+    .hero-actions {
+      margin-top: 48px;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeUp 0.8s ease 0.3s both;
+    }
+
+    .btn {
+      padding: 12px 28px;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: var(--font-body);
+    }
+
+    .btn-primary {
+      background: var(--violet);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #7c3aed;
+      opacity: 1;
+      transform: translateY(-1px);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--cyan);
+      border: 1px solid rgba(34,211,238,0.35);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(34,211,238,0.08);
+      opacity: 1;
+      transform: translateY(-1px);
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      animation: fadeUp 0.8s ease 0.6s both;
+    }
+
+    .hero-scroll span {
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--dim);
+      font-family: var(--font-mono);
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--dim), transparent);
+      animation: scrollPulse 2s ease infinite;
+    }
+
+    /* ─── SECTION BASE ─── */
+    section {
+      padding: 100px 48px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--violet);
+      margin-bottom: 48px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+      max-width: 200px;
+    }
+
+    /* ─── BIO ─── */
+    .bio-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+
+    .bio-visual {
+      position: relative;
+      aspect-ratio: 3/4;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    /* Abstract synthwave visual in place of photo */
+    .bio-visual::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 50% 80%, rgba(139,92,246,0.6) 0%, transparent 60%),
+        radial-gradient(ellipse at 20% 20%, rgba(34,211,238,0.2) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 30%, rgba(244,63,94,0.15) 0%, transparent 45%);
+    }
+
+    /* Horizon lines */
+    .bio-visual::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 55%;
+      background: repeating-linear-gradient(
+        to top,
+        transparent,
+        transparent 6px,
+        rgba(139,92,246,0.2) 6px,
+        rgba(139,92,246,0.2) 7px
+      );
+      mask-image: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    }
+
+    .bio-visual-label {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      color: rgba(139,92,246,0.6);
+      text-transform: uppercase;
+    }
+
+    .bio-content h2 {
+      font-family: var(--font-head);
+      font-size: 2.5rem;
+      font-weight: normal;
+      color: var(--white);
+      line-height: 1.2;
+      margin-bottom: 24px;
+    }
+
+    .bio-content h2 span {
+      color: var(--violet);
+    }
+
+    .bio-short {
+      font-size: 1.05rem;
+      color: var(--mid);
+      line-height: 1.75;
+      margin-bottom: 32px;
+    }
+
+    .bio-long {
+      font-size: 0.9rem;
+      color: var(--dim);
+      line-height: 1.8;
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+    }
+
+    .bio-stats {
+      display: flex;
+      gap: 32px;
+      margin-top: 40px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+    }
+
+    .stat { flex: 1; }
+    .stat-value {
+      font-family: var(--font-head);
+      font-size: 2rem;
+      color: var(--white);
+      line-height: 1;
+    }
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-top: 6px;
+    }
+
+    /* ─── MUSIC ─── */
+    .music-section { background: var(--surface); padding: 100px 0; max-width: none; }
+    .music-section > .inner { max-width: 1100px; margin: 0 auto; padding: 0 48px; }
+
+    .releases-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 0;
+    }
+
+    .release-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 32px;
+      position: relative;
+      transition: border-color 0.2s, transform 0.2s;
+      overflow: hidden;
+    }
+
+    .release-card:hover {
+      border-color: rgba(139,92,246,0.5);
+      transform: translateY(-3px);
+    }
+
+    .release-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--violet), var(--cyan));
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .release-card:hover::before { opacity: 1; }
+
+    .release-artwork {
+      width: 100%;
+      aspect-ratio: 1;
+      background: var(--surface);
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Generative per-card artwork */
+    .release-artwork.ep1 {
+      background: radial-gradient(circle at 30% 70%, rgba(139,92,246,0.8) 0%, transparent 60%),
+                  radial-gradient(circle at 70% 30%, rgba(34,211,238,0.5) 0%, transparent 50%),
+                  var(--deep);
+    }
+
+    .release-artwork.ep2 {
+      background: radial-gradient(circle at 50% 50%, rgba(244,63,94,0.7) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 80%, rgba(139,92,246,0.4) 0%, transparent 45%),
+                  var(--deep);
+    }
+
+    .release-artwork.ep3 {
+      background: radial-gradient(circle at 20% 40%, rgba(251,191,36,0.5) 0%, transparent 50%),
+                  radial-gradient(circle at 70% 60%, rgba(139,92,246,0.6) 0%, transparent 55%),
+                  var(--deep);
+    }
+
+    .release-type {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--violet);
+    }
+
+    .release-title {
+      font-family: var(--font-head);
+      font-size: 1.3rem;
+      color: var(--white);
+      margin: 8px 0 4px;
+    }
+
+    .release-date {
+      font-size: 0.8rem;
+      color: var(--dim);
+    }
+
+    .release-links {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .stream-link {
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mid);
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      transition: all 0.2s;
+    }
+
+    .stream-link:hover {
+      color: var(--cyan);
+      border-color: rgba(34,211,238,0.4);
+      opacity: 1;
+    }
+
+    /* ─── PRESS ─── */
+    .press-quotes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+
+    .quote-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--violet);
+      padding: 32px;
+    }
+
+    .quote-text {
+      font-family: var(--font-head);
+      font-size: 1.1rem;
+      color: var(--white);
+      line-height: 1.6;
+      font-style: italic;
+      margin-bottom: 20px;
+    }
+
+    .quote-source {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--violet);
+    }
+
+    .quote-pub {
+      display: block;
+      color: var(--dim);
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      margin-top: 4px;
+    }
+
+    /* ─── LIVE ─── */
+    .shows-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .show-row {
+      display: grid;
+      grid-template-columns: 120px 1fr 180px 140px;
+      align-items: center;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      gap: 24px;
+      transition: background 0.2s;
+    }
+
+    .show-row:first-child { border-top: 1px solid var(--border); }
+
+    .show-date {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--cyan);
+      letter-spacing: 0.05em;
+    }
+
+    .show-venue { font-size: 0.95rem; color: var(--white); }
+    .show-city { font-size: 0.8rem; color: var(--dim); margin-top: 2px; }
+    .show-type {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--violet);
+      font-family: var(--font-mono);
+    }
+
+    .show-tickets {
+      text-align: right;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mid);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      transition: all 0.2s;
+      display: inline-block;
+    }
+
+    .show-tickets:hover {
+      color: var(--white);
+      border-color: var(--violet);
+      opacity: 1;
+    }
+
+    /* ─── CONTACT ─── */
+    .contact-section {
+      background: var(--deep);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 100px 0;
+      max-width: none;
+    }
+
+    .contact-section > .inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 48px;
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 48px;
+    }
+
+    .contact-card {
+      border-top: 2px solid var(--border);
+      padding-top: 24px;
+    }
+
+    .contact-card.primary { border-top-color: var(--violet); }
+    .contact-card.secondary { border-top-color: var(--cyan); }
+    .contact-card.tertiary { border-top-color: var(--gold); }
+
+    .contact-role {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 12px;
+    }
+
+    .contact-name {
+      font-family: var(--font-head);
+      font-size: 1.2rem;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .contact-email {
+      font-size: 0.85rem;
+      color: var(--cyan);
+    }
+
+    .contact-note {
+      font-size: 0.8rem;
+      color: var(--dim);
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    /* ─── SOCIALS ─── */
+    .social-bar {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 60px 48px;
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .social-label {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--dim);
+      white-space: nowrap;
+    }
+
+    .social-links { display: flex; gap: 24px; flex-wrap: wrap; }
+
+    .social-link {
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mid);
+      transition: color 0.2s;
+    }
+
+    .social-link:hover { color: var(--white); opacity: 1; }
+
+    .social-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-logo {
+      font-family: var(--font-head);
+      font-size: 1rem;
+      letter-spacing: 0.1em;
+      color: var(--dim);
+    }
+
+    .footer-copy {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--dim);
+      letter-spacing: 0.1em;
+    }
+
+    .footer-site {
+      font-size: 0.75rem;
+      color: var(--violet);
+    }
+
+    /* ─── PRESS DOWNLOAD CTA ─── */
+    .press-cta {
+      background: var(--mist);
+      border: 1px solid var(--border);
+      padding: 48px;
+      text-align: center;
+      margin-top: 64px;
+    }
+
+    .press-cta h3 {
+      font-family: var(--font-head);
+      font-size: 1.8rem;
+      font-weight: normal;
+      color: var(--white);
+      margin-bottom: 12px;
+    }
+
+    .press-cta p {
+      color: var(--mid);
+      font-size: 0.9rem;
+      margin-bottom: 28px;
+    }
+
+    /* ─── ANIMATIONS ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.3; transform: scaleY(1); }
+      50%       { opacity: 1;   transform: scaleY(1.1); }
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      nav { padding: 14px 24px; }
+      .nav-links { display: none; }
+      .nav-badge { display: none; }
+
+      section { padding: 72px 24px; }
+      .music-section > .inner,
+      .contact-section > .inner { padding: 0 24px; }
+      .music-section { padding: 72px 0; }
+      .contact-section { padding: 72px 0; }
+
+      .bio-grid { grid-template-columns: 1fr; gap: 40px; }
+      .bio-visual { max-width: 320px; }
+
+      .releases-grid { grid-template-columns: 1fr; }
+
+      .press-quotes { grid-template-columns: 1fr; }
+
+      .show-row { grid-template-columns: 1fr 1fr; }
+      .show-type { display: none; }
+      .show-tickets { text-align: left; }
+
+      .contact-grid { grid-template-columns: 1fr; gap: 32px; }
+
+      .social-bar { padding: 40px 24px; }
+
+      footer { padding: 24px; flex-direction: column; gap: 12px; text-align: center; }
+    }
+
+    @media (max-width: 600px) {
+      .hero { padding: 100px 24px 80px; }
+      .press-cta { padding: 32px 24px; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- NAV -->
+  <nav>
+    <span class="nav-logo">Ada Fen</span>
+    <ul class="nav-links">
+      <li><a href="#bio">Bio</a></li>
+      <li><a href="#music">Music</a></li>
+      <li><a href="#press">Press</a></li>
+      <li><a href="#live">Live</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <span class="nav-badge">EPK · 2026</span>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero">
+    <p class="hero-eyebrow">Electronic Press Kit &nbsp;·&nbsp; 2026</p>
+    <h1 class="hero-name">Ada Fen</h1>
+    <p class="hero-tagline">
+      Moody electronic pop &amp; synthwave from the edge of something.
+      <em>Built on tension. Finished in the dark.</em>
+    </p>
+    <div class="hero-actions">
+      <a href="#contact" class="btn btn-primary">Book / Inquire</a>
+      <a href="#music" class="btn btn-ghost">Stream Music</a>
+    </div>
+    <div class="hero-scroll">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </header>
+
+  <!-- BIO -->
+  <section id="bio">
+    <p class="section-label">01 — Artist</p>
+    <div class="bio-grid">
+      <div>
+        <div class="bio-visual">
+          <span class="bio-visual-label">Ada Fen · 2026</span>
+        </div>
+      </div>
+      <div class="bio-content">
+        <h2>
+          Sound that lives<br/>
+          in the <span>in-between.</span>
+        </h2>
+        <p class="bio-short">
+          Ada Fen makes electronic pop music that doesn't resolve cleanly.
+          Warm synths underneath cold arrangements. Hooks you can't shake.
+          Lyrics that land differently the third time you hear them.
+        </p>
+        <p class="bio-long">
+          Ada Fen is a solo electronic project built around the friction between
+          intimacy and distance — the emotional register that synthwave opened up
+          in the '80s, recontextualized through a contemporary pop lens.
+          Her productions layer processed vocals against clean analog-style
+          basslines, with melodies that feel nostalgic for places that never
+          existed. Equal parts neon boulevard and 3am apartment window.
+          <br/><br/>
+          Based on the East Coast. Records late. Ships clean.
+        </p>
+        <div class="bio-stats">
+          <div class="stat">
+            <div class="stat-value">2026</div>
+            <div class="stat-label">Active Since</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">EP</div>
+            <div class="stat-label">Format</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">Live</div>
+            <div class="stat-label">Status</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MUSIC -->
+  <div class="music-section" id="music">
+    <div class="inner">
+      <p class="section-label">02 — Releases</p>
+      <div class="releases-grid">
+
+        <div class="release-card">
+          <div class="release-artwork ep1"></div>
+          <div class="release-type">Single</div>
+          <div class="release-title">Glass Memory</div>
+          <div class="release-date">2026</div>
+          <div class="release-links">
+            <a href="https://open.spotify.com" class="stream-link" target="_blank">Spotify</a>
+            <a href="https://music.apple.com" class="stream-link" target="_blank">Apple</a>
+            <a href="https://soundcloud.com" class="stream-link" target="_blank">SoundCloud</a>
+          </div>
+        </div>
+
+        <div class="release-card">
+          <div class="release-artwork ep2"></div>
+          <div class="release-type">Single</div>
+          <div class="release-title">Distance Protocol</div>
+          <div class="release-date">2026</div>
+          <div class="release-links">
+            <a href="https://open.spotify.com" class="stream-link" target="_blank">Spotify</a>
+            <a href="https://music.apple.com" class="stream-link" target="_blank">Apple</a>
+            <a href="https://soundcloud.com" class="stream-link" target="_blank">SoundCloud</a>
+          </div>
+        </div>
+
+        <div class="release-card">
+          <div class="release-artwork ep3"></div>
+          <div class="release-type">Coming Soon</div>
+          <div class="release-title">Untitled EP</div>
+          <div class="release-date">2026 — TBA</div>
+          <div class="release-links">
+            <a href="mailto:booking@adafenmusic.com" class="stream-link">Pre-save / Contact</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- PRESS -->
+  <section id="press">
+    <p class="section-label">03 — Press</p>
+    <div class="press-quotes">
+
+      <div class="quote-card">
+        <p class="quote-text">
+          "Ada Fen writes electronic pop like a confession — every hook lands just a
+          little harder than you expected it to."
+        </p>
+        <span class="quote-source">— Press Inquiry Welcome
+          <span class="quote-pub">Contact for review copies</span>
+        </span>
+      </div>
+
+      <div class="quote-card">
+        <p class="quote-text">
+          "The kind of sound that exists exactly in the gap between a memory
+          and the version of it you've invented. Atmospheric, precise, unsettling."
+        </p>
+        <span class="quote-source">— Playlist Submission Welcome
+          <span class="quote-pub">Contact for streaming pitches</span>
+        </span>
+      </div>
+
+    </div>
+
+    <div class="press-cta">
+      <h3>Press &amp; Playlist Submissions</h3>
+      <p>
+        High-res photography, track stems, and press materials available on request.<br/>
+        Response within 48 hours for all media inquiries.
+      </p>
+      <a href="mailto:press@adafenmusic.com" class="btn btn-primary">Request Press Pack</a>
+    </div>
+  </section>
+
+  <!-- LIVE -->
+  <section id="live">
+    <p class="section-label">04 — Live</p>
+    <div class="shows-list">
+      <div class="show-row">
+        <div class="show-date">TBA · 2026</div>
+        <div>
+          <div class="show-venue">Booking Open</div>
+          <div class="show-city">Northeast US · Available for touring</div>
+        </div>
+        <div class="show-type">Headline / Support</div>
+        <a href="mailto:booking@adafenmusic.com" class="show-tickets">Inquire</a>
+      </div>
+      <div class="show-row">
+        <div class="show-date">TBA · 2026</div>
+        <div>
+          <div class="show-venue">Festival Submissions Open</div>
+          <div class="show-city">All regions considered</div>
+        </div>
+        <div class="show-type">Festival</div>
+        <a href="mailto:booking@adafenmusic.com" class="show-tickets">Submit</a>
+      </div>
+      <div class="show-row">
+        <div class="show-date">Ongoing</div>
+        <div>
+          <div class="show-venue">Private &amp; Brand Events</div>
+          <div class="show-city">Remote performances available</div>
+        </div>
+        <div class="show-type">Private</div>
+        <a href="mailto:booking@adafenmusic.com" class="show-tickets">Quote</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <div class="contact-section" id="contact">
+    <div class="inner">
+      <p class="section-label">05 — Contact</p>
+      <div class="contact-grid">
+        <div class="contact-card primary">
+          <div class="contact-role">Booking &amp; Live</div>
+          <div class="contact-name">Booking Inquiries</div>
+          <a href="mailto:booking@adafenmusic.com" class="contact-email">booking@adafenmusic.com</a>
+          <p class="contact-note">Headline, support, festival, and private event requests. Include date, venue, and capacity.</p>
+        </div>
+        <div class="contact-card secondary">
+          <div class="contact-role">Press &amp; Sync</div>
+          <div class="contact-name">Press Office</div>
+          <a href="mailto:press@adafenmusic.com" class="contact-email">press@adafenmusic.com</a>
+          <p class="contact-note">Reviews, interviews, playlist submissions, sync licensing. Assets on request.</p>
+        </div>
+        <div class="contact-card tertiary">
+          <div class="contact-role">General</div>
+          <div class="contact-name">Direct</div>
+          <a href="https://adafenmusic.com" class="contact-email">adafenmusic.com</a>
+          <p class="contact-note">Everything else. Collabs, fan mail, questions that don't fit a category.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOCIALS -->
+  <div class="social-bar">
+    <span class="social-label">Follow</span>
+    <div class="social-line"></div>
+    <div class="social-links">
+      <a href="https://adafenmusic.com" class="social-link" target="_blank">Website</a>
+      <a href="https://instagram.com/adafenmusic" class="social-link" target="_blank">Instagram</a>
+      <a href="https://open.spotify.com" class="social-link" target="_blank">Spotify</a>
+      <a href="https://soundcloud.com" class="social-link" target="_blank">SoundCloud</a>
+      <a href="https://music.apple.com" class="social-link" target="_blank">Apple Music</a>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="footer-logo">Ada Fen</span>
+    <span class="footer-copy">© 2026 Ada Fen · All rights reserved · EPK generated by Neon</span>
+    <a href="https://adafenmusic.com" class="footer-site" target="_blank">adafenmusic.com</a>
+  </footer>
+
+</div>
+</body>
+</html>
