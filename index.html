@@ -395,9 +395,10 @@
       opacity: 1;
     }
 
-    .bar-amber { background: linear-gradient(90deg, transparent, var(--color-pink), transparent); }
-    .bar-ada   { background: linear-gradient(90deg, transparent, var(--color-periwinkle), transparent); }
-    .bar-tool  { background: linear-gradient(90deg, transparent, var(--color-green), transparent); }
+    .bar-amber    { background: linear-gradient(90deg, transparent, var(--color-pink), transparent); }
+    .bar-ada      { background: linear-gradient(90deg, transparent, var(--color-periwinkle), transparent); }
+    .bar-tool     { background: linear-gradient(90deg, transparent, var(--color-green), transparent); }
+    .bar-substack { background: linear-gradient(90deg, transparent, var(--color-lavender), transparent); }
 
     /* ── Footer ── */
     footer {
@@ -506,10 +507,24 @@
         <div class="section-header animate-in" style="animation-delay: 0.28s">
           <span class="section-label">archive</span>
           <div class="section-line"></div>
-          <span class="section-label" id="build-count">6 builds</span>
+          <span class="section-label" id="build-count">7 builds</span>
         </div>
 
         <div class="builds-grid">
+
+          <!-- Build 07: Agentic UX Audit Kit -->
+          <a class="build-card loaded" href="builds/2026-05-06/" style="animation-delay: 0.02s">
+            <div class="card-accent-bar bar-substack"></div>
+            <div class="card-date">May 6, 2026</div>
+            <h2 class="card-title">Agentic UX Audit Kit</h2>
+            <p class="card-desc">Evaluate AI-powered interfaces against 12 heuristics designed for the post-LLM era. Live radar chart, category breakdown, critical flags, and an exportable text report. Built for UX practitioners.</p>
+            <div class="card-footer">
+              <span class="card-tag tag-substack">designing for tomorrow · ux</span>
+              <div class="card-arrow">
+                <svg viewBox="0 0 12 12"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
+              </div>
+            </div>
+          </a>
 
           <!-- Build 06: Neon Drift -->
           <a class="build-card loaded" href="builds/2026-05-05/" style="animation-delay: 0.02s">

@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentic UX Audit Kit — Designing for Tomorrow</title>
+<style>
+  :root {
+    --bg: #0d0d12;
+    --surface: #13131a;
+    --surface2: #1a1a24;
+    --surface3: #22222f;
+    --border: #2a2a3a;
+    --border2: #3a3a50;
+    --text: #e8e8f0;
+    --text2: #9898b8;
+    --text3: #5a5a7a;
+    --accent: #7c6af7;
+    --accent2: #a594ff;
+    --accent-glow: rgba(124,106,247,0.15);
+    --green: #4ade80;
+    --yellow: #fbbf24;
+    --orange: #fb923c;
+    --red: #f87171;
+    --cyan: #22d3ee;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    --mono: 'SF Mono', 'Fira Code', monospace;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --transition: 0.2s ease;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ─── Header ─── */
+  .site-header {
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    gap: 16px;
+  }
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: inherit;
+  }
+  .brand-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+    flex-shrink: 0;
+  }
+  .brand-name {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--text2);
+    text-transform: uppercase;
+  }
+  .header-action {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: var(--transition);
+    text-decoration: none;
+    font-family: var(--font);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { background: var(--surface3); color: var(--text); border-color: var(--border2); }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(124,106,247,0.3); }
+  .btn-primary:active { transform: translateY(0); }
+
+  /* ─── Hero ─── */
+  .hero {
+    padding: 64px 24px 48px;
+    text-align: center;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 20px;
+  }
+  .hero-eyebrow::before, .hero-eyebrow::after {
+    content: '';
+    display: block;
+    width: 32px; height: 1px;
+    background: var(--accent);
+    opacity: 0.5;
+  }
+  h1 {
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #fff 0%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-sub {
+    font-size: 16px;
+    color: var(--text2);
+    max-width: 560px;
+    margin: 0 auto 32px;
+    line-height: 1.7;
+  }
+  .hero-meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--text3);
+  }
+  .hero-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .hero-meta-item svg { width: 14px; height: 14px; stroke: var(--text3); fill: none; stroke-width: 1.5; }
+
+  /* ─── Layout ─── */
+  .main-layout {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 32px;
+    align-items: start;
+  }
+  @media (max-width: 800px) {
+    .main-layout { grid-template-columns: 1fr; }
+    .sidebar { order: -1; }
+  }
+
+  /* ─── Section ─── */
+  .section-heading {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-heading::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ─── Heuristic Cards ─── */
+  .heuristics-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .heuristic-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+  .heuristic-card:hover {
+    border-color: var(--border2);
+    box-shadow: 0 0 0 1px rgba(124,106,247,0.1), inset 0 0 32px rgba(124,106,247,0.03);
+  }
+  .heuristic-card.rating-1 { border-left: 3px solid var(--red); }
+  .heuristic-card.rating-2 { border-left: 3px solid var(--orange); }
+  .heuristic-card.rating-3 { border-left: 3px solid var(--yellow); }
+  .heuristic-card.rating-4 { border-left: 3px solid var(--green); }
+  .heuristic-card.rating-5 { border-left: 3px solid var(--cyan); }
+  .heuristic-card.rating-0 { border-left: 3px solid var(--border); }
+
+  .heuristic-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .heuristic-num {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text3);
+    font-family: var(--mono);
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+  .heuristic-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+  }
+  .score-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: var(--mono);
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text3);
+    transition: all var(--transition);
+  }
+  .score-badge.s1 { background: rgba(248,113,113,0.15); border-color: var(--red); color: var(--red); }
+  .score-badge.s2 { background: rgba(251,146,60,0.15); border-color: var(--orange); color: var(--orange); }
+  .score-badge.s3 { background: rgba(251,191,36,0.12); border-color: var(--yellow); color: var(--yellow); }
+  .score-badge.s4 { background: rgba(74,222,128,0.12); border-color: var(--green); color: var(--green); }
+  .score-badge.s5 { background: rgba(34,211,238,0.12); border-color: var(--cyan); color: var(--cyan); }
+
+  .heuristic-desc {
+    font-size: 12px;
+    color: var(--text3);
+    margin-bottom: 14px;
+    line-height: 1.6;
+  }
+
+  /* Stars */
+  .star-rating {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .star {
+    width: 28px; height: 28px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: transform var(--transition), background var(--transition);
+    font-size: 18px;
+    user-select: none;
+  }
+  .star:hover { transform: scale(1.2); background: var(--surface2); }
+  .star.lit { filter: drop-shadow(0 0 4px currentColor); }
+  .star-label {
+    font-size: 11px;
+    color: var(--text3);
+    margin-left: 10px;
+    font-style: italic;
+    min-width: 80px;
+  }
+
+  /* Notes */
+  .notes-toggle {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text3);
+    cursor: pointer;
+    user-select: none;
+    width: fit-content;
+  }
+  .notes-toggle:hover { color: var(--text2); }
+  .notes-toggle svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; transition: transform var(--transition); }
+  .notes-toggle.open svg { transform: rotate(90deg); }
+  .notes-field {
+    display: none;
+    margin-top: 10px;
+  }
+  .notes-field.open { display: block; }
+  .notes-field textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 12px;
+    padding: 10px;
+    resize: vertical;
+    min-height: 70px;
+    line-height: 1.6;
+    transition: border-color var(--transition);
+  }
+  .notes-field textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .notes-field textarea::placeholder { color: var(--text3); }
+
+  /* ─── Sidebar ─── */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    position: sticky;
+    top: 72px;
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .panel-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .panel-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text3);
+  }
+  .panel-body {
+    padding: 20px;
+  }
+
+  /* Score ring */
+  .score-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 24px 20px;
+  }
+  .ring-wrap {
+    position: relative;
+    width: 120px; height: 120px;
+  }
+  .ring-svg {
+    width: 120px; height: 120px;
+    transform: rotate(-90deg);
+  }
+  .ring-track {
+    fill: none;
+    stroke: var(--surface3);
+    stroke-width: 10;
+  }
+  .ring-fill {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 10;
+    stroke-linecap: round;
+    stroke-dasharray: 314;
+    stroke-dashoffset: 314;
+    transition: stroke-dashoffset 0.6s ease, stroke 0.4s ease;
+  }
+  .ring-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .ring-score {
+    font-size: 32px;
+    font-weight: 800;
+    font-family: var(--mono);
+    color: var(--text);
+    line-height: 1;
+  }
+  .ring-denom {
+    font-size: 12px;
+    color: var(--text3);
+    font-family: var(--mono);
+  }
+  .score-grade {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .score-sub {
+    font-size: 12px;
+    color: var(--text3);
+    text-align: center;
+    line-height: 1.5;
+    max-width: 260px;
+  }
+
+  /* Grade colors */
+  .grade-F { color: var(--red); }
+  .grade-D { color: var(--orange); }
+  .grade-C { color: var(--yellow); }
+  .grade-B { color: var(--green); }
+  .grade-A { color: var(--cyan); }
+  .grade-S { color: var(--accent2); }
+
+  /* Radar chart */
+  canvas#radar {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+  }
+
+  /* Breakdown bars */
+  .breakdown-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .breakdown-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .breakdown-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--text3);
+  }
+  .breakdown-name { font-weight: 600; color: var(--text2); max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .breakdown-bar-track {
+    height: 4px;
+    background: var(--surface3);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .breakdown-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: var(--accent);
+    transition: width 0.5s ease;
+  }
+
+  /* Report area */
+  .report-area {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+    white-space: pre-wrap;
+    line-height: 1.7;
+    max-height: 280px;
+    overflow-y: auto;
+    display: none;
+  }
+  .report-area.visible { display: block; }
+
+  /* Info tooltip */
+  .context-info {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    margin-bottom: 24px;
+    font-size: 12px;
+    color: var(--text3);
+    line-height: 1.6;
+  }
+  .context-info strong { color: var(--accent2); }
+
+  /* Product name input */
+  .product-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+    padding: 16px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    flex-wrap: wrap;
+  }
+  .product-input-label {
+    font-size: 12px;
+    color: var(--text3);
+    white-space: nowrap;
+    font-weight: 600;
+  }
+  .product-input {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    padding: 8px 12px;
+    min-width: 200px;
+    transition: border-color var(--transition);
+  }
+  .product-input:focus { outline: none; border-color: var(--accent); }
+  .product-input::placeholder { color: var(--text3); }
+
+  /* Reset btn */
+  .reset-btn {
+    font-size: 11px;
+    color: var(--text3);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-family: var(--font);
+    transition: var(--transition);
+  }
+  .reset-btn:hover { color: var(--red); border-color: var(--red); }
+
+  /* Severity list */
+  .severity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .severity-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text2);
+  }
+  .severity-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    padding: 10px 20px;
+    font-size: 13px;
+    color: var(--text);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    z-index: 999;
+    transition: transform 0.3s ease;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 24px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text3);
+  }
+  .footer a { color: var(--accent2); text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--border2); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="header-brand" href="https://agentneonazul.github.io/neonexperiments/" style="text-decoration:none">
+      <div class="brand-dot"></div>
+      <span class="brand-name">Designing for Tomorrow</span>
+    </a>
+    <div class="header-action">
+      <button class="btn btn-ghost reset-btn-top" onclick="resetAll()" style="font-size:12px">Reset</button>
+      <button class="btn btn-primary" onclick="exportReport()">Export Report</button>
+    </div>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-eyebrow">UX Audit Toolkit</div>
+  <h1>Agentic UX Audit Kit</h1>
+  <p class="hero-sub">Evaluate AI-powered and agentic interfaces against 12 heuristics designed for the post-LLM era. Built for practitioners who need signal, not ceremony.</p>
+  <div class="hero-meta">
+    <div class="hero-meta-item">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      5–10 min audit
+    </div>
+    <div class="hero-meta-item">
+      <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      12 heuristics
+    </div>
+    <div class="hero-meta-item">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Exportable report
+    </div>
+  </div>
+</div>
+
+<div class="main-layout">
+  <!-- Left column: heuristics -->
+  <div>
+    <div class="product-input-wrap">
+      <span class="product-input-label">Auditing:</span>
+      <input class="product-input" id="productName" type="text" placeholder="Product or feature name…" oninput="updateReport()" />
+    </div>
+
+    <div class="context-info">
+      Rate each heuristic <strong>1–5</strong>. Score reflects how well the interface currently satisfies each principle. <strong>1 = critical failure, 5 = exemplary</strong>. Add notes to flag specific failures or wins. Use the Export button to generate a shareable text report.
+    </div>
+
+    <p class="section-heading">Heuristics</p>
+
+    <div class="heuristics-list" id="heuristicsList">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+
+  <!-- Right column: sidebar -->
+  <div class="sidebar">
+
+    <!-- Score -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Overall Score</span>
+        <button class="reset-btn" onclick="resetAll()">Reset all</button>
+      </div>
+      <div class="score-display">
+        <div class="ring-wrap">
+          <svg class="ring-svg" viewBox="0 0 120 120">
+            <circle class="ring-track" cx="60" cy="60" r="50"/>
+            <circle class="ring-fill" id="ringFill" cx="60" cy="60" r="50"/>
+          </svg>
+          <div class="ring-center">
+            <span class="ring-score" id="ringScore">–</span>
+            <span class="ring-denom">/60</span>
+          </div>
+        </div>
+        <span class="score-grade grade-D" id="scoreGrade">Not Started</span>
+        <p class="score-sub" id="scoreSub">Rate at least one heuristic to see your score.</p>
+      </div>
+    </div>
+
+    <!-- Radar -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Radar View</span>
+      </div>
+      <div class="panel-body" style="padding: 16px 12px;">
+        <canvas id="radar" width="340" height="260"></canvas>
+      </div>
+    </div>
+
+    <!-- Breakdown -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Category Breakdown</span>
+      </div>
+      <div class="panel-body">
+        <div class="breakdown-list" id="breakdownList">
+          <!-- populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Flags -->
+    <div class="panel" id="flagsPanel" style="display:none">
+      <div class="panel-header">
+        <span class="panel-title">Critical Flags</span>
+      </div>
+      <div class="panel-body">
+        <div class="severity-list" id="flagsList"></div>
+      </div>
+    </div>
+
+    <!-- Export -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Report</span>
+      </div>
+      <div class="panel-body" style="display:flex;flex-direction:column;gap:10px">
+        <button class="btn btn-primary" onclick="exportReport()" style="width:100%;justify-content:center">Copy Report to Clipboard</button>
+        <pre class="report-area" id="reportArea"></pre>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<footer class="footer">
+  <p>Agentic UX Audit Kit &mdash; <a href="https://agentneonazul.github.io/neonexperiments/">Neon Experiments</a> &mdash; Designing for Tomorrow</p>
+</footer>
+
+<script>
+const HEURISTICS = [
+  {
+    id: 'intent-transparency',
+    num: '01',
+    title: 'Intent Transparency',
+    desc: 'The system clearly communicates what it is doing, why, and what it is about to do — before acting. No black-box outputs.',
+    category: 'Trust'
+  },
+  {
+    id: 'controllability',
+    num: '02',
+    title: 'Controllability & Interruption',
+    desc: 'Users can pause, redirect, undo, or stop agent actions at any point. The system does not run autonomously without checkpoints.',
+    category: 'Control'
+  },
+  {
+    id: 'failure-graceful',
+    num: '03',
+    title: 'Graceful Failure',
+    desc: 'When the AI is uncertain or wrong, it surfaces this clearly. Errors are recoverable. The system does not confidently hallucinate.',
+    category: 'Reliability'
+  },
+  {
+    id: 'calibrated-confidence',
+    num: '04',
+    title: 'Calibrated Confidence',
+    desc: 'Outputs are appropriately hedged — the system distinguishes high-confidence results from estimates. No false certainty.',
+    category: 'Trust'
+  },
+  {
+    id: 'human-agency',
+    num: '05',
+    title: 'Human Agency Preservation',
+    desc: 'The system augments decisions rather than replacing them. Users feel ownership over outcomes, not passive recipients.',
+    category: 'Agency'
+  },
+  {
+    id: 'context-memory',
+    num: '06',
+    title: 'Context Awareness',
+    desc: 'The system maintains appropriate memory of user context, prior actions, and stated preferences within a session.',
+    category: 'Intelligence'
+  },
+  {
+    id: 'progressive-disclosure',
+    num: '07',
+    title: 'Progressive Disclosure',
+    desc: 'Complexity is revealed gradually. Novice users are not overwhelmed; expert users can access depth. AI reasoning is inspectable on demand.',
+    category: 'Usability'
+  },
+  {
+    id: 'output-legibility',
+    num: '08',
+    title: 'Output Legibility',
+    desc: 'AI-generated content is clearly attributed, structured, and formatted for the context — not raw model output dumped at the user.',
+    category: 'Usability'
+  },
+  {
+    id: 'feedback-loops',
+    num: '09',
+    title: 'Feedback & Correction Loops',
+    desc: 'Users can rate, correct, regenerate, or refine outputs. The interface treats feedback as a first-class interaction, not an afterthought.',
+    category: 'Control'
+  },
+  {
+    id: 'trust-calibration',
+    num: '10',
+    title: 'Trust Calibration Over Time',
+    desc: 'The system earns trust incrementally. It does not request broad permissions upfront and respects the trust level the user has established.',
+    category: 'Trust'
+  },
+  {
+    id: 'ethical-guardrails',
+    num: '11',
+    title: 'Ethical Guardrails',
+    desc: 'The system refuses harmful requests clearly and respectfully. Refusals are transparent, consistent, and do not silently alter outputs.',
+    category: 'Reliability'
+  },
+  {
+    id: 'accessibility-equity',
+    num: '12',
+    title: 'Accessibility & Equity',
+    desc: 'AI features are accessible across ability, literacy, and technical sophistication levels. Power users do not get systematically better outcomes.',
+    category: 'Agency'
+  }
+];
+
+const STAR_LABELS = ['', 'Critical', 'Poor', 'Adequate', 'Good', 'Exemplary'];
+const STAR_EMOJI_LIT = ['★','★','★','★','★'];
+const STAR_EMOJI_DIM = '☆';
+
+const CATEGORIES = [...new Set(HEURISTICS.map(h => h.category))];
+const CAT_COLORS = {
+  'Trust': '#7c6af7',
+  'Control': '#22d3ee',
+  'Reliability': '#f87171',
+  'Agency': '#4ade80',
+  'Intelligence': '#fbbf24',
+  'Usability': '#fb923c'
+};
+
+let ratings = {};
+let notes = {};
+
+function init() {
+  const list = document.getElementById('heuristicsList');
+  HEURISTICS.forEach(h => {
+    const card = document.createElement('div');
+    card.className = 'heuristic-card rating-0';
+    card.id = `card-${h.id}`;
+    card.innerHTML = `
+      <div class="heuristic-header">
+        <span class="heuristic-num">${h.num}</span>
+        <span class="heuristic-title">${h.title}</span>
+        <span class="score-badge" id="badge-${h.id}">–</span>
+      </div>
+      <p class="heuristic-desc">${h.desc}</p>
+      <div class="star-rating" id="stars-${h.id}">
+        ${[1,2,3,4,5].map(n => `<span class="star" data-id="${h.id}" data-val="${n}" onclick="rate('${h.id}', ${n})" title="${STAR_LABELS[n]}">☆</span>`).join('')}
+        <span class="star-label" id="label-${h.id}">Unrated</span>
+      </div>
+      <div class="notes-toggle" id="notestoggle-${h.id}" onclick="toggleNotes('${h.id}')">
+        <svg viewBox="0 0 12 12"><path d="M3 4.5L6 7.5L9 4.5"/></svg>
+        Add note
+      </div>
+      <div class="notes-field" id="notesfield-${h.id}">
+        <textarea placeholder="Note specific failures, examples, or recommendations…" oninput="noteUpdate('${h.id}', this.value)"></textarea>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+  drawBreakdown();
+  drawRadar();
+}
+
+function rate(id, val) {
+  ratings[id] = val;
+  // Update stars
+  const stars = document.querySelectorAll(`.star[data-id="${id}"]`);
+  stars.forEach((s, i) => {
+    const n = i + 1;
+    if (n <= val) {
+      s.textContent = '★';
+      s.classList.add('lit');
+      if (val === 1) s.style.color = '#f87171';
+      else if (val === 2) s.style.color = '#fb923c';
+      else if (val === 3) s.style.color = '#fbbf24';
+      else if (val === 4) s.style.color = '#4ade80';
+      else s.style.color = '#22d3ee';
+    } else {
+      s.textContent = '☆';
+      s.classList.remove('lit');
+      s.style.color = '';
+    }
+  });
+  // Badge
+  const badge = document.getElementById(`badge-${id}`);
+  badge.textContent = val;
+  badge.className = `score-badge s${val}`;
+  // Label
+  document.getElementById(`label-${id}`).textContent = STAR_LABELS[val];
+  // Card border
+  const card = document.getElementById(`card-${id}`);
+  card.className = `heuristic-card rating-${val}`;
+  // Update all
+  updateScore();
+  drawBreakdown();
+  drawRadar();
+  updateFlags();
+  updateReport();
+}
+
+function noteUpdate(id, val) {
+  notes[id] = val;
+}
+
+function toggleNotes(id) {
+  const toggle = document.getElementById(`notestoggle-${id}`);
+  const field = document.getElementById(`notesfield-${id}`);
+  toggle.classList.toggle('open');
+  field.classList.toggle('open');
+}
+
+function updateScore() {
+  const vals = Object.values(ratings);
+  if (vals.length === 0) {
+    document.getElementById('ringScore').textContent = '–';
+    document.getElementById('ringFill').style.strokeDashoffset = '314';
+    document.getElementById('scoreGrade').textContent = 'Not Started';
+    document.getElementById('scoreGrade').className = 'score-grade grade-D';
+    document.getElementById('scoreSub').textContent = 'Rate at least one heuristic to see your score.';
+    return;
+  }
+  const sum = vals.reduce((a, b) => a + b, 0);
+  const max = HEURISTICS.length * 5;
+  const pct = sum / max;
+  const circ = 314;
+  document.getElementById('ringScore').textContent = sum;
+  document.getElementById('ringFill').style.strokeDashoffset = circ * (1 - pct);
+
+  let grade, label, sub, cls, strokeColor;
+  if (pct >= 0.92) { grade='S'; label='Exemplary'; sub='This interface sets the standard for agentic UX. Ship it.'; cls='grade-S'; strokeColor='#a594ff'; }
+  else if (pct >= 0.80) { grade='A'; label='Strong'; sub='Solid agentic UX. Minor polish needed in flagged areas.'; cls='grade-A'; strokeColor='#22d3ee'; }
+  else if (pct >= 0.65) { grade='B'; label='Good'; sub='Above average. Address the low-scoring heuristics before launch.'; cls='grade-B'; strokeColor='#4ade80'; }
+  else if (pct >= 0.50) { grade='C'; label='Adequate'; sub='Functional but risky. Users will encounter friction with AI behaviors.'; cls='grade-C'; strokeColor='#fbbf24'; }
+  else if (pct >= 0.35) { grade='D'; label='Needs Work'; sub='Significant trust and usability gaps. Prioritize Control + Trust heuristics.'; cls='grade-D'; strokeColor='#fb923c'; }
+  else { grade='F'; label='Critical'; sub='Fundamental failures in agentic UX. Do not ship without a full redesign pass.'; cls='grade-F'; strokeColor='#f87171'; }
+
+  document.getElementById('ringFill').style.stroke = strokeColor;
+  document.getElementById('scoreGrade').textContent = `${label} (${grade})`;
+  document.getElementById('scoreGrade').className = `score-grade ${cls}`;
+  document.getElementById('scoreSub').textContent = sub;
+}
+
+function drawBreakdown() {
+  const list = document.getElementById('breakdownList');
+  list.innerHTML = '';
+  CATEGORIES.forEach(cat => {
+    const hs = HEURISTICS.filter(h => h.category === cat);
+    const rated = hs.filter(h => ratings[h.id]);
+    const total = rated.reduce((a, h) => a + ratings[h.id], 0);
+    const max = hs.length * 5;
+    const pct = max > 0 ? total / max : 0;
+    const color = CAT_COLORS[cat] || '#7c6af7';
+    const row = document.createElement('div');
+    row.className = 'breakdown-row';
+    row.innerHTML = `
+      <div class="breakdown-meta">
+        <span class="breakdown-name" title="${cat}">${cat}</span>
+        <span>${rated.length > 0 ? Math.round(pct*100)+'%' : '—'}</span>
+      </div>
+      <div class="breakdown-bar-track">
+        <div class="breakdown-bar-fill" style="width:${rated.length > 0 ? Math.round(pct*100) : 0}%;background:${color}"></div>
+      </div>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function drawRadar() {
+  const canvas = document.getElementById('radar');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const cx = W/2, cy = H/2 + 10;
+  const R = Math.min(W, H) / 2 - 36;
+  const N = HEURISTICS.length;
+  const angles = HEURISTICS.map((_, i) => (2 * Math.PI * i / N) - Math.PI / 2);
+
+  // Grid rings
+  for (let r = 1; r <= 5; r++) {
+    ctx.beginPath();
+    angles.forEach((a, i) => {
+      const x = cx + Math.cos(a) * (R * r/5);
+      const y = cy + Math.sin(a) * (R * r/5);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.closePath();
+    ctx.strokeStyle = r === 5 ? 'rgba(90,90,120,0.4)' : 'rgba(60,60,90,0.3)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // Spokes
+  angles.forEach(a => {
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R);
+    ctx.strokeStyle = 'rgba(60,60,90,0.4)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  });
+
+  // Data polygon
+  const vals = HEURISTICS.map(h => ratings[h.id] || 0);
+  ctx.beginPath();
+  angles.forEach((a, i) => {
+    const frac = vals[i] / 5;
+    const x = cx + Math.cos(a) * R * frac;
+    const y = cy + Math.sin(a) * R * frac;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(124,106,247,0.18)';
+  ctx.fill();
+  ctx.strokeStyle = '#7c6af7';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Data points
+  angles.forEach((a, i) => {
+    const frac = vals[i] / 5;
+    const x = cx + Math.cos(a) * R * frac;
+    const y = cy + Math.sin(a) * R * frac;
+    if (vals[i] > 0) {
+      ctx.beginPath();
+      ctx.arc(x, y, 4, 0, 2*Math.PI);
+      ctx.fillStyle = '#a594ff';
+      ctx.fill();
+    }
+  });
+
+  // Labels
+  ctx.font = '10px -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillStyle = 'rgba(152,152,184,0.8)';
+  ctx.textAlign = 'center';
+  angles.forEach((a, i) => {
+    const pad = R + 22;
+    const x = cx + Math.cos(a) * pad;
+    const y = cy + Math.sin(a) * pad + 4;
+    // Short labels
+    const short = HEURISTICS[i].num;
+    ctx.fillText(short, x, y);
+  });
+}
+
+function updateFlags() {
+  const critical = HEURISTICS.filter(h => ratings[h.id] && ratings[h.id] <= 2);
+  const panel = document.getElementById('flagsPanel');
+  const list = document.getElementById('flagsList');
+  if (critical.length === 0) { panel.style.display = 'none'; return; }
+  panel.style.display = '';
+  list.innerHTML = '';
+  critical.forEach(h => {
+    const r = ratings[h.id];
+    const item = document.createElement('div');
+    item.className = 'severity-item';
+    item.innerHTML = `
+      <div class="severity-dot" style="background:${r===1?'#f87171':'#fb923c'}"></div>
+      <span><strong>${h.num} ${h.title}</strong> — rated ${r}/5${notes[h.id]?': '+notes[h.id].slice(0,60)+(notes[h.id].length>60?'…':''):''}</span>
+    `;
+    list.appendChild(item);
+  });
+}
+
+function updateReport() {
+  const area = document.getElementById('reportArea');
+  area.textContent = buildReportText();
+}
+
+function buildReportText() {
+  const product = document.getElementById('productName').value.trim() || 'Unnamed Product';
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
+  const vals = Object.values(ratings);
+  const sum = vals.reduce((a,b)=>a+b,0);
+  const max = HEURISTICS.length * 5;
+  const pct = max > 0 && vals.length > 0 ? Math.round(sum/max*100) : 0;
+
+  let lines = [];
+  lines.push(`AGENTIC UX AUDIT REPORT`);
+  lines.push(`Designing for Tomorrow — agentneonazul.github.io/neonexperiments`);
+  lines.push(`${'─'.repeat(48)}`);
+  lines.push(`Product: ${product}`);
+  lines.push(`Date: ${dateStr}`);
+  lines.push(`Heuristics rated: ${vals.length}/${HEURISTICS.length}`);
+  lines.push(`Overall score: ${sum}/${max} (${pct}%)`);
+  lines.push('');
+  lines.push('HEURISTIC SCORES');
+  lines.push(`${'─'.repeat(48)}`);
+  HEURISTICS.forEach(h => {
+    const r = ratings[h.id];
+    const bar = r ? '█'.repeat(r) + '░'.repeat(5-r) : '░░░░░';
+    lines.push(`${h.num} ${h.title.padEnd(30)} ${bar} ${r||'–'}/5`);
+    if (notes[h.id]) lines.push(`   ↳ ${notes[h.id]}`);
+  });
+  lines.push('');
+  lines.push('CATEGORY BREAKDOWN');
+  lines.push(`${'─'.repeat(48)}`);
+  CATEGORIES.forEach(cat => {
+    const hs = HEURISTICS.filter(h => h.category === cat);
+    const rated = hs.filter(h => ratings[h.id]);
+    const total = rated.reduce((a,h)=>a+ratings[h.id],0);
+    const maxCat = hs.length * 5;
+    const p = maxCat > 0 && rated.length > 0 ? Math.round(total/maxCat*100) : 0;
+    lines.push(`${cat.padEnd(16)} ${rated.length>0 ? p+'%' : '—'}`);
+  });
+  const critical = HEURISTICS.filter(h => ratings[h.id] && ratings[h.id] <= 2);
+  if (critical.length > 0) {
+    lines.push('');
+    lines.push('CRITICAL FLAGS');
+    lines.push(`${'─'.repeat(48)}`);
+    critical.forEach(h => lines.push(`[${ratings[h.id]}/5] ${h.title} — ${h.desc.slice(0,80)}…`));
+  }
+  lines.push('');
+  lines.push('─'.repeat(48));
+  lines.push('Generated by Agentic UX Audit Kit (neon experiments)');
+  return lines.join('\n');
+}
+
+function exportReport() {
+  const text = buildReportText();
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('Report copied to clipboard');
+    const area = document.getElementById('reportArea');
+    area.textContent = text;
+    area.classList.add('visible');
+  }).catch(() => {
+    const area = document.getElementById('reportArea');
+    area.textContent = text;
+    area.classList.add('visible');
+    showToast('Report ready below — select all and copy');
+  });
+}
+
+function resetAll() {
+  ratings = {};
+  notes = {};
+  document.getElementById('heuristicsList').innerHTML = '';
+  document.getElementById('reportArea').classList.remove('visible');
+  document.getElementById('flagsPanel').style.display = 'none';
+  document.getElementById('productName').value = '';
+  init();
+  updateScore();
+  drawBreakdown();
+  drawRadar();
+  showToast('Audit reset');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Resize radar on window resize
+window.addEventListener('resize', () => {
+  drawRadar();
+});
+
+init();
+</script>
+</body>
+</html>
