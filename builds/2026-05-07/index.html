@@ -2,1514 +2,818 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Song Structure Workshop — Ada Fen</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>NEON DRIFT</title>
 <style>
-  :root {
-    --bg: #0d0d14;
-    --surface: #14141f;
-    --surface2: #1c1c2e;
-    --border: #2a2a40;
-    --accent: #b06fff;
-    --accent2: #ff6fb0;
-    --accent3: #6fd4ff;
-    --text: #e8e4f0;
-    --muted: #7a748c;
-    --verse: #6fd4ff;
-    --chorus: #b06fff;
-    --bridge: #ff6fb0;
-    --prechorus: #ffd06f;
-    --outro: #6fffb0;
-    --hook: #ff9f6f;
-    --radius: 10px;
-    --font: 'Georgia', serif;
-    --mono: 'Courier New', monospace;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
+  * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* Subtle grid background */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(176, 111, 255, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(176, 111, 255, 0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* ─── HEADER ─── */
-  header {
-    position: relative;
-    z-index: 10;
-    padding: 20px 28px 16px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: rgba(13,13,20,0.95);
-    backdrop-filter: blur(8px);
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .logo {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .logo-title {
-    font-size: 1.25rem;
-    font-weight: normal;
-    letter-spacing: 0.04em;
-    color: var(--text);
-  }
-
-  .logo-title span {
-    color: var(--accent);
-  }
-
-  .logo-sub {
-    font-size: 0.72rem;
-    color: var(--muted);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    font-family: var(--mono);
-  }
-
-  .header-actions {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-
-  .btn {
-    padding: 7px 16px;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text);
-    font-size: 0.8rem;
-    cursor: pointer;
-    font-family: var(--mono);
-    letter-spacing: 0.04em;
-    transition: all 0.15s ease;
-  }
-
-  .btn:hover { background: var(--surface2); border-color: var(--accent); color: var(--accent); }
-
-  .btn-primary {
-    background: rgba(176,111,255,0.12);
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-
-  .btn-primary:hover {
-    background: rgba(176,111,255,0.25);
-    color: var(--text);
-  }
-
-  .btn-export {
-    background: rgba(111,212,255,0.08);
-    border-color: var(--accent3);
-    color: var(--accent3);
-  }
-
-  .btn-export:hover { background: rgba(111,212,255,0.2); color: var(--text); }
-
-  /* ─── SONG TITLE BAR ─── */
-  .song-bar {
-    position: relative;
-    z-index: 9;
-    padding: 14px 28px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-
-  .song-title-input {
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid var(--border);
-    color: var(--text);
-    font-size: 1.4rem;
-    font-family: var(--font);
-    padding: 4px 2px;
-    width: 340px;
-    max-width: 100%;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-
-  .song-title-input:focus { border-color: var(--accent); }
-  .song-title-input::placeholder { color: var(--muted); }
-
-  .song-meta {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 0.78rem;
-    color: var(--muted);
-    font-family: var(--mono);
-  }
-
-  .meta-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .meta-val {
-    color: var(--accent);
-    font-weight: bold;
-  }
-
-  /* ─── LAYOUT ─── */
-  .workspace {
-    position: relative;
-    z-index: 1;
-    display: grid;
-    grid-template-columns: 220px 1fr;
-    flex: 1;
-    min-height: 0;
+    background: #0a0010;
     overflow: hidden;
-  }
-
-  /* ─── SIDEBAR ─── */
-  .sidebar {
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    padding: 20px 14px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .sidebar-label {
-    font-size: 0.68rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted);
-    font-family: var(--mono);
-    padding: 4px 4px 10px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 4px;
-  }
-
-  .section-type-btn {
-    width: 100%;
-    padding: 9px 12px;
-    border-radius: 7px;
-    border: 1px solid transparent;
-    background: transparent;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.82rem;
-    font-family: var(--mono);
-    color: var(--text);
-    text-align: left;
-    transition: all 0.15s;
-  }
-
-  .section-type-btn:hover {
-    background: var(--surface2);
-    border-color: var(--border);
-  }
-
-  .type-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .dot-verse    { background: var(--verse); }
-  .dot-chorus   { background: var(--chorus); }
-  .dot-bridge   { background: var(--bridge); }
-  .dot-prechorus { background: var(--prechorus); }
-  .dot-outro    { background: var(--outro); }
-  .dot-hook     { background: var(--hook); }
-
-  .sidebar-divider {
-    height: 1px;
-    background: var(--border);
-    margin: 10px 0;
-  }
-
-  /* Song order list */
-  .order-label {
-    font-size: 0.68rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted);
-    font-family: var(--mono);
-    padding: 4px 4px 8px;
-  }
-
-  .order-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-  }
-
-  .order-item {
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 0.75rem;
-    font-family: var(--mono);
-    color: var(--muted);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-    transition: all 0.12s;
-  }
-
-  .order-item:hover {
-    background: var(--surface2);
-    color: var(--text);
-  }
-
-  .order-num {
-    color: var(--muted);
-    font-size: 0.65rem;
-    width: 14px;
-    flex-shrink: 0;
-  }
-
-  /* ─── MAIN CANVAS ─── */
-  .canvas {
-    overflow-y: auto;
-    padding: 24px 32px 80px;
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    scroll-behavior: smooth;
-  }
-
-  .empty-state {
-    margin: 60px auto;
-    text-align: center;
-    color: var(--muted);
-    max-width: 360px;
-  }
-
-  .empty-state h2 {
-    font-size: 1.1rem;
-    font-weight: normal;
-    color: var(--accent);
-    margin-bottom: 12px;
-  }
-
-  .empty-state p {
-    font-size: 0.85rem;
-    line-height: 1.7;
-    margin-bottom: 20px;
-  }
-
-  /* ─── SECTION BLOCK ─── */
-  .section-block {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    transition: border-color 0.15s;
-    position: relative;
-  }
-
-  .section-block:focus-within {
-    border-color: var(--block-color, var(--accent));
-  }
-
-  .section-block.dragging {
-    opacity: 0.5;
-    border-style: dashed;
-  }
-
-  .block-header {
-    padding: 10px 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface2);
-    cursor: grab;
+    font-family: 'Courier New', Courier, monospace;
+    touch-action: none;
     user-select: none;
   }
-
-  .block-header:active { cursor: grabbing; }
-
-  .block-type-tag {
-    font-size: 0.7rem;
-    font-family: var(--mono);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 3px 9px;
-    border-radius: 4px;
-    border: 1px solid;
-    opacity: 0.9;
-  }
-
-  .block-num {
-    font-size: 0.72rem;
-    color: var(--muted);
-    font-family: var(--mono);
-  }
-
-  .block-label-input {
-    background: transparent;
-    border: none;
-    color: var(--muted);
-    font-size: 0.78rem;
-    font-family: var(--mono);
-    outline: none;
-    flex: 1;
-    min-width: 60px;
-  }
-
-  .block-label-input:focus { color: var(--text); }
-  .block-label-input::placeholder { color: var(--border); }
-
-  .block-actions {
-    display: flex;
-    gap: 6px;
-    margin-left: auto;
-  }
-
-  .icon-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--muted);
-    font-size: 0.9rem;
-    padding: 2px 5px;
-    border-radius: 4px;
-    transition: all 0.12s;
-    line-height: 1;
-  }
-
-  .icon-btn:hover { background: var(--border); color: var(--text); }
-  .icon-btn.danger:hover { color: var(--accent2); }
-
-  .block-body {
-    display: grid;
-    grid-template-columns: 1fr 60px;
-  }
-
-  .lyric-area {
-    background: transparent;
-    border: none;
-    color: var(--text);
-    font-size: 0.93rem;
-    font-family: var(--mono);
-    line-height: 1.8;
-    padding: 16px 18px;
-    resize: none;
-    outline: none;
-    min-height: 120px;
-    width: 100%;
-    tab-size: 2;
-    caret-color: var(--accent);
-  }
-
-  .lyric-area::selection { background: rgba(176,111,255,0.25); }
-
-  .syl-panel {
-    border-left: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    background: var(--surface2);
-  }
-
-  .syl-header {
-    padding: 6px 8px;
-    font-size: 0.6rem;
-    font-family: var(--mono);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--muted);
-    border-bottom: 1px solid var(--border);
-    text-align: center;
-  }
-
-  .syl-rows {
-    flex: 1;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    padding: 4px 0;
-  }
-
-  .syl-row {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.72rem;
-    font-family: var(--mono);
-    color: var(--muted);
-    line-height: 1.8;
-    min-height: 1.8em;
-    transition: color 0.1s;
-  }
-
-  .syl-row.has-count { color: var(--accent3); }
-  .syl-row.syl-high { color: var(--accent2); }
-
-  /* ─── NOTES STRIP ─── */
-  .block-notes {
-    border-top: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 14px;
-    background: rgba(0,0,0,0.15);
-  }
-
-  .notes-label {
-    font-size: 0.65rem;
-    font-family: var(--mono);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--muted);
-    flex-shrink: 0;
-  }
-
-  .notes-input {
-    background: transparent;
-    border: none;
-    color: var(--muted);
-    font-size: 0.78rem;
-    font-family: var(--mono);
-    outline: none;
-    flex: 1;
-  }
-
-  .notes-input:focus { color: var(--text); }
-  .notes-input::placeholder { color: var(--border); }
-
-  /* ─── RHYME PANEL ─── */
-  .rhyme-strip {
-    border-top: 1px solid var(--border);
-    padding: 8px 14px;
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    flex-wrap: wrap;
-    background: rgba(111,212,255,0.03);
-  }
-
-  .rhyme-label {
-    font-size: 0.65rem;
-    font-family: var(--mono);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--accent3);
-    flex-shrink: 0;
-    padding-top: 3px;
-  }
-
-  .rhyme-words {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    flex: 1;
-  }
-
-  .rhyme-chip {
-    padding: 2px 8px;
-    border-radius: 20px;
-    background: rgba(111,212,255,0.08);
-    border: 1px solid rgba(111,212,255,0.2);
-    font-size: 0.72rem;
-    font-family: var(--mono);
-    color: var(--accent3);
-    cursor: pointer;
-    transition: all 0.12s;
-  }
-
-  .rhyme-chip:hover {
-    background: rgba(111,212,255,0.18);
-    color: var(--text);
-  }
-
-  .rhyme-input-wrap {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .rhyme-input {
-    background: rgba(111,212,255,0.06);
-    border: 1px solid rgba(111,212,255,0.2);
-    border-radius: 20px;
-    color: var(--text);
-    font-size: 0.72rem;
-    font-family: var(--mono);
-    padding: 3px 10px;
-    outline: none;
-    width: 100px;
-    transition: border-color 0.12s;
-  }
-
-  .rhyme-input:focus { border-color: var(--accent3); }
-  .rhyme-input::placeholder { color: var(--muted); }
-
-  .rhyme-find-btn {
-    padding: 3px 10px;
-    border-radius: 20px;
-    background: rgba(111,212,255,0.1);
-    border: 1px solid rgba(111,212,255,0.3);
-    color: var(--accent3);
-    font-size: 0.7rem;
-    font-family: var(--mono);
-    cursor: pointer;
-    transition: all 0.12s;
-  }
-
-  .rhyme-find-btn:hover { background: rgba(111,212,255,0.2); }
-
-  /* ─── STATS BAR ─── */
-  .stats-bar {
+  canvas { display: block; }
+  #ui {
     position: fixed;
-    bottom: 0;
-    left: 220px;
-    right: 0;
-    background: rgba(13,13,20,0.97);
-    border-top: 1px solid var(--border);
-    backdrop-filter: blur(8px);
-    z-index: 50;
-    padding: 8px 28px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    color: var(--muted);
-    flex-wrap: wrap;
-  }
-
-  .stat {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-
-  .stat-val { color: var(--accent); }
-
-  /* ─── EXPORT MODAL ─── */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.75);
-    z-index: 200;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(4px);
-    opacity: 0;
+    top: 0; left: 0; right: 0; bottom: 0;
     pointer-events: none;
-    transition: opacity 0.2s;
   }
-
-  .modal-overlay.open {
-    opacity: 1;
-    pointer-events: all;
-  }
-
-  .modal {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    width: 560px;
-    max-width: 95vw;
-    max-height: 80vh;
+  #hud {
+    position: fixed;
+    top: 20px; left: 0; right: 0;
     display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    transform: translateY(20px);
-    transition: transform 0.2s;
-  }
-
-  .modal-overlay.open .modal {
-    transform: translateY(0);
-  }
-
-  .modal-header {
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
     justify-content: space-between;
-    background: var(--surface2);
-  }
-
-  .modal-title {
-    font-size: 0.9rem;
-    font-family: var(--mono);
-    letter-spacing: 0.06em;
-    color: var(--accent);
-  }
-
-  .modal-body {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
-  }
-
-  .export-text {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px;
-    font-family: var(--mono);
-    font-size: 0.82rem;
-    color: var(--text);
-    white-space: pre-wrap;
-    line-height: 1.7;
-    max-height: 400px;
-    overflow-y: auto;
-  }
-
-  .modal-footer {
-    padding: 14px 20px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-  }
-
-  /* ─── DRAG INDICATOR ─── */
-  .drag-over {
-    border-color: var(--accent) !important;
-    background: rgba(176,111,255,0.05);
-  }
-
-  /* ─── TOAST ─── */
-  .toast {
-    position: fixed;
-    bottom: 60px;
-    right: 24px;
-    background: var(--surface2);
-    border: 1px solid var(--accent);
-    color: var(--accent);
-    padding: 10px 18px;
-    border-radius: 8px;
-    font-family: var(--mono);
-    font-size: 0.78rem;
-    z-index: 300;
-    opacity: 0;
-    transform: translateY(10px);
-    transition: all 0.2s;
+    padding: 0 30px;
     pointer-events: none;
   }
-
-  .toast.show {
-    opacity: 1;
-    transform: translateY(0);
+  .hud-item {
+    color: #ff2adf;
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 0 0 8px #ff2adf, 0 0 20px #ff2adf, 0 0 40px #ff00cc;
+    letter-spacing: 2px;
   }
+  .lives-display { color: #00ffff; text-shadow: 0 0 8px #00ffff, 0 0 20px #00ffff, 0 0 40px #0088ff; }
 
-  /* ─── SCROLLBAR ─── */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
-
-  /* ─── MOBILE ─── */
-  @media (max-width: 700px) {
-    .workspace { grid-template-columns: 1fr; }
-    .sidebar { display: none; }
-    .stats-bar { left: 0; }
-    .canvas { padding: 16px 16px 80px; }
-    .block-body { grid-template-columns: 1fr; }
-    .syl-panel { display: none; }
+  #title-screen, #gameover-screen {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: all;
+    background: rgba(0,0,0,0);
   }
+  #gameover-screen { display: none; }
 
-  /* Section type colors */
-  .type-verse    { color: var(--verse);     border-color: var(--verse);     background: rgba(111,212,255,0.08); }
-  .type-chorus   { color: var(--chorus);    border-color: var(--chorus);    background: rgba(176,111,255,0.08); }
-  .type-bridge   { color: var(--bridge);    border-color: var(--bridge);    background: rgba(255,111,176,0.08); }
-  .type-prechorus { color: var(--prechorus); border-color: var(--prechorus); background: rgba(255,208,111,0.08); }
-  .type-outro    { color: var(--outro);     border-color: var(--outro);     background: rgba(111,255,176,0.08); }
-  .type-hook     { color: var(--hook);      border-color: var(--hook);      background: rgba(255,159,111,0.08); }
+  .screen-title {
+    font-size: clamp(42px, 10vw, 96px);
+    font-weight: 900;
+    color: #ff2adf;
+    text-shadow:
+      0 0 10px #ff2adf,
+      0 0 30px #ff2adf,
+      0 0 60px #ff00cc,
+      0 0 100px #ff00cc,
+      0 0 160px #cc00aa;
+    letter-spacing: 8px;
+    margin-bottom: 16px;
+    animation: titlePulse 2s ease-in-out infinite;
+  }
+  @keyframes titlePulse {
+    0%, 100% { opacity: 1; filter: brightness(1); }
+    50% { opacity: 0.85; filter: brightness(1.3); }
+  }
+  .screen-subtitle {
+    font-size: clamp(12px, 2.5vw, 18px);
+    color: #00ffff;
+    text-shadow: 0 0 6px #00ffff, 0 0 18px #00ffff;
+    letter-spacing: 4px;
+    margin-bottom: 50px;
+  }
+  .instructions {
+    color: #cc88ff;
+    font-size: clamp(11px, 2vw, 15px);
+    line-height: 2.2;
+    text-align: center;
+    text-shadow: 0 0 6px #aa44ff;
+    margin-bottom: 50px;
+    letter-spacing: 1px;
+  }
+  .neon-btn {
+    background: transparent;
+    border: 2px solid #ff2adf;
+    color: #ff2adf;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: clamp(14px, 3vw, 22px);
+    font-weight: bold;
+    letter-spacing: 6px;
+    padding: 14px 50px;
+    cursor: pointer;
+    text-shadow: 0 0 8px #ff2adf, 0 0 20px #ff2adf;
+    box-shadow: 0 0 10px #ff2adf, 0 0 30px #ff00cc, inset 0 0 10px rgba(255,42,223,0.1);
+    transition: all 0.2s;
+    pointer-events: all;
+    animation: btnPulse 1.5s ease-in-out infinite;
+  }
+  .neon-btn:hover {
+    background: rgba(255,42,223,0.15);
+    box-shadow: 0 0 20px #ff2adf, 0 0 60px #ff00cc, inset 0 0 20px rgba(255,42,223,0.2);
+    transform: scale(1.05);
+  }
+  @keyframes btnPulse {
+    0%, 100% { box-shadow: 0 0 10px #ff2adf, 0 0 30px #ff00cc, inset 0 0 10px rgba(255,42,223,0.1); }
+    50% { box-shadow: 0 0 20px #ff2adf, 0 0 50px #ff00cc, 0 0 80px #cc0088, inset 0 0 15px rgba(255,42,223,0.2); }
+  }
+  .score-display {
+    color: #ff2adf;
+    font-size: clamp(16px, 4vw, 32px);
+    text-shadow: 0 0 10px #ff2adf, 0 0 30px #ff00cc;
+    margin-bottom: 12px;
+    letter-spacing: 4px;
+  }
+  .best-display {
+    color: #00ffff;
+    font-size: clamp(13px, 3vw, 22px);
+    text-shadow: 0 0 8px #00ffff, 0 0 20px #00ffff;
+    margin-bottom: 40px;
+    letter-spacing: 4px;
+  }
+  .gameover-title {
+    font-size: clamp(36px, 8vw, 72px);
+    font-weight: 900;
+    color: #ff4444;
+    text-shadow: 0 0 10px #ff4444, 0 0 30px #ff0000, 0 0 70px #cc0000;
+    letter-spacing: 6px;
+    margin-bottom: 30px;
+    animation: titlePulse 1.5s ease-in-out infinite;
+  }
+  #hit-flash {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255,0,0,0);
+    pointer-events: none;
+    transition: none;
+  }
 </style>
 </head>
 <body>
-
-<!-- ─── HEADER ─── -->
-<header>
-  <div class="logo">
-    <span class="logo-title">Song Structure <span>Workshop</span></span>
-    <span class="logo-sub">Ada Fen · Lyric Architect</span>
-  </div>
-  <div class="header-actions">
-    <button class="btn" onclick="newSong()">+ New Song</button>
-    <button class="btn" onclick="openSongPicker()">⊞ Songs</button>
-    <button class="btn btn-export" onclick="openExport()">↗ Export</button>
-    <button class="btn btn-primary" onclick="saveSong()">● Save</button>
-  </div>
-</header>
-
-<!-- ─── SONG TITLE BAR ─── -->
-<div class="song-bar">
-  <input
-    class="song-title-input"
-    id="songTitle"
-    placeholder="untitled song"
-    oninput="onTitleChange()"
-  />
-  <div class="song-meta">
-    <span class="meta-item">Sections <span class="meta-val" id="statSections">0</span></span>
-    <span class="meta-item">Lines <span class="meta-val" id="statLines">0</span></span>
-    <span class="meta-item">Words <span class="meta-val" id="statWords">0</span></span>
-    <span class="meta-item">Syllables <span class="meta-val" id="statSyllables">0</span></span>
-  </div>
+<canvas id="c"></canvas>
+<div id="hit-flash"></div>
+<div id="hud" style="display:none">
+  <div class="hud-item" id="score-hud">SCORE: 0</div>
+  <div class="hud-item lives-display" id="lives-hud">♥ ♥ ♥</div>
+  <div class="hud-item" id="best-hud">BEST: 0</div>
 </div>
-
-<!-- ─── WORKSPACE ─── -->
-<div class="workspace">
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="sidebar-label">Add Section</div>
-
-    <button class="section-type-btn" onclick="addSection('verse')">
-      <span class="type-dot dot-verse"></span> Verse
-    </button>
-    <button class="section-type-btn" onclick="addSection('chorus')">
-      <span class="type-dot dot-chorus"></span> Chorus
-    </button>
-    <button class="section-type-btn" onclick="addSection('bridge')">
-      <span class="type-dot dot-bridge"></span> Bridge
-    </button>
-    <button class="section-type-btn" onclick="addSection('prechorus')">
-      <span class="type-dot dot-prechorus"></span> Pre-Chorus
-    </button>
-    <button class="section-type-btn" onclick="addSection('hook')">
-      <span class="type-dot dot-hook"></span> Hook
-    </button>
-    <button class="section-type-btn" onclick="addSection('outro')">
-      <span class="type-dot dot-outro"></span> Outro
-    </button>
-
-    <div class="sidebar-divider"></div>
-    <div class="order-label">Structure</div>
-    <ul class="order-list" id="orderList"></ul>
-  </aside>
-
-  <!-- Main Canvas -->
-  <main class="canvas" id="canvas">
-    <div class="empty-state" id="emptyState">
-      <h2>Start with a feeling.</h2>
-      <p>Add a section from the left panel — verse, chorus, bridge, hook — and let the song take shape. Syllable counts appear automatically. Use the rhyme finder to spark ideas.</p>
-      <button class="btn btn-primary" onclick="addSection('verse')" style="margin:0 auto;display:block;">+ Add First Verse</button>
-    </div>
-  </main>
-</div>
-
-<!-- ─── STATS BAR ─── -->
-<div class="stats-bar">
-  <span class="stat">last saved: <span class="stat-val" id="lastSaved">—</span></span>
-  <span class="stat">avg syllables/line: <span class="stat-val" id="avgSyl">—</span></span>
-  <span class="stat">most common end rhyme: <span class="stat-val" id="topRhyme">—</span></span>
-</div>
-
-<!-- ─── EXPORT MODAL ─── -->
-<div class="modal-overlay" id="exportModal">
-  <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title">EXPORT SONG</span>
-      <button class="icon-btn" onclick="closeExport()">✕</button>
-    </div>
-    <div class="modal-body">
-      <pre class="export-text" id="exportText"></pre>
-    </div>
-    <div class="modal-footer">
-      <button class="btn" onclick="closeExport()">Close</button>
-      <button class="btn btn-primary" onclick="copyExport()">Copy to Clipboard</button>
-    </div>
+<div id="title-screen">
+  <div class="screen-title">NEON DRIFT</div>
+  <div class="screen-subtitle">— SYNTHWAVE SURVIVAL —</div>
+  <div class="instructions">
+    ← → ARROW KEYS &nbsp;|&nbsp; A / D &nbsp;|&nbsp; TOUCH DRAG<br>
+    DODGE THE INCOMING CUBES<br>
+    3 LIVES &nbsp;|&nbsp; SPEED INCREASES EVERY 500 PTS<br>
+    SURVIVE AS LONG AS YOU CAN
   </div>
+  <button class="neon-btn" id="start-btn">START</button>
 </div>
-
-<!-- ─── SONG PICKER MODAL ─── -->
-<div class="modal-overlay" id="songPickerModal">
-  <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title">YOUR SONGS</span>
-      <button class="icon-btn" onclick="closeSongPicker()">✕</button>
-    </div>
-    <div class="modal-body" id="songPickerBody" style="padding:14px;">
-    </div>
-    <div class="modal-footer">
-      <button class="btn" onclick="closeSongPicker()">Cancel</button>
-      <button class="btn btn-primary" onclick="newSong(); closeSongPicker()">+ New Song</button>
-    </div>
-  </div>
+<div id="gameover-screen">
+  <div class="gameover-title">GAME OVER</div>
+  <div class="score-display" id="final-score">SCORE: 0</div>
+  <div class="best-display" id="final-best">BEST: 0</div>
+  <button class="neon-btn" id="restart-btn">PLAY AGAIN</button>
 </div>
-
-<!-- ─── TOAST ─── -->
-<div class="toast" id="toast"></div>
 
 <script>
-// ─── SYLLABLE ENGINE ─────────────────────────────────────────────────────────
-// Lightweight syllable counter using phonetic heuristics
-function countSyllables(word) {
-  if (!word) return 0;
-  word = word.toLowerCase().replace(/[^a-z]/g, '');
-  if (!word.length) return 0;
-  if (word.length <= 3) return 1;
+(function() {
+'use strict';
 
-  // Special endings
-  word = word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '');
-  word = word.replace(/^y/, '');
+// ── Canvas setup ──────────────────────────────────────────────
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const HUD = document.getElementById('hud');
+const titleScreen = document.getElementById('title-screen');
+const gameoverScreen = document.getElementById('gameover-screen');
+const hitFlash = document.getElementById('hit-flash');
 
-  const matches = word.match(/[aeiouy]{1,2}/g);
-  return matches ? Math.max(1, matches.length) : 1;
+let W, H, HORIZON, LANE_COUNT, LANE_W, PLAYER_Y;
+const LANES = 5;
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  HORIZON = H * 0.42;
+  LANE_COUNT = LANES;
+  LANE_W = W / LANE_COUNT;
+  PLAYER_Y = H * 0.82;
+}
+resize();
+window.addEventListener('resize', () => { resize(); });
+
+// ── State ─────────────────────────────────────────────────────
+let state = 'title'; // title | playing | gameover
+let score = 0, lives = 3, bestScore = 0;
+let baseSpeed = 1.5, gameTime = 0;
+let invincible = false, invincibleTimer = 0;
+const INV_DURATION = 2200;
+
+// Player
+let playerX;
+let playerTargetX;
+const PLAYER_W = W * 0.06;
+
+// Obstacles
+let obstacles = [];
+let obstacleTimer = 0;
+let obstacleInterval = 90;
+
+// Particles
+let particles = [];
+
+// Stars
+let stars = [];
+function initStars() {
+  stars = [];
+  for (let i = 0; i < 200; i++) {
+    stars.push({
+      x: Math.random() * W,
+      y: Math.random() * HORIZON * 0.95,
+      size: Math.random() * 2.2 + 0.3,
+      speed: Math.random() * 0.18 + 0.04,
+      bright: Math.random(),
+      twinkleOffset: Math.random() * Math.PI * 2
+    });
+  }
 }
 
-function syllablesInLine(line) {
-  const words = line.trim().split(/\s+/).filter(w => w.length > 0);
-  return words.reduce((sum, w) => sum + countSyllables(w), 0);
+// Touch
+let touchStartX = null;
+
+// ── Helpers ───────────────────────────────────────────────────
+function lerp(a, b, t) { return a + (b - a) * t; }
+function clamp(v, mn, mx) { return Math.max(mn, Math.min(mx, v)); }
+
+function getLivesStr(n) {
+  const on = '♥', off = '♡';
+  let s = '';
+  for (let i = 0; i < 3; i++) s += (i < n ? on : off) + (i < 2 ? ' ' : '');
+  return s;
 }
 
-// ─── RHYME ENGINE ────────────────────────────────────────────────────────────
-// Built-in rhyme word banks by ending sound
-const RHYME_BANKS = {
-  'ight': ['night','light','right','sight','fight','bright','tight','write','might','flight','bite','cite','kite','quite','white','knight','sprite'],
-  'ove':  ['love','above','dove','shove','glove','push','touch'],
-  'ame':  ['name','flame','game','same','came','blame','claim','frame','shame','tame','fame'],
-  'ay':   ['way','day','say','play','stay','gray','pray','away','today','display','delay','okay','relay','ray','pay','lay'],
-  'ine':  ['line','time','mine','shine','vine','wine','fine','sign','divine','design','define','nine','pine','spine','dine'],
-  'one':  ['alone','bone','phone','stone','tone','zone','known','shown','grown','blown','thrown','own','moan','groan','drone'],
-  'eel':  ['feel','real','heal','deal','steal','reveal','appeal','steel','wheel','kneel','seal','meal','peel'],
-  'ean':  ['dream','stream','beam','seem','team','gleam','cream','scheme','theme','machine','between','clean','mean','lean','scene'],
-  'art':  ['heart','start','part','art','smart','chart','apart','dark','spark','mark','stark','park'],
-  'ire':  ['fire','higher','desire','inspire','entire','liar','wire','choir','hire','tire'],
-  'old':  ['gold','hold','told','bold','cold','fold','sold','old','mold','roll','soul','whole','control'],
-  'ound': ['sound','found','ground','around','bound','wound','pound','round','surround','astound'],
-  'ong':  ['long','song','strong','belong','along','wrong','gone','on','beyond'],
-  'all':  ['fall','call','wall','small','tall','hall','recall','stall','crawl'],
-  'eed':  ['need','bleed','breathe','believe','leave','grieve','receive','achieve','perceive'],
-  'ake':  ['wake','take','break','shake','make','lake','fake','bake','mistake','forsake','ache'],
-  'un':   ['run','sun','one','done','come','some','none','gun','fun','begun','undone','overcome'],
-  'ight2':['stay','fly','sky','high','try','cry','by','why','lie','tie','deny','reply','rely','defy','alive'],
-};
-
-function getEndWord(line) {
-  const words = line.trim().split(/\s+/);
-  const last = words[words.length - 1];
-  return last ? last.toLowerCase().replace(/[^a-z]/g, '') : '';
+function getSpeed() {
+  const tier = Math.floor(score / 500);
+  return baseSpeed * (1 + tier * 0.28);
 }
 
-function findRhymes(word) {
-  if (!word) return [];
-  word = word.toLowerCase();
-  for (const [key, words] of Object.entries(RHYME_BANKS)) {
-    if (words.includes(word)) {
-      return words.filter(w => w !== word).slice(0, 8);
+function getObstacleInterval() {
+  const tier = Math.floor(score / 500);
+  return Math.max(40, obstacleInterval - tier * 8);
+}
+
+// ── Grid perspective ──────────────────────────────────────────
+function perspectiveX(screenX, depth) {
+  // depth: 0=horizon, 1=near edge
+  const vx = W / 2;
+  return vx + (screenX - vx) * depth;
+}
+
+function perspectiveY(depth) {
+  return HORIZON + (H - HORIZON) * depth;
+}
+
+function depthFromZ(z) {
+  // z: 0=far(horizon), 1=near(player)
+  return Math.pow(z, 0.82);
+}
+
+// ── Draw sky gradient ─────────────────────────────────────────
+function drawSky() {
+  const grad = ctx.createLinearGradient(0, 0, 0, HORIZON);
+  grad.addColorStop(0, '#0a0018');
+  grad.addColorStop(0.45, '#1a0035');
+  grad.addColorStop(0.75, '#2a0050');
+  grad.addColorStop(1, '#3d0070');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, HORIZON);
+}
+
+// ── Draw stars ────────────────────────────────────────────────
+function drawStars(ts) {
+  for (let s of stars) {
+    s.x -= s.speed;
+    if (s.x < 0) { s.x = W; s.y = Math.random() * HORIZON * 0.95; }
+    const twinkle = 0.55 + 0.45 * Math.sin(ts * 0.002 + s.twinkleOffset);
+    const alpha = twinkle;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    if (s.size > 1.5) {
+      ctx.shadowColor = '#ffffff';
+      ctx.shadowBlur = 5;
+    }
+    ctx.fillStyle = `hsl(${220 + s.bright*80}, 80%, ${70 + s.bright*30}%)`;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+// ── Draw sun ──────────────────────────────────────────────────
+function drawSun(ts) {
+  const cx = W * 0.5, cy = HORIZON;
+  // Outer glow rings
+  const rings = [
+    { r: 80, color: 'rgba(255,80,200,0.08)' },
+    { r: 60, color: 'rgba(255,60,180,0.13)' },
+    { r: 45, color: 'rgba(255,80,200,0.18)' },
+  ];
+  for (let rg of rings) {
+    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, rg.r * (W/800));
+    g.addColorStop(0, 'rgba(255,120,220,0.7)');
+    g.addColorStop(0.5, rg.color);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(cx, cy, rg.r * (W/800), 0, Math.PI * 2);
+    ctx.fill();
+  }
+  // Sun disc with horizontal stripes
+  const R = 32 * (W / 800);
+  const sunGrad = ctx.createLinearGradient(cx, cy - R, cx, cy + R);
+  sunGrad.addColorStop(0, '#ff80d4');
+  sunGrad.addColorStop(0.5, '#ff40b0');
+  sunGrad.addColorStop(1, '#cc0088');
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, 0, Math.PI * 2);
+  ctx.clip();
+  ctx.fillStyle = sunGrad;
+  ctx.fillRect(cx - R, cy - R, R * 2, R * 2);
+  // Stripes (lower half)
+  ctx.fillStyle = '#1a0035';
+  const stripeCount = 6;
+  for (let i = 0; i < stripeCount; i++) {
+    const stripeFrac = (i + 1) / (stripeCount + 1);
+    const sy = cy + stripeFrac * R;
+    const h = Math.max(1.5, (R / (stripeCount + 2)) * (1 - stripeFrac * 0.5));
+    ctx.fillRect(cx - R, sy, R * 2, h);
+  }
+  ctx.restore();
+}
+
+// ── Draw ground / grid ────────────────────────────────────────
+function drawGround(ts) {
+  // Ground fill
+  const gGrad = ctx.createLinearGradient(0, HORIZON, 0, H);
+  gGrad.addColorStop(0, '#0e0025');
+  gGrad.addColorStop(0.5, '#080015');
+  gGrad.addColorStop(1, '#04000e');
+  ctx.fillStyle = gGrad;
+  ctx.fillRect(0, HORIZON, W, H - HORIZON);
+
+  const gridSpeed = getSpeed();
+  const scrollFrac = (gameTime * gridSpeed * 0.012) % 1;
+
+  // Horizontal lines (pink)
+  const LINE_COUNT = 16;
+  ctx.save();
+  for (let i = 0; i <= LINE_COUNT; i++) {
+    const t = (i / LINE_COUNT + scrollFrac) % 1;
+    const depth = depthFromZ(t);
+    const y = perspectiveY(depth);
+    if (y < HORIZON || y > H) continue;
+    const alpha = clamp(depth * 1.4, 0, 1);
+    const width = clamp(depth * 2.5, 0.3, 3);
+    ctx.strokeStyle = `rgba(255,50,180,${alpha * 0.85})`;
+    ctx.lineWidth = width;
+    ctx.shadowColor = '#ff30aa';
+    ctx.shadowBlur = clamp(depth * 12, 0, 14);
+    ctx.beginPath();
+    ctx.moveTo(perspectiveX(0, depth), y);
+    ctx.lineTo(perspectiveX(W, depth), y);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Vertical lane lines (cyan)
+  ctx.save();
+  for (let col = 0; col <= LANE_COUNT; col++) {
+    const sx = col * LANE_W;
+    ctx.strokeStyle = 'rgba(0,220,255,0.55)';
+    ctx.lineWidth = 1.5;
+    ctx.shadowColor = '#00ddff';
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.moveTo(perspectiveX(sx, 0.01), HORIZON);
+    ctx.lineTo(sx, H);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+// ── Draw player ship ──────────────────────────────────────────
+function drawShip(ts) {
+  const cx = playerX;
+  const cy = PLAYER_Y;
+  const sc = clamp(W / 800, 0.5, 1.6);
+  const pw = 38 * sc;
+  const ph = 52 * sc;
+
+  ctx.save();
+  ctx.translate(cx, cy);
+
+  // Engine flame (animated)
+  const flameFlicker = 0.7 + 0.3 * Math.sin(ts * 0.018);
+  const fh = ph * 0.55 * flameFlicker;
+  const flameGrad = ctx.createLinearGradient(0, 0, 0, fh);
+  flameGrad.addColorStop(0, 'rgba(255,140,255,0.9)');
+  flameGrad.addColorStop(0.4, 'rgba(200,0,255,0.7)');
+  flameGrad.addColorStop(1, 'rgba(100,0,200,0)');
+  ctx.fillStyle = flameGrad;
+  ctx.shadowColor = '#dd00ff';
+  ctx.shadowBlur = 22 * flameFlicker;
+  ctx.beginPath();
+  ctx.moveTo(-pw * 0.22, ph * 0.3);
+  ctx.lineTo(0, ph * 0.3 + fh);
+  ctx.lineTo(pw * 0.22, ph * 0.3);
+  ctx.closePath();
+  ctx.fill();
+
+  // Invincibility blink
+  if (invincible) {
+    const blink = Math.sin(ts * 0.03) > 0;
+    ctx.globalAlpha = blink ? 0.4 : 0.95;
+  }
+
+  // Ship body (magenta/pink)
+  ctx.shadowColor = '#ff00cc';
+  ctx.shadowBlur = 24;
+
+  // Main fuselage
+  const bodyGrad = ctx.createLinearGradient(-pw * 0.5, -ph * 0.5, pw * 0.5, ph * 0.5);
+  bodyGrad.addColorStop(0, '#ff88ee');
+  bodyGrad.addColorStop(0.4, '#dd00aa');
+  bodyGrad.addColorStop(1, '#880066');
+  ctx.fillStyle = bodyGrad;
+  ctx.beginPath();
+  ctx.moveTo(0, -ph * 0.5);            // nose
+  ctx.lineTo(pw * 0.38, ph * 0.1);     // right shoulder
+  ctx.lineTo(pw * 0.5, ph * 0.28);     // right wing tip outer
+  ctx.lineTo(pw * 0.22, ph * 0.32);    // right wing inner
+  ctx.lineTo(pw * 0.18, ph * 0.5);     // right tail
+  ctx.lineTo(-pw * 0.18, ph * 0.5);    // left tail
+  ctx.lineTo(-pw * 0.22, ph * 0.32);   // left wing inner
+  ctx.lineTo(-pw * 0.5, ph * 0.28);    // left wing tip outer
+  ctx.lineTo(-pw * 0.38, ph * 0.1);    // left shoulder
+  ctx.closePath();
+  ctx.fill();
+
+  // Cockpit
+  const cockpitGrad = ctx.createRadialGradient(0, -ph * 0.15, 1, 0, -ph * 0.15, pw * 0.18);
+  cockpitGrad.addColorStop(0, 'rgba(180,255,255,0.9)');
+  cockpitGrad.addColorStop(1, 'rgba(0,200,255,0.3)');
+  ctx.fillStyle = cockpitGrad;
+  ctx.shadowColor = '#00ffff';
+  ctx.shadowBlur = 12;
+  ctx.beginPath();
+  ctx.ellipse(0, -ph * 0.12, pw * 0.15, ph * 0.18, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Wing edge glow lines
+  ctx.strokeStyle = '#ff40cc';
+  ctx.lineWidth = 1.5;
+  ctx.shadowColor = '#ff40cc';
+  ctx.shadowBlur = 8;
+  ctx.beginPath();
+  ctx.moveTo(pw * 0.22, ph * 0.28);
+  ctx.lineTo(pw * 0.5, ph * 0.28);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(-pw * 0.22, ph * 0.28);
+  ctx.lineTo(-pw * 0.5, ph * 0.28);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+// ── Obstacles ─────────────────────────────────────────────────
+function spawnObstacle() {
+  const lane = Math.floor(Math.random() * LANE_COUNT);
+  // Place in center of lane
+  const laneX = (lane + 0.5) * LANE_W;
+  obstacles.push({ lane, laneX, z: 0, hit: false });
+}
+
+function getObstacleScreenPos(ob) {
+  const depth = depthFromZ(ob.z);
+  const sx = perspectiveX(ob.laneX, depth);
+  const sy = perspectiveY(depth);
+  const size = Math.max(8, 100 * depth * (W / 700));
+  return { sx, sy, size, depth };
+}
+
+function drawCube(sx, sy, size, depth, ts) {
+  const alpha = clamp(depth * 1.5, 0.1, 1);
+  const s = size;
+  // Wireframe cube: front face + back face + connecting edges
+  const d = s * 0.45; // depth offset
+  const dx = d * 0.6, dy = -d * 0.55;
+
+  // Front face corners
+  const f = [
+    [sx - s/2, sy - s/2],
+    [sx + s/2, sy - s/2],
+    [sx + s/2, sy + s/2],
+    [sx - s/2, sy + s/2],
+  ];
+  // Back face corners (offset)
+  const b = f.map(([x, y]) => [x + dx, y + dy]);
+
+  ctx.save();
+  ctx.strokeStyle = `rgba(0,255,220,${alpha})`;
+  ctx.lineWidth = clamp(depth * 3.5, 0.8, 3);
+  ctx.shadowColor = '#00ffcc';
+  ctx.shadowBlur = 18 * depth;
+
+  // Back face
+  ctx.beginPath();
+  ctx.moveTo(b[0][0], b[0][1]);
+  for (let i = 1; i < 4; i++) ctx.lineTo(b[i][0], b[i][1]);
+  ctx.closePath();
+  ctx.globalAlpha = alpha * 0.5;
+  ctx.stroke();
+
+  // Front face
+  ctx.globalAlpha = alpha;
+  ctx.beginPath();
+  ctx.moveTo(f[0][0], f[0][1]);
+  for (let i = 1; i < 4; i++) ctx.lineTo(f[i][0], f[i][1]);
+  ctx.closePath();
+  ctx.stroke();
+
+  // Connecting edges
+  for (let i = 0; i < 4; i++) {
+    ctx.beginPath();
+    ctx.moveTo(f[i][0], f[i][1]);
+    ctx.lineTo(b[i][0], b[i][1]);
+    ctx.globalAlpha = alpha * 0.7;
+    ctx.stroke();
+  }
+
+  // Inner glow fill
+  ctx.globalAlpha = alpha * 0.08;
+  ctx.fillStyle = '#00ffcc';
+  ctx.beginPath();
+  ctx.moveTo(f[0][0], f[0][1]);
+  for (let i = 1; i < 4; i++) ctx.lineTo(f[i][0], f[i][1]);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.restore();
+}
+
+// ── Particles ─────────────────────────────────────────────────
+function spawnExplosion(x, y) {
+  const colors = ['#ff2adf', '#00ffff', '#ff8800', '#ffffff', '#ff0066', '#9900ff'];
+  for (let i = 0; i < 48; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = Math.random() * 5 + 1.5;
+    particles.push({
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 2,
+      life: 1,
+      decay: Math.random() * 0.025 + 0.015,
+      size: Math.random() * 5 + 2,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      trail: []
+    });
+  }
+}
+
+function updateParticles() {
+  particles = particles.filter(p => p.life > 0);
+  for (let p of particles) {
+    p.trail.push({ x: p.x, y: p.y });
+    if (p.trail.length > 5) p.trail.shift();
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.12;
+    p.vx *= 0.97;
+    p.life -= p.decay;
+  }
+}
+
+function drawParticles() {
+  for (let p of particles) {
+    ctx.save();
+    ctx.globalAlpha = p.life;
+    ctx.shadowColor = p.color;
+    ctx.shadowBlur = 10;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+    ctx.fill();
+    // Trail
+    if (p.trail.length > 1) {
+      ctx.globalAlpha = p.life * 0.4;
+      ctx.strokeStyle = p.color;
+      ctx.lineWidth = p.size * 0.5;
+      ctx.beginPath();
+      ctx.moveTo(p.trail[0].x, p.trail[0].y);
+      for (let t of p.trail) ctx.lineTo(t.x, t.y);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+}
+
+// ── Collision ─────────────────────────────────────────────────
+function checkCollisions() {
+  if (invincible) return;
+  const sc = clamp(W / 800, 0.5, 1.6);
+  const pw = 32 * sc;
+  const ph = 42 * sc;
+
+  for (let ob of obstacles) {
+    if (ob.hit) continue;
+    const { sx, sy, size } = getObstacleScreenPos(ob);
+    // Simple AABB, slightly forgiving
+    const dx = Math.abs(sx - playerX);
+    const dy = Math.abs(sy - PLAYER_Y);
+    if (dx < (pw * 0.7 + size * 0.38) && dy < (ph * 0.55 + size * 0.38)) {
+      ob.hit = true;
+      takeDamage(sx, sy);
     }
   }
-  // Fallback: match last 2-3 chars
-  const tail = word.slice(-3);
-  const all = Object.values(RHYME_BANKS).flat();
-  return [...new Set(all.filter(w => w.endsWith(tail) && w !== word))].slice(0, 8);
 }
 
-function getMostCommonEndRhyme(sections) {
-  const endings = {};
-  sections.forEach(s => {
-    s.lyrics.split('\n').forEach(line => {
-      const ew = getEndWord(line);
-      if (ew.length > 2) {
-        const tail = ew.slice(-3);
-        endings[tail] = (endings[tail] || 0) + 1;
-      }
-    });
-  });
-  const sorted = Object.entries(endings).sort((a, b) => b[1] - a[1]);
-  return sorted.length ? `—${sorted[0][0]}` : '—';
-}
-
-// ─── STATE ───────────────────────────────────────────────────────────────────
-let songs = [];
-let currentSongId = null;
-let dragSrcId = null;
-
-const STORAGE_KEY = 'ada-ssw-songs';
-const TYPE_LABELS = {
-  verse: 'Verse', chorus: 'Chorus', bridge: 'Bridge',
-  prechorus: 'Pre-Chorus', hook: 'Hook', outro: 'Outro'
-};
-
-function loadState() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) songs = JSON.parse(raw);
-    if (!songs.length) newSong(false);
-    else currentSongId = songs[0].id;
-    renderSong();
-  } catch (e) {
-    newSong(false);
+function takeDamage(ex, ey) {
+  lives--;
+  spawnExplosion(ex || playerX, ey || PLAYER_Y);
+  invincible = true;
+  invincibleTimer = INV_DURATION;
+  // Flash red
+  hitFlash.style.background = 'rgba(255,0,60,0.55)';
+  hitFlash.style.transition = 'none';
+  setTimeout(() => {
+    hitFlash.style.transition = 'background 0.5s';
+    hitFlash.style.background = 'rgba(255,0,0,0)';
+  }, 60);
+  updateHUD();
+  if (lives <= 0) {
+    setTimeout(() => endGame(), 600);
   }
 }
 
-function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(songs));
-  const now = new Date();
-  document.getElementById('lastSaved').textContent =
-    now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+// ── HUD ───────────────────────────────────────────────────────
+function updateHUD() {
+  document.getElementById('score-hud').textContent = `SCORE: ${score}`;
+  document.getElementById('lives-hud').textContent = getLivesStr(lives);
+  document.getElementById('best-hud').textContent = `BEST: ${bestScore}`;
 }
 
-function getCurrentSong() {
-  return songs.find(s => s.id === currentSongId);
-}
+// ── Input ──────────────────────────────────────────────────────
+const keys = {};
+window.addEventListener('keydown', e => { keys[e.key] = true; });
+window.addEventListener('keyup', e => { keys[e.key] = false; });
 
-function uid() { return Math.random().toString(36).slice(2, 10); }
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  touchStartX = e.touches[0].clientX;
+}, { passive: false });
 
-// ─── SONG MANAGEMENT ─────────────────────────────────────────────────────────
-function newSong(doRender = true) {
-  const song = {
-    id: uid(),
-    title: '',
-    sections: [],
-    createdAt: Date.now()
-  };
-  songs.unshift(song);
-  currentSongId = song.id;
-  if (doRender) { renderSong(); saveSong(); }
-}
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (state !== 'playing' || touchStartX === null) return;
+  const dx = e.touches[0].clientX - touchStartX;
+  playerTargetX = clamp(playerTargetX + dx * 0.7, LANE_W * 0.5, W - LANE_W * 0.5);
+  touchStartX = e.touches[0].clientX;
+}, { passive: false });
 
-function saveSong() {
-  const song = getCurrentSong();
-  if (!song) return;
-  song.title = document.getElementById('songTitle').value;
-  // sections are kept live, just persist
-  saveState();
-  showToast('Saved ✓');
-}
+canvas.addEventListener('touchend', e => {
+  touchStartX = null;
+});
 
-function onTitleChange() {
-  const song = getCurrentSong();
-  if (song) song.title = document.getElementById('songTitle').value;
-  saveState();
-}
-
-// ─── SECTION MANAGEMENT ──────────────────────────────────────────────────────
-function addSection(type) {
-  const song = getCurrentSong();
-  if (!song) return;
-
-  // Count existing sections of this type for auto-numbering
-  const sameType = song.sections.filter(s => s.type === type).length;
-  const label = sameType > 0 ? `${TYPE_LABELS[type]} ${sameType + 1}` : '';
-
-  const section = {
-    id: uid(),
-    type,
-    label,
-    lyrics: '',
-    notes: '',
-  };
-  song.sections.push(section);
-  document.getElementById('emptyState').style.display = 'none';
-  renderSection(section, song.sections.length - 1);
-  updateOrderList();
-  updateStats();
-  saveState();
-
-  // Scroll to new section
-  const el = document.getElementById('sec-' + section.id);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
-
-function removeSection(id) {
-  const song = getCurrentSong();
-  if (!song) return;
-  song.sections = song.sections.filter(s => s.id !== id);
-  const el = document.getElementById('sec-' + id);
-  if (el) el.remove();
-  updateEmptyState();
-  updateOrderList();
-  updateStats();
-  saveState();
-}
-
-function duplicateSection(id) {
-  const song = getCurrentSong();
-  if (!song) return;
-  const idx = song.sections.findIndex(s => s.id === id);
-  if (idx === -1) return;
-  const orig = song.sections[idx];
-  const dup = { ...orig, id: uid(), label: orig.label ? orig.label + ' (copy)' : '' };
-  song.sections.splice(idx + 1, 0, dup);
-  renderSong();
-  saveState();
-}
-
-function moveSectionUp(id) {
-  const song = getCurrentSong();
-  const idx = song.sections.findIndex(s => s.id === id);
-  if (idx > 0) {
-    [song.sections[idx - 1], song.sections[idx]] = [song.sections[idx], song.sections[idx - 1]];
-    renderSong(); saveState();
+function handleInput() {
+  const speed = W * 0.012;
+  if (keys['ArrowLeft'] || keys['a'] || keys['A']) {
+    playerTargetX -= speed;
   }
-}
-
-function moveSectionDown(id) {
-  const song = getCurrentSong();
-  const idx = song.sections.findIndex(s => s.id === id);
-  if (idx < song.sections.length - 1) {
-    [song.sections[idx], song.sections[idx + 1]] = [song.sections[idx + 1], song.sections[idx]];
-    renderSong(); saveState();
+  if (keys['ArrowRight'] || keys['d'] || keys['D']) {
+    playerTargetX += speed;
   }
+  playerTargetX = clamp(playerTargetX, LANE_W * 0.5, W - LANE_W * 0.5);
 }
 
-// ─── RENDER ──────────────────────────────────────────────────────────────────
-function renderSong() {
-  const song = getCurrentSong();
-  const canvas = document.getElementById('canvas');
+// ── Game flow ──────────────────────────────────────────────────
+function startGame() {
+  state = 'playing';
+  score = 0;
+  lives = 3;
+  gameTime = 0;
+  obstacles = [];
+  particles = [];
+  obstacleTimer = 0;
+  invincible = false;
+  invincibleTimer = 0;
+  playerX = W / 2;
+  playerTargetX = W / 2;
+  titleScreen.style.display = 'none';
+  gameoverScreen.style.display = 'none';
+  HUD.style.display = 'flex';
+  initStars();
+  updateHUD();
+}
 
-  // Remove all section blocks
-  canvas.querySelectorAll('.section-block').forEach(el => el.remove());
-
-  document.getElementById('songTitle').value = song ? (song.title || '') : '';
-
-  if (!song || !song.sections.length) {
-    document.getElementById('emptyState').style.display = '';
-    updateOrderList();
-    updateStats();
-    return;
+function endGame() {
+  state = 'gameover';
+  if (score > bestScore) {
+    bestScore = score;
+    try { localStorage.setItem('neonDriftBest', bestScore); } catch(e) {}
   }
-
-  document.getElementById('emptyState').style.display = 'none';
-  song.sections.forEach((sec, i) => renderSection(sec, i));
-  updateOrderList();
-  updateStats();
+  HUD.style.display = 'none';
+  document.getElementById('final-score').textContent = `SCORE: ${score}`;
+  document.getElementById('final-best').textContent = `BEST: ${bestScore}`;
+  gameoverScreen.style.display = 'flex';
 }
 
-function renderSection(section, index) {
-  const canvas = document.getElementById('canvas');
-  const el = document.createElement('div');
-  el.className = 'section-block';
-  el.id = 'sec-' + section.id;
-  el.setAttribute('data-id', section.id);
-  el.style.setProperty('--block-color', getTypeColor(section.type));
-  el.draggable = true;
-
-  const typeClass = 'type-' + section.type;
-  const typeLabel = TYPE_LABELS[section.type] || section.type;
-
-  // Build syllable rows from current lyrics
-  const lines = section.lyrics.split('\n');
-  const sylRows = buildSylRows(lines);
-
-  el.innerHTML = `
-    <div class="block-header" title="Drag to reorder">
-      <span class="block-type-tag ${typeClass}">${typeLabel}</span>
-      <span class="block-num">#${index + 1}</span>
-      <input
-        class="block-label-input"
-        placeholder="label…"
-        value="${escHtml(section.label || '')}"
-        oninput="onLabelChange('${section.id}', this.value)"
-      />
-      <div class="block-actions">
-        <button class="icon-btn" onclick="moveSectionUp('${section.id}')" title="Move up">↑</button>
-        <button class="icon-btn" onclick="moveSectionDown('${section.id}')" title="Move down">↓</button>
-        <button class="icon-btn" onclick="duplicateSection('${section.id}')" title="Duplicate">⧉</button>
-        <button class="icon-btn danger" onclick="removeSection('${section.id}')" title="Delete">✕</button>
-      </div>
-    </div>
-    <div class="block-body">
-      <textarea
-        class="lyric-area"
-        id="ta-${section.id}"
-        placeholder="Write your ${typeLabel.toLowerCase()} here…"
-        oninput="onLyricsChange('${section.id}', this.value)"
-        onkeydown="onLyricsKeydown(event, '${section.id}')"
-      >${escHtml(section.lyrics)}</textarea>
-      <div class="syl-panel" id="syl-${section.id}">
-        <div class="syl-header">Syl</div>
-        <div class="syl-rows" id="sylrows-${section.id}">${sylRows}</div>
-      </div>
-    </div>
-    <div class="block-notes">
-      <span class="notes-label">Notes</span>
-      <input
-        class="notes-input"
-        placeholder="chord progression, melody note, feeling…"
-        value="${escHtml(section.notes || '')}"
-        oninput="onNotesChange('${section.id}', this.value)"
-      />
-    </div>
-    <div class="rhyme-strip" id="rhyme-${section.id}">
-      <span class="rhyme-label">Rhymes</span>
-      <div class="rhyme-words" id="rhymewords-${section.id}"></div>
-      <div class="rhyme-input-wrap">
-        <input class="rhyme-input" placeholder="find…" id="rhymeinput-${section.id}" onkeydown="if(event.key==='Enter') findRhymesFor('${section.id}')"/>
-        <button class="rhyme-find-btn" onclick="findRhymesFor('${section.id}')">Find</button>
-      </div>
-    </div>
-  `;
-
-  // Auto-populate rhymes from last line
-  canvas.appendChild(el);
-  autoRhyme(section.id, section.lyrics);
-  autoResize(el.querySelector('textarea'));
-
-  // Drag and drop
-  el.addEventListener('dragstart', (e) => {
-    dragSrcId = section.id;
-    el.classList.add('dragging');
-    e.dataTransfer.effectAllowed = 'move';
-  });
-  el.addEventListener('dragend', () => {
-    el.classList.remove('dragging');
-    document.querySelectorAll('.section-block').forEach(b => b.classList.remove('drag-over'));
-  });
-  el.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    document.querySelectorAll('.section-block').forEach(b => b.classList.remove('drag-over'));
-    if (section.id !== dragSrcId) el.classList.add('drag-over');
-  });
-  el.addEventListener('drop', (e) => {
-    e.preventDefault();
-    el.classList.remove('drag-over');
-    if (dragSrcId && dragSrcId !== section.id) {
-      const song = getCurrentSong();
-      const fromIdx = song.sections.findIndex(s => s.id === dragSrcId);
-      const toIdx = song.sections.findIndex(s => s.id === section.id);
-      const [moved] = song.sections.splice(fromIdx, 1);
-      song.sections.splice(toIdx, 0, moved);
-      renderSong();
-      saveState();
-    }
-    dragSrcId = null;
-  });
-}
-
-function buildSylRows(lines) {
-  return lines.map(line => {
-    if (!line.trim()) return '<div class="syl-row">·</div>';
-    const count = syllablesInLine(line);
-    const cls = count > 12 ? ' syl-high' : count > 0 ? ' has-count' : '';
-    return `<div class="syl-row${cls}">${count}</div>`;
-  }).join('');
-}
-
-function getTypeColor(type) {
-  const map = {
-    verse: 'var(--verse)', chorus: 'var(--chorus)', bridge: 'var(--bridge)',
-    prechorus: 'var(--prechorus)', outro: 'var(--outro)', hook: 'var(--hook)'
-  };
-  return map[type] || 'var(--accent)';
-}
-
-function escHtml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-function autoResize(ta) {
-  if (!ta) return;
-  ta.style.height = 'auto';
-  ta.style.height = Math.max(120, ta.scrollHeight) + 'px';
-}
-
-// ─── LIVE UPDATES ────────────────────────────────────────────────────────────
-function onLyricsChange(id, value) {
-  const song = getCurrentSong();
-  const section = song.sections.find(s => s.id === id);
-  if (section) section.lyrics = value;
-
-  // Update syllable panel
-  const lines = value.split('\n');
-  const sylrows = document.getElementById('sylrows-' + id);
-  if (sylrows) sylrows.innerHTML = buildSylRows(lines);
-
-  // Auto resize textarea
-  const ta = document.getElementById('ta-' + id);
-  autoResize(ta);
-
-  // Auto-rhyme from last non-empty line
-  autoRhyme(id, value);
-
-  updateStats();
-  saveState();
-}
-
-function onLyricsKeydown(e, id) {
-  if (e.key === 'Tab') {
-    e.preventDefault();
-    const ta = document.getElementById('ta-' + id);
-    const start = ta.selectionStart;
-    const end = ta.selectionEnd;
-    ta.value = ta.value.substring(0, start) + '  ' + ta.value.substring(end);
-    ta.selectionStart = ta.selectionEnd = start + 2;
-    onLyricsChange(id, ta.value);
-  }
-}
-
-function onLabelChange(id, value) {
-  const song = getCurrentSong();
-  const section = song.sections.find(s => s.id === id);
-  if (section) { section.label = value; updateOrderList(); saveState(); }
-}
-
-function onNotesChange(id, value) {
-  const song = getCurrentSong();
-  const section = song.sections.find(s => s.id === id);
-  if (section) { section.notes = value; saveState(); }
-}
-
-// ─── RHYME ───────────────────────────────────────────────────────────────────
-function autoRhyme(id, lyrics) {
-  const lines = lyrics.split('\n').filter(l => l.trim());
-  if (!lines.length) { clearRhymes(id); return; }
-  const lastLine = lines[lines.length - 1];
-  const endWord = getEndWord(lastLine);
-  if (!endWord || endWord.length < 3) { clearRhymes(id); return; }
-  const rhymes = findRhymes(endWord);
-  displayRhymes(id, rhymes, endWord);
-}
-
-function findRhymesFor(id) {
-  const input = document.getElementById('rhymeinput-' + id);
-  const word = input ? input.value.trim().toLowerCase() : '';
-  if (!word) return;
-  const rhymes = findRhymes(word);
-  displayRhymes(id, rhymes, word);
-}
-
-function displayRhymes(id, rhymes, sourceWord) {
-  const container = document.getElementById('rhymewords-' + id);
-  if (!container) return;
-  if (!rhymes.length) {
-    container.innerHTML = `<span style="color:var(--muted);font-size:0.72rem;font-family:var(--mono)">no matches for "${sourceWord}"</span>`;
-    return;
-  }
-  container.innerHTML = rhymes.map(r =>
-    `<span class="rhyme-chip" onclick="insertRhyme('${id}','${r}')">${r}</span>`
-  ).join('');
-}
-
-function clearRhymes(id) {
-  const container = document.getElementById('rhymewords-' + id);
-  if (container) container.innerHTML = '';
-}
-
-function insertRhyme(id, word) {
-  const ta = document.getElementById('ta-' + id);
-  if (!ta) return;
-  const pos = ta.selectionStart;
-  const val = ta.value;
-  // Find start of current word at cursor
-  let start = pos;
-  while (start > 0 && val[start - 1] !== ' ' && val[start - 1] !== '\n') start--;
-  ta.value = val.substring(0, start) + word + val.substring(pos);
-  ta.selectionStart = ta.selectionEnd = start + word.length;
-  ta.focus();
-  onLyricsChange(id, ta.value);
-}
-
-// ─── STATS ───────────────────────────────────────────────────────────────────
-function updateStats() {
-  const song = getCurrentSong();
-  if (!song) return;
-
-  const sections = song.sections.length;
-  let lines = 0, words = 0, syllables = 0, totalLines = 0;
-
-  song.sections.forEach(s => {
-    const ls = s.lyrics.split('\n').filter(l => l.trim());
-    lines += ls.length;
-    totalLines += ls.length;
-    ls.forEach(l => {
-      words += l.trim().split(/\s+/).filter(w => w).length;
-      syllables += syllablesInLine(l);
-    });
-  });
-
-  document.getElementById('statSections').textContent = sections;
-  document.getElementById('statLines').textContent = lines;
-  document.getElementById('statWords').textContent = words;
-  document.getElementById('statSyllables').textContent = syllables;
-  document.getElementById('avgSyl').textContent =
-    totalLines > 0 ? (syllables / totalLines).toFixed(1) : '—';
-  document.getElementById('topRhyme').textContent =
-    getMostCommonEndRhyme(song.sections);
-}
-
-function updateOrderList() {
-  const song = getCurrentSong();
-  const list = document.getElementById('orderList');
-  if (!list) return;
-  list.innerHTML = '';
-  if (!song) return;
-  song.sections.forEach((s, i) => {
-    const li = document.createElement('li');
-    li.className = 'order-item';
-    const dot = document.createElement('span');
-    dot.className = `type-dot dot-${s.type}`;
-    const num = document.createElement('span');
-    num.className = 'order-num';
-    num.textContent = i + 1;
-    const lbl = document.createElement('span');
-    lbl.textContent = s.label || TYPE_LABELS[s.type];
-    li.appendChild(num);
-    li.appendChild(dot);
-    li.appendChild(lbl);
-    li.addEventListener('click', () => {
-      const el = document.getElementById('sec-' + s.id);
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    });
-    list.appendChild(li);
-  });
-}
-
-function updateEmptyState() {
-  const song = getCurrentSong();
-  const empty = document.getElementById('emptyState');
-  if (!song || !song.sections.length) {
-    empty.style.display = '';
-  } else {
-    empty.style.display = 'none';
-  }
-}
-
-// ─── EXPORT ──────────────────────────────────────────────────────────────────
-function buildExportText() {
-  const song = getCurrentSong();
-  if (!song) return '';
-  const title = song.title || 'Untitled';
-  let out = `${title.toUpperCase()}\n${'─'.repeat(title.length)}\n\n`;
-
-  song.sections.forEach((s, i) => {
-    const typeLabel = TYPE_LABELS[s.type] || s.type;
-    const label = s.label ? `${typeLabel}: ${s.label}` : typeLabel;
-    out += `[${label}]\n`;
-    out += s.lyrics || '(empty)';
-    out += '\n\n';
-    if (s.notes) out += `// ${s.notes}\n\n`;
-  });
-
-  out += `─────────────────────────\n`;
-  const lines = song.sections.reduce((sum, s) => sum + s.lyrics.split('\n').filter(l=>l.trim()).length, 0);
-  const words = song.sections.reduce((sum, s) => sum + s.lyrics.split(/\s+/).filter(w=>w).length, 0);
-  const syl = song.sections.reduce((sum, s) =>
-    sum + s.lyrics.split('\n').reduce((ss, l) => ss + syllablesInLine(l), 0), 0);
-  out += `${song.sections.length} sections · ${lines} lines · ${words} words · ${syl} syllables`;
-  return out;
-}
-
-function openExport() {
-  document.getElementById('exportText').textContent = buildExportText();
-  document.getElementById('exportModal').classList.add('open');
-}
-
-function closeExport() {
-  document.getElementById('exportModal').classList.remove('open');
-}
-
-function copyExport() {
-  navigator.clipboard.writeText(buildExportText()).then(() => showToast('Copied to clipboard ✓'));
-}
-
-// ─── SONG PICKER ─────────────────────────────────────────────────────────────
-function openSongPicker() {
-  const body = document.getElementById('songPickerBody');
-  if (!songs.length) {
-    body.innerHTML = '<p style="color:var(--muted);font-size:0.82rem;padding:10px;">No songs yet.</p>';
-  } else {
-    body.innerHTML = songs.map(s => `
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:7px;margin-bottom:6px;background:${s.id === currentSongId ? 'rgba(176,111,255,0.1)' : 'var(--surface2)'};border:1px solid ${s.id === currentSongId ? 'var(--accent)' : 'var(--border)'};">
-        <div>
-          <div style="font-size:0.88rem;color:var(--text);margin-bottom:2px;">${escHtml(s.title || 'Untitled')}</div>
-          <div style="font-size:0.7rem;color:var(--muted);font-family:var(--mono);">${s.sections.length} sections · ${new Date(s.createdAt).toLocaleDateString()}</div>
-        </div>
-        <div style="display:flex;gap:8px;">
-          <button class="btn" style="padding:5px 12px;font-size:0.75rem;" onclick="loadSong('${s.id}');closeSongPicker();">Open</button>
-          <button class="btn" style="padding:5px 12px;font-size:0.75rem;border-color:var(--accent2);color:var(--accent2);" onclick="deleteSong('${s.id}')">Del</button>
-        </div>
-      </div>
-    `).join('');
-  }
-  document.getElementById('songPickerModal').classList.add('open');
-}
-
-function closeSongPicker() {
-  document.getElementById('songPickerModal').classList.remove('open');
-}
-
-function loadSong(id) {
-  currentSongId = id;
-  renderSong();
-}
-
-function deleteSong(id) {
-  if (!confirm('Delete this song? This cannot be undone.')) return;
-  songs = songs.filter(s => s.id !== id);
-  if (id === currentSongId) {
-    if (songs.length) currentSongId = songs[0].id;
-    else { newSong(false); }
-  }
-  saveState();
-  openSongPicker(); // Refresh
-  renderSong();
-}
-
-// ─── TOAST ───────────────────────────────────────────────────────────────────
-let toastTimer;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
-}
-
-// ─── KEYBOARD SHORTCUTS ──────────────────────────────────────────────────────
-document.addEventListener('keydown', e => {
-  if ((e.metaKey || e.ctrlKey) && e.key === 's') {
-    e.preventDefault();
-    saveSong();
-  }
-  if ((e.metaKey || e.ctrlKey) && e.key === 'e') {
-    e.preventDefault();
-    openExport();
-  }
-  if (e.key === 'Escape') {
-    closeExport();
-    closeSongPicker();
+document.getElementById('start-btn').addEventListener('click', startGame);
+document.getElementById('restart-btn').addEventListener('click', startGame);
+window.addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    if (state === 'title') startGame();
+    else if (state === 'gameover') startGame();
   }
 });
 
-// ─── INIT ────────────────────────────────────────────────────────────────────
-loadState();
+// Load best score
+try {
+  const saved = localStorage.getItem('neonDriftBest');
+  if (saved) bestScore = parseInt(saved) || 0;
+} catch(e) {}
+
+// ── Main game loop ─────────────────────────────────────────────
+let lastTs = 0;
+initStars();
+
+function loop(ts) {
+  requestAnimationFrame(loop);
+  const dt = Math.min(ts - lastTs, 50);
+  lastTs = ts;
+
+  // Clear
+  ctx.clearRect(0, 0, W, H);
+
+  // Always draw background
+  drawSky();
+  drawStars(ts);
+  drawSun(ts);
+  drawGround(ts);
+
+  if (state === 'playing') {
+    gameTime += dt;
+    score = Math.floor(gameTime / 80);
+    updateHUD();
+
+    // Invincibility countdown
+    if (invincible) {
+      invincibleTimer -= dt;
+      if (invincibleTimer <= 0) { invincible = false; invincibleTimer = 0; }
+    }
+
+    // Input
+    handleInput();
+    playerX = lerp(playerX, playerTargetX, 0.13);
+
+    // Spawn obstacles
+    obstacleTimer++;
+    if (obstacleTimer >= getObstacleInterval()) {
+      obstacleTimer = 0;
+      spawnObstacle();
+    }
+
+    // Update obstacles
+    const spd = getSpeed();
+    obstacles = obstacles.filter(ob => ob.z < 1.02);
+    for (let ob of obstacles) {
+      ob.z += 0.0085 * spd;
+    }
+
+    // Update laneX for player lane width (handle resize)
+    for (let ob of obstacles) {
+      ob.laneX = (ob.lane + 0.5) * LANE_W;
+    }
+
+    // Draw obstacles (back to front)
+    const sorted = [...obstacles].sort((a, b) => a.z - b.z);
+    for (let ob of sorted) {
+      if (ob.z < 0.01) continue;
+      const { sx, sy, size, depth } = getObstacleScreenPos(ob);
+      drawCube(sx, sy, size, depth, ts);
+    }
+
+    // Collision
+    checkCollisions();
+
+    // Particles
+    updateParticles();
+    drawParticles();
+
+    // Draw ship
+    if (lives > 0) drawShip(ts);
+
+  } else if (state === 'title' || state === 'gameover') {
+    // Animate some particles on idle screens
+    updateParticles();
+    drawParticles();
+  }
+}
+
+requestAnimationFrame(loop);
+
+})();
 </script>
 </body>
 </html>
