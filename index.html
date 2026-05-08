@@ -1,819 +1,668 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>NEON DRIFT</title>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: #0a0010;
-    overflow: hidden;
-    font-family: 'Courier New', Courier, monospace;
-    touch-action: none;
-    user-select: none;
-  }
-  canvas { display: block; }
-  #ui {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    pointer-events: none;
-  }
-  #hud {
-    position: fixed;
-    top: 20px; left: 0; right: 0;
-    display: flex;
-    justify-content: space-between;
-    padding: 0 30px;
-    pointer-events: none;
-  }
-  .hud-item {
-    color: #ff2adf;
-    font-size: 18px;
-    font-weight: bold;
-    text-shadow: 0 0 8px #ff2adf, 0 0 20px #ff2adf, 0 0 40px #ff00cc;
-    letter-spacing: 2px;
-  }
-  .lives-display { color: #00ffff; text-shadow: 0 0 8px #00ffff, 0 0 20px #00ffff, 0 0 40px #0088ff; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#000000">
+  <title>Neon Builds</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Prata&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  #title-screen, #gameover-screen {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    pointer-events: all;
-    background: rgba(0,0,0,0);
-  }
-  #gameover-screen { display: none; }
+    :root {
+      --font-display: "Prata", serif;
+      --font-sans: "DM Sans", sans-serif;
+      --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
 
-  .screen-title {
-    font-size: clamp(42px, 10vw, 96px);
-    font-weight: 900;
-    color: #ff2adf;
-    text-shadow:
-      0 0 10px #ff2adf,
-      0 0 30px #ff2adf,
-      0 0 60px #ff00cc,
-      0 0 100px #ff00cc,
-      0 0 160px #cc00aa;
-    letter-spacing: 8px;
-    margin-bottom: 16px;
-    animation: titlePulse 2s ease-in-out infinite;
-  }
-  @keyframes titlePulse {
-    0%, 100% { opacity: 1; filter: brightness(1); }
-    50% { opacity: 0.85; filter: brightness(1.3); }
-  }
-  .screen-subtitle {
-    font-size: clamp(12px, 2.5vw, 18px);
-    color: #00ffff;
-    text-shadow: 0 0 6px #00ffff, 0 0 18px #00ffff;
-    letter-spacing: 4px;
-    margin-bottom: 50px;
-  }
-  .instructions {
-    color: #cc88ff;
-    font-size: clamp(11px, 2vw, 15px);
-    line-height: 2.2;
-    text-align: center;
-    text-shadow: 0 0 6px #aa44ff;
-    margin-bottom: 50px;
-    letter-spacing: 1px;
-  }
-  .neon-btn {
-    background: transparent;
-    border: 2px solid #ff2adf;
-    color: #ff2adf;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: clamp(14px, 3vw, 22px);
-    font-weight: bold;
-    letter-spacing: 6px;
-    padding: 14px 50px;
-    cursor: pointer;
-    text-shadow: 0 0 8px #ff2adf, 0 0 20px #ff2adf;
-    box-shadow: 0 0 10px #ff2adf, 0 0 30px #ff00cc, inset 0 0 10px rgba(255,42,223,0.1);
-    transition: all 0.2s;
-    pointer-events: all;
-    animation: btnPulse 1.5s ease-in-out infinite;
-  }
-  .neon-btn:hover {
-    background: rgba(255,42,223,0.15);
-    box-shadow: 0 0 20px #ff2adf, 0 0 60px #ff00cc, inset 0 0 20px rgba(255,42,223,0.2);
-    transform: scale(1.05);
-  }
-  @keyframes btnPulse {
-    0%, 100% { box-shadow: 0 0 10px #ff2adf, 0 0 30px #ff00cc, inset 0 0 10px rgba(255,42,223,0.1); }
-    50% { box-shadow: 0 0 20px #ff2adf, 0 0 50px #ff00cc, 0 0 80px #cc0088, inset 0 0 15px rgba(255,42,223,0.2); }
-  }
-  .score-display {
-    color: #ff2adf;
-    font-size: clamp(16px, 4vw, 32px);
-    text-shadow: 0 0 10px #ff2adf, 0 0 30px #ff00cc;
-    margin-bottom: 12px;
-    letter-spacing: 4px;
-  }
-  .best-display {
-    color: #00ffff;
-    font-size: clamp(13px, 3vw, 22px);
-    text-shadow: 0 0 8px #00ffff, 0 0 20px #00ffff;
-    margin-bottom: 40px;
-    letter-spacing: 4px;
-  }
-  .gameover-title {
-    font-size: clamp(36px, 8vw, 72px);
-    font-weight: 900;
-    color: #ff4444;
-    text-shadow: 0 0 10px #ff4444, 0 0 30px #ff0000, 0 0 70px #cc0000;
-    letter-spacing: 6px;
-    margin-bottom: 30px;
-    animation: titlePulse 1.5s ease-in-out infinite;
-  }
-  #hit-flash {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(255,0,0,0);
-    pointer-events: none;
-    transition: none;
-  }
-</style>
+      --color-bg: #000;
+      --color-bg-secondary: #0a0a0a;
+      --color-white: #fff;
+      --color-grey-100: #f5f5f7;
+      --color-grey-200: #e8e8ed;
+      --color-grey-300: #c7c7cc;
+      --color-grey-400: #86868b;
+      --color-grey-600: #6e6e73;
+      --color-grey-800: #1d1d1f;
+
+      --color-accent: #e01a8a;
+      --color-accent-soft: rgba(224, 26, 138, 0.15);
+      --color-periwinkle: #5b93ff;
+      --color-pink: #ffb8d9;
+      --color-lavender: #c67fff;
+      --color-green: #71d45c;
+
+      --glass-bg: rgba(255,255,255,0.05);
+      --glass-border: rgba(255,255,255,0.15);
+      --glass-highlight: rgba(255,255,255,0.25);
+
+      --radius-card: 28px;
+      --radius-pill: 999px;
+      --ease-out: cubic-bezier(0, 0, 0.2, 1);
+    }
+
+    html, body {
+      background: var(--color-bg);
+      color: var(--color-white);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    /* ── Noise texture ── */
+    .noise-overlay {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      opacity: 0.018;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ── Mesh gradient hero bg ── */
+    .mesh-gradient {
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(circle at 15% 40%, rgba(92, 148, 255, 0.20), transparent 55%),
+        radial-gradient(circle at 85% 20%, rgba(224, 26, 138, 0.18), transparent 50%),
+        radial-gradient(circle at 50% 85%, rgba(198, 127, 255, 0.15), transparent 55%),
+        var(--color-bg);
+    }
+
+    /* ── Layout ── */
+    .page-wrapper {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .nav-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      box-shadow: 0 0 10px rgba(224, 26, 138, 0.5);
+    }
+
+    .nav-wordmark {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      color: var(--color-white);
+      letter-spacing: 0.04em;
+    }
+
+    .nav-meta {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--color-grey-600);
+      letter-spacing: 0.08em;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative;
+      padding: 100px 0 80px;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .hero-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-accent);
+      margin-bottom: 24px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hero-eyebrow::before,
+    .hero-eyebrow::after {
+      content: '';
+      display: block;
+      width: 24px;
+      height: 1px;
+      background: var(--color-accent);
+      opacity: 0.5;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      color: var(--color-white);
+      margin-bottom: 20px;
+      background: linear-gradient(105deg,
+        var(--color-white) 0%,
+        var(--color-grey-200) 30%,
+        var(--color-white) 60%,
+        var(--color-grey-300) 100%
+      );
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-sub {
+      font-size: 1rem;
+      color: var(--color-grey-400);
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.65;
+    }
+
+    /* ── Section header ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-grey-600);
+    }
+
+    .section-line {
+      flex: 1;
+      height: 1px;
+      background: var(--glass-border);
+    }
+
+    /* ── Build grid ── */
+    .builds-section {
+      position: relative;
+      z-index: 1;
+      padding-bottom: 96px;
+    }
+
+    .builds-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    /* ── Build card ── */
+    .build-card {
+      position: relative;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-card);
+      padding: 28px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      transition: border-color 0.25s var(--ease-out), transform 0.25s var(--ease-out);
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      opacity: 0;
+      transform: translateY(20px) scale(0.97);
+    }
+
+    .build-card.loaded {
+      animation: cardEnter 0.45s var(--ease-out) both;
+    }
+
+    .build-card:hover {
+      border-color: var(--glass-highlight);
+      transform: translateY(-2px) scale(1.005);
+    }
+
+    /* Shine sweep on hover */
+    .build-card::after {
+      content: '';
+      pointer-events: none;
+      position: absolute;
+      top: -50%;
+      left: -100%;
+      width: 50%;
+      height: 200%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+      transform: skew(-20deg);
+      transition: left 0.6s var(--ease-out);
+    }
+
+    .build-card:hover::after {
+      left: 150%;
+    }
+
+    .card-number {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--color-grey-600);
+      letter-spacing: 0.06em;
+      margin-bottom: 20px;
+    }
+
+    .card-date {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--color-grey-600);
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      line-height: 1.25;
+      color: var(--color-white);
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+    }
+
+    .card-desc {
+      font-size: 0.85rem;
+      color: var(--color-grey-400);
+      line-height: 1.65;
+      flex: 1;
+      margin-bottom: 20px;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: auto;
+    }
+
+    .card-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.06em;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      border: 1px solid;
+    }
+
+    .tag-amber {
+      color: var(--color-pink);
+      border-color: rgba(255, 184, 217, 0.25);
+      background: rgba(255, 184, 217, 0.07);
+    }
+
+    .tag-ada {
+      color: var(--color-periwinkle);
+      border-color: rgba(91, 147, 255, 0.25);
+      background: rgba(91, 147, 255, 0.07);
+    }
+
+    .tag-tool {
+      color: var(--color-green);
+      border-color: rgba(113, 212, 92, 0.25);
+      background: rgba(113, 212, 92, 0.07);
+    }
+
+    .tag-substack {
+      color: var(--color-lavender);
+      border-color: rgba(198, 127, 255, 0.25);
+      background: rgba(198, 127, 255, 0.07);
+    }
+
+    .card-arrow {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.2s, background 0.2s, transform 0.2s;
+    }
+
+    .build-card:hover .card-arrow {
+      border-color: var(--glass-highlight);
+      background: var(--glass-bg);
+      transform: translate(2px, -2px);
+    }
+
+    .card-arrow svg {
+      width: 12px;
+      height: 12px;
+      stroke: var(--color-grey-400);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: stroke 0.2s;
+    }
+
+    .build-card:hover .card-arrow svg {
+      stroke: var(--color-white);
+    }
+
+    /* Colored top accent bar */
+    .card-accent-bar {
+      position: absolute;
+      top: 0;
+      left: 24px;
+      right: 24px;
+      height: 1px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .build-card:hover .card-accent-bar {
+      opacity: 1;
+    }
+
+    .bar-amber    { background: linear-gradient(90deg, transparent, var(--color-pink), transparent); }
+    .bar-ada      { background: linear-gradient(90deg, transparent, var(--color-periwinkle), transparent); }
+    .bar-tool     { background: linear-gradient(90deg, transparent, var(--color-green), transparent); }
+    .bar-substack { background: linear-gradient(90deg, transparent, var(--color-lavender), transparent); }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--glass-border);
+      padding: 32px 24px;
+    }
+
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-copy {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--color-grey-600);
+      letter-spacing: 0.06em;
+    }
+
+    .footer-link {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--color-grey-600);
+      text-decoration: none;
+      letter-spacing: 0.06em;
+      transition: color 0.2s;
+    }
+
+    .footer-link:hover { color: var(--color-grey-300); }
+
+    /* ── Animations ── */
+    @keyframes cardEnter {
+      from { opacity: 0; transform: translateY(20px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-in {
+      opacity: 0;
+      animation: fadeUp 0.55s var(--ease-out) both;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .hero { padding: 72px 0 56px; }
+      .builds-grid { grid-template-columns: 1fr; }
+      .footer-inner { flex-direction: column; gap: 8px; text-align: center; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .build-card, .build-card::after, .card-arrow, .card-accent-bar {
+        transition: none !important;
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+      }
+      .animate-in { animation: none !important; opacity: 1 !important; }
+    }
+  </style>
 </head>
 <body>
-<canvas id="c"></canvas>
-<div id="hit-flash"></div>
-<div id="hud" style="display:none">
-  <div class="hud-item" id="score-hud">SCORE: 0</div>
-  <div class="hud-item lives-display" id="lives-hud">♥ ♥ ♥</div>
-  <div class="hud-item" id="best-hud">BEST: 0</div>
-</div>
-<div id="title-screen">
-  <div class="screen-title">NEON DRIFT</div>
-  <div class="screen-subtitle">— SYNTHWAVE SURVIVAL —</div>
-  <div class="instructions">
-    ← → ARROW KEYS &nbsp;|&nbsp; A / D &nbsp;|&nbsp; TOUCH DRAG<br>
-    DODGE THE INCOMING CUBES<br>
-    3 LIVES &nbsp;|&nbsp; SPEED INCREASES EVERY 500 PTS<br>
-    SURVIVE AS LONG AS YOU CAN
+
+  <!-- Noise texture -->
+  <div class="noise-overlay" aria-hidden="true"></div>
+
+  <!-- Nav -->
+  <nav>
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">
+        <div class="nav-dot"></div>
+        <span class="nav-wordmark">neon builds</span>
+      </a>
+      <span class="nav-meta">amber miro os</span>
+    </div>
+  </nav>
+
+  <div class="page-wrapper">
+    <div class="mesh-gradient" aria-hidden="true"></div>
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container">
+        <div class="animate-in" style="animation-delay: 0.05s">
+          <p class="hero-eyebrow">nightly builds</p>
+        </div>
+        <h1 class="hero-title animate-in" style="animation-delay: 0.12s">
+          Built while you slept.
+        </h1>
+        <p class="hero-sub animate-in" style="animation-delay: 0.2s">
+          Every night, one real artifact — a tool, a system, a working experiment — shipped toward something that compounds.
+        </p>
+      </div>
+    </section>
+
+    <!-- Builds -->
+    <section class="builds-section">
+      <div class="container">
+
+        <div class="section-header animate-in" style="animation-delay: 0.28s">
+          <span class="section-label">archive</span>
+          <div class="section-line"></div>
+          <span class="section-label" id="build-count">9 builds</span>
+        </div>
+
+        <div class="builds-grid">
+
+          <!-- Build 09: Print Edition Pricing Studio -->
+          <a class="build-card loaded" href="builds/2026-05-08/" style="animation-delay: 0.02s">
+            <div class="card-accent-bar bar-amber"></div>
+            <div class="card-date">May 8, 2026</div>
+            <h2 class="card-title">Print Edition Pricing Studio</h2>
+            <p class="card-desc">Model limited edition print releases with tiered pricing, margin analysis, and a revenue waterfall. Set your COGs, add pricing tiers, and see exactly what you make before you list. Built for Amber Miro Creative.</p>
+            <div class="card-footer">
+              <span class="card-tag tag-amber">amber miro creative</span>
+              <div class="card-arrow">
+                <svg viewBox="0 0 12 12"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
+              </div>
+            </div>
+          </a>
+
+          <!-- Build 08: Song Structure Workshop -->
+          <a class="build-card loaded" href="builds/2026-05-07/" style="animation-delay: 0.02s">
+            <div class="card-accent-bar bar-ada"></div>
+            <div class="card-date">May 7, 2026</div>
+            <h2 class="card-title">Song Structure Workshop</h2>
+            <p class="card-desc">A lyric scratchpad with section tagging (verse/chorus/bridge/hook), live syllable counts per line, end-rhyme detection, drag-to-reorder, and clean text export. Built for Ada Fen.</p>
+            <div class="card-footer">
+              <span class="card-tag tag-ada">ada fen · music</span>
+              <div class="card-arrow">
+                <svg viewBox="0 0 12 12"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
+              </div>
+            </div>
+          </a>
+
+          <!-- Build 07: Agentic UX Audit Kit -->
+          <a class="build-card loaded" href="builds/2026-05-06/" style="animation-delay: 0.02s">
+            <div class="card-accent-bar bar-substack"></div>
+            <div class="card-date">May 6, 2026</div>
+            <h2 class="card-title">Agentic UX Audit Kit</h2>
+            <p class="card-desc">Evaluate AI-powered interfaces against 12 heuristics designed for the post-LLM era. Live radar chart, category breakdown, critical flags, and an exportable text report. Built for UX practitioners.</p>
+            <div class="card-footer">
+              <span class="card-tag tag-substack">designing for tomorrow · ux</span>
+              <div class="card-arrow">
+                <svg viewBox="0 0 12 12"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
+              </div>
+            </div>
+          </a>
+
+          <!-- Build 06: Neon Drift -->
+          <a class="build-card loaded" href="builds/2026-05-05/" style="animation-delay: 0.02s">
+            <div class="card-accent-bar bar-tool"></div>
+            <div class="card-date">May 5, 2026</div>
+            <h2 class="card-title">Neon Drift</h2>
+            <p class="card-desc">Synthwave endless runner — dodge neon obstacles on an infinite glowing highway. Lane-switch to survive, speed builds, high score saved. Pure canvas, zero dependencies.</p>
+            <div class="card-footer">
+              <span class="card-tag tag-tool">game · synthwave</span>
+              <div class="card-arrow">
+                <svg viewBox="0 0 12 12"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
+              </div>
+            </div>
+          </a>
+
+          <!-- Build 05: Ada Fen EPK -->
+          <a class="build-card loaded" href="builds/2026-05-04/" style="animation-delay: 0.1s">
+            <div class="card-accent-bar bar-ada"></div>
+            <div class="card-date">May 4, 2026</div>
+            <h2 class="card-title">Ada Fen Electronic Press Kit</h2>
+            <p class="card-desc">Full synthwave EPK — bio, discography, booking contact, press links, and embedded player. Moody, dark, ready to send to labels and playlist curators.</p>
+            <div class="card-footer">
+              <span class="card-tag tag-ada">ada fen · music</span>
+              <div class="card-arrow">
+                <svg viewBox="0 0 12 12"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
+              </div>
+            </div>
+          </a>
+
+          <!-- Build 04: Commission Quote Generator -->
+          <a class="build-card loaded" href="builds/2026-05-03/" style="animation-delay: 0.1s">
+            <div class="card-accent-bar bar-amber"></div>
+            <div class="card-date">May 3, 2026</div>
+            <h2 class="card-title">Commission Quote Generator</h2>
+            <p class="card-desc">Interactive commission configurator — client fills the work details, gets an instant quote and a ready-to-send message. Your brand, your pricing, zero back-and-forth.</p>
+            <div class="card-footer">
+              <span class="card-tag tag-amber">amber miro creative</span>
+              <div class="card-arrow">
+                <svg viewBox="0 0 12 12"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
+              </div>
+            </div>
+          </a>
+
+          <!-- Build 03: Ada Fen Content Engine -->
+          <a class="build-card loaded" href="builds/2026-05-02/" style="animation-delay: 0.18s">
+            <div class="card-accent-bar bar-ada"></div>
+            <div class="card-date">May 2, 2026</div>
+            <h2 class="card-title">Ada Fen Content Engine</h2>
+            <p class="card-desc">4-week interactive content calendar, platform strategy, and growth milestones for Ada Fen's moody electronic pop rollout. Built to run, not just read.</p>
+            <div class="card-footer">
+              <span class="card-tag tag-ada">ada fen · music</span>
+              <div class="card-arrow">
+                <svg viewBox="0 0 12 12"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
+              </div>
+            </div>
+          </a>
+
+          <!-- Build 02: Skill Crystallizer -->
+          <a class="build-card loaded" href="builds/2026-05-01/" style="animation-delay: 0.26s">
+            <div class="card-accent-bar bar-tool"></div>
+            <div class="card-date">May 1, 2026</div>
+            <h2 class="card-title">Skill Crystallizer</h2>
+            <p class="card-desc">Voice dictation → intent extraction → clarifying questions → SKILL.md. Converts raw ideas and workflows into deployable agent skills. Powered by Gemma 4 via Ollama.</p>
+            <div class="card-footer">
+              <span class="card-tag tag-tool">tool · agent · voice</span>
+              <div class="card-arrow">
+                <svg viewBox="0 0 12 12"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
+              </div>
+            </div>
+          </a>
+
+          <!-- Build 01: The $25K Map -->
+          <a class="build-card loaded" href="builds/2026-04-30/" style="animation-delay: 0.34s">
+            <div class="card-accent-bar bar-amber"></div>
+            <div class="card-date">April 30, 2026</div>
+            <h2 class="card-title">The $25K Map</h2>
+            <p class="card-desc">Interactive revenue scenario planner for Amber Miro Creative. Five streams — originals, prints, POD, workshops, commissions — real-time modeling, one clear path to $25K/year.</p>
+            <div class="card-footer">
+              <span class="card-tag tag-amber">amber miro creative</span>
+              <div class="card-arrow">
+                <svg viewBox="0 0 12 12"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
+              </div>
+            </div>
+          </a>
+
+        </div>
+      </div>
+    </section>
+
   </div>
-  <button class="neon-btn" id="start-btn">START</button>
-</div>
-<div id="gameover-screen">
-  <div class="gameover-title">GAME OVER</div>
-  <div class="score-display" id="final-score">SCORE: 0</div>
-  <div class="best-display" id="final-best">BEST: 0</div>
-  <button class="neon-btn" id="restart-btn">PLAY AGAIN</button>
-</div>
 
-<script>
-(function() {
-'use strict';
+  <!-- Footer -->
+  <footer>
+    <div class="footer-inner">
+      <span class="footer-copy">built by neon · amber miro os</span>
+      <a class="footer-link" href="https://github.com/agentneonazul/neonexperiments" target="_blank" rel="noopener">github ↗</a>
+    </div>
+  </footer>
 
-// ── Canvas setup ──────────────────────────────────────────────
-const canvas = document.getElementById('c');
-const ctx = canvas.getContext('2d');
-const HUD = document.getElementById('hud');
-const titleScreen = document.getElementById('title-screen');
-const gameoverScreen = document.getElementById('gameover-screen');
-const hitFlash = document.getElementById('hit-flash');
-
-let W, H, HORIZON, LANE_COUNT, LANE_W, PLAYER_Y;
-const LANES = 5;
-
-function resize() {
-  W = canvas.width = window.innerWidth;
-  H = canvas.height = window.innerHeight;
-  HORIZON = H * 0.42;
-  LANE_COUNT = LANES;
-  LANE_W = W / LANE_COUNT;
-  PLAYER_Y = H * 0.82;
-}
-resize();
-window.addEventListener('resize', () => { resize(); });
-
-// ── State ─────────────────────────────────────────────────────
-let state = 'title'; // title | playing | gameover
-let score = 0, lives = 3, bestScore = 0;
-let baseSpeed = 1.5, gameTime = 0;
-let invincible = false, invincibleTimer = 0;
-const INV_DURATION = 2200;
-
-// Player
-let playerX;
-let playerTargetX;
-const PLAYER_W = W * 0.06;
-
-// Obstacles
-let obstacles = [];
-let obstacleTimer = 0;
-let obstacleInterval = 90;
-
-// Particles
-let particles = [];
-
-// Stars
-let stars = [];
-function initStars() {
-  stars = [];
-  for (let i = 0; i < 200; i++) {
-    stars.push({
-      x: Math.random() * W,
-      y: Math.random() * HORIZON * 0.95,
-      size: Math.random() * 2.2 + 0.3,
-      speed: Math.random() * 0.18 + 0.04,
-      bright: Math.random(),
-      twinkleOffset: Math.random() * Math.PI * 2
+  <script>
+    // Stagger card entrance on load
+    document.addEventListener('DOMContentLoaded', () => {
+      const cards = document.querySelectorAll('.build-card.loaded');
+      cards.forEach((card, i) => {
+        setTimeout(() => {
+          card.style.animation = `cardEnter 0.45s cubic-bezier(0,0,0.2,1) both`;
+        }, 300 + i * 80);
+      });
     });
-  }
-}
+  </script>
 
-// Touch
-let touchStartX = null;
-
-// ── Helpers ───────────────────────────────────────────────────
-function lerp(a, b, t) { return a + (b - a) * t; }
-function clamp(v, mn, mx) { return Math.max(mn, Math.min(mx, v)); }
-
-function getLivesStr(n) {
-  const on = '♥', off = '♡';
-  let s = '';
-  for (let i = 0; i < 3; i++) s += (i < n ? on : off) + (i < 2 ? ' ' : '');
-  return s;
-}
-
-function getSpeed() {
-  const tier = Math.floor(score / 500);
-  return baseSpeed * (1 + tier * 0.28);
-}
-
-function getObstacleInterval() {
-  const tier = Math.floor(score / 500);
-  return Math.max(40, obstacleInterval - tier * 8);
-}
-
-// ── Grid perspective ──────────────────────────────────────────
-function perspectiveX(screenX, depth) {
-  // depth: 0=horizon, 1=near edge
-  const vx = W / 2;
-  return vx + (screenX - vx) * depth;
-}
-
-function perspectiveY(depth) {
-  return HORIZON + (H - HORIZON) * depth;
-}
-
-function depthFromZ(z) {
-  // z: 0=far(horizon), 1=near(player)
-  return Math.pow(z, 0.82);
-}
-
-// ── Draw sky gradient ─────────────────────────────────────────
-function drawSky() {
-  const grad = ctx.createLinearGradient(0, 0, 0, HORIZON);
-  grad.addColorStop(0, '#0a0018');
-  grad.addColorStop(0.45, '#1a0035');
-  grad.addColorStop(0.75, '#2a0050');
-  grad.addColorStop(1, '#3d0070');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, W, HORIZON);
-}
-
-// ── Draw stars ────────────────────────────────────────────────
-function drawStars(ts) {
-  for (let s of stars) {
-    s.x -= s.speed;
-    if (s.x < 0) { s.x = W; s.y = Math.random() * HORIZON * 0.95; }
-    const twinkle = 0.55 + 0.45 * Math.sin(ts * 0.002 + s.twinkleOffset);
-    const alpha = twinkle;
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    if (s.size > 1.5) {
-      ctx.shadowColor = '#ffffff';
-      ctx.shadowBlur = 5;
-    }
-    ctx.fillStyle = `hsl(${220 + s.bright*80}, 80%, ${70 + s.bright*30}%)`;
-    ctx.beginPath();
-    ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-  }
-}
-
-// ── Draw sun ──────────────────────────────────────────────────
-function drawSun(ts) {
-  const cx = W * 0.5, cy = HORIZON;
-  // Outer glow rings
-  const rings = [
-    { r: 80, color: 'rgba(255,80,200,0.08)' },
-    { r: 60, color: 'rgba(255,60,180,0.13)' },
-    { r: 45, color: 'rgba(255,80,200,0.18)' },
-  ];
-  for (let rg of rings) {
-    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, rg.r * (W/800));
-    g.addColorStop(0, 'rgba(255,120,220,0.7)');
-    g.addColorStop(0.5, rg.color);
-    g.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = g;
-    ctx.beginPath();
-    ctx.arc(cx, cy, rg.r * (W/800), 0, Math.PI * 2);
-    ctx.fill();
-  }
-  // Sun disc with horizontal stripes
-  const R = 32 * (W / 800);
-  const sunGrad = ctx.createLinearGradient(cx, cy - R, cx, cy + R);
-  sunGrad.addColorStop(0, '#ff80d4');
-  sunGrad.addColorStop(0.5, '#ff40b0');
-  sunGrad.addColorStop(1, '#cc0088');
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(cx, cy, R, 0, Math.PI * 2);
-  ctx.clip();
-  ctx.fillStyle = sunGrad;
-  ctx.fillRect(cx - R, cy - R, R * 2, R * 2);
-  // Stripes (lower half)
-  ctx.fillStyle = '#1a0035';
-  const stripeCount = 6;
-  for (let i = 0; i < stripeCount; i++) {
-    const stripeFrac = (i + 1) / (stripeCount + 1);
-    const sy = cy + stripeFrac * R;
-    const h = Math.max(1.5, (R / (stripeCount + 2)) * (1 - stripeFrac * 0.5));
-    ctx.fillRect(cx - R, sy, R * 2, h);
-  }
-  ctx.restore();
-}
-
-// ── Draw ground / grid ────────────────────────────────────────
-function drawGround(ts) {
-  // Ground fill
-  const gGrad = ctx.createLinearGradient(0, HORIZON, 0, H);
-  gGrad.addColorStop(0, '#0e0025');
-  gGrad.addColorStop(0.5, '#080015');
-  gGrad.addColorStop(1, '#04000e');
-  ctx.fillStyle = gGrad;
-  ctx.fillRect(0, HORIZON, W, H - HORIZON);
-
-  const gridSpeed = getSpeed();
-  const scrollFrac = (gameTime * gridSpeed * 0.012) % 1;
-
-  // Horizontal lines (pink)
-  const LINE_COUNT = 16;
-  ctx.save();
-  for (let i = 0; i <= LINE_COUNT; i++) {
-    const t = (i / LINE_COUNT + scrollFrac) % 1;
-    const depth = depthFromZ(t);
-    const y = perspectiveY(depth);
-    if (y < HORIZON || y > H) continue;
-    const alpha = clamp(depth * 1.4, 0, 1);
-    const width = clamp(depth * 2.5, 0.3, 3);
-    ctx.strokeStyle = `rgba(255,50,180,${alpha * 0.85})`;
-    ctx.lineWidth = width;
-    ctx.shadowColor = '#ff30aa';
-    ctx.shadowBlur = clamp(depth * 12, 0, 14);
-    ctx.beginPath();
-    ctx.moveTo(perspectiveX(0, depth), y);
-    ctx.lineTo(perspectiveX(W, depth), y);
-    ctx.stroke();
-  }
-  ctx.restore();
-
-  // Vertical lane lines (cyan)
-  ctx.save();
-  for (let col = 0; col <= LANE_COUNT; col++) {
-    const sx = col * LANE_W;
-    ctx.strokeStyle = 'rgba(0,220,255,0.55)';
-    ctx.lineWidth = 1.5;
-    ctx.shadowColor = '#00ddff';
-    ctx.shadowBlur = 10;
-    ctx.beginPath();
-    ctx.moveTo(perspectiveX(sx, 0.01), HORIZON);
-    ctx.lineTo(sx, H);
-    ctx.stroke();
-  }
-  ctx.restore();
-}
-
-// ── Draw player ship ──────────────────────────────────────────
-function drawShip(ts) {
-  const cx = playerX;
-  const cy = PLAYER_Y;
-  const sc = clamp(W / 800, 0.5, 1.6);
-  const pw = 38 * sc;
-  const ph = 52 * sc;
-
-  ctx.save();
-  ctx.translate(cx, cy);
-
-  // Engine flame (animated)
-  const flameFlicker = 0.7 + 0.3 * Math.sin(ts * 0.018);
-  const fh = ph * 0.55 * flameFlicker;
-  const flameGrad = ctx.createLinearGradient(0, 0, 0, fh);
-  flameGrad.addColorStop(0, 'rgba(255,140,255,0.9)');
-  flameGrad.addColorStop(0.4, 'rgba(200,0,255,0.7)');
-  flameGrad.addColorStop(1, 'rgba(100,0,200,0)');
-  ctx.fillStyle = flameGrad;
-  ctx.shadowColor = '#dd00ff';
-  ctx.shadowBlur = 22 * flameFlicker;
-  ctx.beginPath();
-  ctx.moveTo(-pw * 0.22, ph * 0.3);
-  ctx.lineTo(0, ph * 0.3 + fh);
-  ctx.lineTo(pw * 0.22, ph * 0.3);
-  ctx.closePath();
-  ctx.fill();
-
-  // Invincibility blink
-  if (invincible) {
-    const blink = Math.sin(ts * 0.03) > 0;
-    ctx.globalAlpha = blink ? 0.4 : 0.95;
-  }
-
-  // Ship body (magenta/pink)
-  ctx.shadowColor = '#ff00cc';
-  ctx.shadowBlur = 24;
-
-  // Main fuselage
-  const bodyGrad = ctx.createLinearGradient(-pw * 0.5, -ph * 0.5, pw * 0.5, ph * 0.5);
-  bodyGrad.addColorStop(0, '#ff88ee');
-  bodyGrad.addColorStop(0.4, '#dd00aa');
-  bodyGrad.addColorStop(1, '#880066');
-  ctx.fillStyle = bodyGrad;
-  ctx.beginPath();
-  ctx.moveTo(0, -ph * 0.5);            // nose
-  ctx.lineTo(pw * 0.38, ph * 0.1);     // right shoulder
-  ctx.lineTo(pw * 0.5, ph * 0.28);     // right wing tip outer
-  ctx.lineTo(pw * 0.22, ph * 0.32);    // right wing inner
-  ctx.lineTo(pw * 0.18, ph * 0.5);     // right tail
-  ctx.lineTo(-pw * 0.18, ph * 0.5);    // left tail
-  ctx.lineTo(-pw * 0.22, ph * 0.32);   // left wing inner
-  ctx.lineTo(-pw * 0.5, ph * 0.28);    // left wing tip outer
-  ctx.lineTo(-pw * 0.38, ph * 0.1);    // left shoulder
-  ctx.closePath();
-  ctx.fill();
-
-  // Cockpit
-  const cockpitGrad = ctx.createRadialGradient(0, -ph * 0.15, 1, 0, -ph * 0.15, pw * 0.18);
-  cockpitGrad.addColorStop(0, 'rgba(180,255,255,0.9)');
-  cockpitGrad.addColorStop(1, 'rgba(0,200,255,0.3)');
-  ctx.fillStyle = cockpitGrad;
-  ctx.shadowColor = '#00ffff';
-  ctx.shadowBlur = 12;
-  ctx.beginPath();
-  ctx.ellipse(0, -ph * 0.12, pw * 0.15, ph * 0.18, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Wing edge glow lines
-  ctx.strokeStyle = '#ff40cc';
-  ctx.lineWidth = 1.5;
-  ctx.shadowColor = '#ff40cc';
-  ctx.shadowBlur = 8;
-  ctx.beginPath();
-  ctx.moveTo(pw * 0.22, ph * 0.28);
-  ctx.lineTo(pw * 0.5, ph * 0.28);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(-pw * 0.22, ph * 0.28);
-  ctx.lineTo(-pw * 0.5, ph * 0.28);
-  ctx.stroke();
-
-  ctx.restore();
-}
-
-// ── Obstacles ─────────────────────────────────────────────────
-function spawnObstacle() {
-  const lane = Math.floor(Math.random() * LANE_COUNT);
-  // Place in center of lane
-  const laneX = (lane + 0.5) * LANE_W;
-  obstacles.push({ lane, laneX, z: 0, hit: false });
-}
-
-function getObstacleScreenPos(ob) {
-  const depth = depthFromZ(ob.z);
-  const sx = perspectiveX(ob.laneX, depth);
-  const sy = perspectiveY(depth);
-  const size = Math.max(8, 100 * depth * (W / 700));
-  return { sx, sy, size, depth };
-}
-
-function drawCube(sx, sy, size, depth, ts) {
-  const alpha = clamp(depth * 1.5, 0.1, 1);
-  const s = size;
-  // Wireframe cube: front face + back face + connecting edges
-  const d = s * 0.45; // depth offset
-  const dx = d * 0.6, dy = -d * 0.55;
-
-  // Front face corners
-  const f = [
-    [sx - s/2, sy - s/2],
-    [sx + s/2, sy - s/2],
-    [sx + s/2, sy + s/2],
-    [sx - s/2, sy + s/2],
-  ];
-  // Back face corners (offset)
-  const b = f.map(([x, y]) => [x + dx, y + dy]);
-
-  ctx.save();
-  ctx.strokeStyle = `rgba(0,255,220,${alpha})`;
-  ctx.lineWidth = clamp(depth * 3.5, 0.8, 3);
-  ctx.shadowColor = '#00ffcc';
-  ctx.shadowBlur = 18 * depth;
-
-  // Back face
-  ctx.beginPath();
-  ctx.moveTo(b[0][0], b[0][1]);
-  for (let i = 1; i < 4; i++) ctx.lineTo(b[i][0], b[i][1]);
-  ctx.closePath();
-  ctx.globalAlpha = alpha * 0.5;
-  ctx.stroke();
-
-  // Front face
-  ctx.globalAlpha = alpha;
-  ctx.beginPath();
-  ctx.moveTo(f[0][0], f[0][1]);
-  for (let i = 1; i < 4; i++) ctx.lineTo(f[i][0], f[i][1]);
-  ctx.closePath();
-  ctx.stroke();
-
-  // Connecting edges
-  for (let i = 0; i < 4; i++) {
-    ctx.beginPath();
-    ctx.moveTo(f[i][0], f[i][1]);
-    ctx.lineTo(b[i][0], b[i][1]);
-    ctx.globalAlpha = alpha * 0.7;
-    ctx.stroke();
-  }
-
-  // Inner glow fill
-  ctx.globalAlpha = alpha * 0.08;
-  ctx.fillStyle = '#00ffcc';
-  ctx.beginPath();
-  ctx.moveTo(f[0][0], f[0][1]);
-  for (let i = 1; i < 4; i++) ctx.lineTo(f[i][0], f[i][1]);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.restore();
-}
-
-// ── Particles ─────────────────────────────────────────────────
-function spawnExplosion(x, y) {
-  const colors = ['#ff2adf', '#00ffff', '#ff8800', '#ffffff', '#ff0066', '#9900ff'];
-  for (let i = 0; i < 48; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const speed = Math.random() * 5 + 1.5;
-    particles.push({
-      x, y,
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed - 2,
-      life: 1,
-      decay: Math.random() * 0.025 + 0.015,
-      size: Math.random() * 5 + 2,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      trail: []
-    });
-  }
-}
-
-function updateParticles() {
-  particles = particles.filter(p => p.life > 0);
-  for (let p of particles) {
-    p.trail.push({ x: p.x, y: p.y });
-    if (p.trail.length > 5) p.trail.shift();
-    p.x += p.vx;
-    p.y += p.vy;
-    p.vy += 0.12;
-    p.vx *= 0.97;
-    p.life -= p.decay;
-  }
-}
-
-function drawParticles() {
-  for (let p of particles) {
-    ctx.save();
-    ctx.globalAlpha = p.life;
-    ctx.shadowColor = p.color;
-    ctx.shadowBlur = 10;
-    ctx.fillStyle = p.color;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
-    ctx.fill();
-    // Trail
-    if (p.trail.length > 1) {
-      ctx.globalAlpha = p.life * 0.4;
-      ctx.strokeStyle = p.color;
-      ctx.lineWidth = p.size * 0.5;
-      ctx.beginPath();
-      ctx.moveTo(p.trail[0].x, p.trail[0].y);
-      for (let t of p.trail) ctx.lineTo(t.x, t.y);
-      ctx.stroke();
-    }
-    ctx.restore();
-  }
-}
-
-// ── Collision ─────────────────────────────────────────────────
-function checkCollisions() {
-  if (invincible) return;
-  const sc = clamp(W / 800, 0.5, 1.6);
-  const pw = 32 * sc;
-  const ph = 42 * sc;
-
-  for (let ob of obstacles) {
-    if (ob.hit) continue;
-    const { sx, sy, size } = getObstacleScreenPos(ob);
-    // Simple AABB, slightly forgiving
-    const dx = Math.abs(sx - playerX);
-    const dy = Math.abs(sy - PLAYER_Y);
-    if (dx < (pw * 0.7 + size * 0.38) && dy < (ph * 0.55 + size * 0.38)) {
-      ob.hit = true;
-      takeDamage(sx, sy);
-    }
-  }
-}
-
-function takeDamage(ex, ey) {
-  lives--;
-  spawnExplosion(ex || playerX, ey || PLAYER_Y);
-  invincible = true;
-  invincibleTimer = INV_DURATION;
-  // Flash red
-  hitFlash.style.background = 'rgba(255,0,60,0.55)';
-  hitFlash.style.transition = 'none';
-  setTimeout(() => {
-    hitFlash.style.transition = 'background 0.5s';
-    hitFlash.style.background = 'rgba(255,0,0,0)';
-  }, 60);
-  updateHUD();
-  if (lives <= 0) {
-    setTimeout(() => endGame(), 600);
-  }
-}
-
-// ── HUD ───────────────────────────────────────────────────────
-function updateHUD() {
-  document.getElementById('score-hud').textContent = `SCORE: ${score}`;
-  document.getElementById('lives-hud').textContent = getLivesStr(lives);
-  document.getElementById('best-hud').textContent = `BEST: ${bestScore}`;
-}
-
-// ── Input ──────────────────────────────────────────────────────
-const keys = {};
-window.addEventListener('keydown', e => { keys[e.key] = true; });
-window.addEventListener('keyup', e => { keys[e.key] = false; });
-
-canvas.addEventListener('touchstart', e => {
-  e.preventDefault();
-  touchStartX = e.touches[0].clientX;
-}, { passive: false });
-
-canvas.addEventListener('touchmove', e => {
-  e.preventDefault();
-  if (state !== 'playing' || touchStartX === null) return;
-  const dx = e.touches[0].clientX - touchStartX;
-  playerTargetX = clamp(playerTargetX + dx * 0.7, LANE_W * 0.5, W - LANE_W * 0.5);
-  touchStartX = e.touches[0].clientX;
-}, { passive: false });
-
-canvas.addEventListener('touchend', e => {
-  touchStartX = null;
-});
-
-function handleInput() {
-  const speed = W * 0.012;
-  if (keys['ArrowLeft'] || keys['a'] || keys['A']) {
-    playerTargetX -= speed;
-  }
-  if (keys['ArrowRight'] || keys['d'] || keys['D']) {
-    playerTargetX += speed;
-  }
-  playerTargetX = clamp(playerTargetX, LANE_W * 0.5, W - LANE_W * 0.5);
-}
-
-// ── Game flow ──────────────────────────────────────────────────
-function startGame() {
-  state = 'playing';
-  score = 0;
-  lives = 3;
-  gameTime = 0;
-  obstacles = [];
-  particles = [];
-  obstacleTimer = 0;
-  invincible = false;
-  invincibleTimer = 0;
-  playerX = W / 2;
-  playerTargetX = W / 2;
-  titleScreen.style.display = 'none';
-  gameoverScreen.style.display = 'none';
-  HUD.style.display = 'flex';
-  initStars();
-  updateHUD();
-}
-
-function endGame() {
-  state = 'gameover';
-  if (score > bestScore) {
-    bestScore = score;
-    try { localStorage.setItem('neonDriftBest', bestScore); } catch(e) {}
-  }
-  HUD.style.display = 'none';
-  document.getElementById('final-score').textContent = `SCORE: ${score}`;
-  document.getElementById('final-best').textContent = `BEST: ${bestScore}`;
-  gameoverScreen.style.display = 'flex';
-}
-
-document.getElementById('start-btn').addEventListener('click', startGame);
-document.getElementById('restart-btn').addEventListener('click', startGame);
-window.addEventListener('keydown', e => {
-  if (e.key === 'Enter' || e.key === ' ') {
-    if (state === 'title') startGame();
-    else if (state === 'gameover') startGame();
-  }
-});
-
-// Load best score
-try {
-  const saved = localStorage.getItem('neonDriftBest');
-  if (saved) bestScore = parseInt(saved) || 0;
-} catch(e) {}
-
-// ── Main game loop ─────────────────────────────────────────────
-let lastTs = 0;
-initStars();
-
-function loop(ts) {
-  requestAnimationFrame(loop);
-  const dt = Math.min(ts - lastTs, 50);
-  lastTs = ts;
-
-  // Clear
-  ctx.clearRect(0, 0, W, H);
-
-  // Always draw background
-  drawSky();
-  drawStars(ts);
-  drawSun(ts);
-  drawGround(ts);
-
-  if (state === 'playing') {
-    gameTime += dt;
-    score = Math.floor(gameTime / 80);
-    updateHUD();
-
-    // Invincibility countdown
-    if (invincible) {
-      invincibleTimer -= dt;
-      if (invincibleTimer <= 0) { invincible = false; invincibleTimer = 0; }
-    }
-
-    // Input
-    handleInput();
-    playerX = lerp(playerX, playerTargetX, 0.13);
-
-    // Spawn obstacles
-    obstacleTimer++;
-    if (obstacleTimer >= getObstacleInterval()) {
-      obstacleTimer = 0;
-      spawnObstacle();
-    }
-
-    // Update obstacles
-    const spd = getSpeed();
-    obstacles = obstacles.filter(ob => ob.z < 1.02);
-    for (let ob of obstacles) {
-      ob.z += 0.0085 * spd;
-    }
-
-    // Update laneX for player lane width (handle resize)
-    for (let ob of obstacles) {
-      ob.laneX = (ob.lane + 0.5) * LANE_W;
-    }
-
-    // Draw obstacles (back to front)
-    const sorted = [...obstacles].sort((a, b) => a.z - b.z);
-    for (let ob of sorted) {
-      if (ob.z < 0.01) continue;
-      const { sx, sy, size, depth } = getObstacleScreenPos(ob);
-      drawCube(sx, sy, size, depth, ts);
-    }
-
-    // Collision
-    checkCollisions();
-
-    // Particles
-    updateParticles();
-    drawParticles();
-
-    // Draw ship
-    if (lives > 0) drawShip(ts);
-
-  } else if (state === 'title' || state === 'gameover') {
-    // Animate some particles on idle screens
-    updateParticles();
-    drawParticles();
-  }
-}
-
-requestAnimationFrame(loop);
-
-})();
-</script>
 </body>
 </html>
