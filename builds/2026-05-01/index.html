@@ -4,39 +4,52 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Skill Crystallizer</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <!-- PWA -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#F4F0E8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Crystallizer">
+  <link rel="apple-touch-icon" href="./icon.svg">
+
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      --bg:        #FAFAFA;
-      --white:     #FFFFFF;
-      --card:      #F2F3F4;
-      --card-2:    #ECEEF0;
-      --border:    #E4E6E8;
-      --border-hi: #C8CACD;
-      --black:     #111214;
-      --text:      #1A1C1E;
-      --text-2:    #5F6368;
-      --text-3:    #B0B4BB;
-      --accent:    #1A73E8;
-      --accent-bg: #EAF1FB;
-      --green:     #1E8E3E;
-      --green-bg:  #E6F4EA;
-      --red:       #D93025;
-      --red-bg:    #FCE8E6;
-      --radius:    16px;
-      --radius-sm: 10px;
+      --bg:          #F4F0E8;
+      --white:       #FDFCF9;
+      --card:        #EAE5DC;
+      --card-2:      #E2DDD3;
+      --border:      #DDD8CE;
+      --border-hi:   #C4BEAF;
+      --black:       #1A1714;
+      --text:        #1A1714;
+      --text-2:      #706B62;
+      --text-3:      #A89F94;
+      --green:       #2E6B40;
+      --green-bg:    #E2EFEA;
+      --red:         #C94A38;
+      --red-bg:      #FAEBE8;
+      --rec-a:       #FF7A3D;
+      --rec-b:       #DC3FAA;
+      --radius:      20px;
+      --radius-sm:   12px;
       --radius-pill: 100px;
+      --shadow-sm:   0 1px 8px rgba(26,23,20,0.05);
+      --shadow-md:   0 2px 16px rgba(26,23,20,0.08);
+      --shadow-lg:   0 6px 32px rgba(26,23,20,0.11);
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    html { height: 100%; }
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    html { height:100%; }
 
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       font-size: 15px;
-      line-height: 1.6;
+      line-height: 1.55;
       min-height: 100dvh;
       display: flex;
       flex-direction: column;
@@ -58,17 +71,16 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 20px 0 0;
+      padding: 22px 0 0;
     }
-
     .wordmark {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 9px;
     }
     .wordmark-icon {
-      width: 28px; height: 28px;
-      border-radius: 8px;
+      width: 30px; height: 30px;
+      border-radius: 9px;
       background: var(--black);
       display: flex; align-items: center; justify-content: center;
       font-size: 14px;
@@ -78,9 +90,8 @@
       font-size: 15px;
       font-weight: 600;
       color: var(--text);
-      letter-spacing: -0.02em;
+      letter-spacing: -0.01em;
     }
-
     .icon-btn {
       width: 36px; height: 36px;
       border-radius: var(--radius-pill);
@@ -89,37 +100,34 @@
       display: flex; align-items: center; justify-content: center;
       cursor: pointer;
       color: var(--text-2);
-      font-size: 16px;
+      font-size: 15px;
       transition: background 0.18s;
     }
-    .icon-btn:hover { background: var(--card-2); }
-    .icon-btn:active { transform: scale(0.93); }
+    .icon-btn:hover  { background: var(--card-2); }
+    .icon-btn:active { transform: scale(0.91); }
 
     /* ── Progress ─────────────────────────────────────────────── */
     .progress-track {
       display: flex;
       align-items: center;
-      gap: 4px;
-      padding: 20px 0 0;
+      gap: 5px;
+      padding: 22px 0 0;
     }
     .progress-seg {
-      flex: 1;
-      height: 3px;
+      flex: 1; height: 2px;
       border-radius: 2px;
       background: var(--border);
-      position: relative;
-      overflow: hidden;
+      position: relative; overflow: hidden;
     }
     .progress-seg::after {
       content: '';
-      position: absolute;
-      inset: 0;
-      background: var(--black);
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, var(--rec-a), var(--rec-b));
       transform: scaleX(0);
       transform-origin: left;
-      transition: transform 0.45s cubic-bezier(0.4,0,0.2,1);
+      transition: transform 0.5s cubic-bezier(0.4,0,0.2,1);
     }
-    .progress-seg.done::after { transform: scaleX(1); opacity: 0.35; }
+    .progress-seg.done::after  { transform: scaleX(1); opacity: 0.45; }
     .progress-seg.active::after { transform: scaleX(1); }
     .progress-dot {
       width: 4px; height: 4px;
@@ -128,158 +136,167 @@
       flex-shrink: 0;
       transition: background 0.3s;
     }
-    .progress-dot.done   { background: rgba(0,0,0,0.2); }
+    .progress-dot.done   { background: rgba(26,23,20,0.2); }
     .progress-dot.active { background: var(--black); }
 
     /* ── Main ───────────────────────────────────────────────── */
-    main { flex: 1; padding: 24px 0 32px; display: flex; flex-direction: column; gap: 14px; }
+    main { flex:1; padding: 24px 0 36px; display:flex; flex-direction:column; gap:14px; }
 
-    .screen { display: none; flex-direction: column; gap: 14px; flex: 1; }
+    .screen { display:none; flex-direction:column; gap:14px; flex:1; }
     .screen.active {
       display: flex;
-      animation: screenIn 0.38s cubic-bezier(0.16,1,0.3,1) both;
+      animation: screenIn 0.4s cubic-bezier(0.16,1,0.3,1) both;
     }
     @keyframes screenIn {
-      from { opacity: 0; transform: translateY(12px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from { opacity:0; transform:translateY(14px); }
+      to   { opacity:1; transform:translateY(0); }
     }
 
     .screen-label {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 500;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.13em;
       text-transform: uppercase;
       color: var(--text-3);
-      font-family: 'JetBrains Mono', monospace;
     }
     .screen-title {
-      font-size: 24px;
+      font-size: 30px;
       font-weight: 700;
-      line-height: 1.2;
+      line-height: 1.1;
       letter-spacing: -0.03em;
       color: var(--text);
     }
 
-    /* ── Cards ──────────────────────────────────────────────── */
-    .card {
+    /* ── Mic card ───────────────────────────────────────────── */
+    .mic-card {
+      position: relative;
+      border-radius: var(--radius);
       background: var(--white);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
-      transition: border-color 0.2s;
+      box-shadow: var(--shadow-md);
+      transition:
+        background   0.6s cubic-bezier(0.16,1,0.3,1),
+        border-color 0.6s cubic-bezier(0.16,1,0.3,1),
+        box-shadow   0.6s cubic-bezier(0.16,1,0.3,1);
     }
-    .card.active-state {
-      border-color: var(--black);
-      background: var(--white);
+    .mic-card.live {
+      border-color: rgba(220,63,170,0.14);
+      background: linear-gradient(160deg, #FFF7F4 0%, #FEF0FA 100%);
+      box-shadow: 0 6px 32px rgba(220,63,170,0.13);
     }
 
-    /* ── Mic ─────────────────────────────────────────────────── */
     .mic-stage {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 20px;
-      padding: 20px 0 8px;
-    }
-
-    .mic-btn {
-      width: 88px; height: 88px;
-      border-radius: 50%;
-      background: var(--black);
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 32px;
-      transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
-      position: relative;
-      user-select: none;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.14);
-    }
-    .mic-btn:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(0,0,0,0.22); }
-    .mic-btn:active { transform: scale(0.93); }
-    .mic-btn.live {
-      background: var(--red);
-      box-shadow: 0 4px 20px rgba(217,48,37,0.3);
-    }
-
-    /* Ring animation when live */
-    .mic-wrap {
-      position: relative;
-      width: 88px; height: 88px;
-    }
-    .mic-wrap::before, .mic-wrap::after {
-      content: '';
-      position: absolute;
-      inset: -8px;
-      border-radius: 50%;
-      border: 1.5px solid rgba(217,48,37,0.35);
-      opacity: 0;
-      pointer-events: none;
-    }
-    .mic-wrap.live::before {
-      opacity: 1;
-      animation: ringOut 1.8s ease-out infinite;
-    }
-    .mic-wrap.live::after {
-      opacity: 1;
-      animation: ringOut 1.8s ease-out 0.55s infinite;
-    }
-    @keyframes ringOut {
-      0%   { transform: scale(1);    opacity: 0.4; }
-      100% { transform: scale(1.5);  opacity: 0; }
+      padding: 36px 24px 32px;
     }
 
     /* Waveform */
     .waveform {
       display: flex;
       align-items: center;
-      gap: 3px;
-      height: 28px;
+      gap: 4px;
+      height: 52px;
     }
     .wb {
-      width: 3px;
-      background: var(--text-3);
-      border-radius: 2px;
+      width: 3.5px;
+      border-radius: 3px;
       height: 4px;
-      transition: height 0.07s;
+      background: var(--border-hi);
+      transition: height 0.07s ease, background 0.5s;
+      will-change: height;
     }
-    .waveform.live .wb { background: var(--text-2); }
+    .mic-card.live .wb {
+      background: linear-gradient(to top, var(--rec-a), var(--rec-b));
+    }
 
-    .mic-caption {
+    /* Status line */
+    .mic-status {
       font-size: 13px;
-      color: var(--text-2);
       font-weight: 500;
-      letter-spacing: 0.01em;
+      color: var(--text-3);
       display: flex;
       align-items: center;
-      gap: 7px;
+      gap: 8px;
+      min-height: 18px;
+      transition: color 0.4s;
+      letter-spacing: 0.01em;
     }
-    .rec-indicator {
+    .mic-card.live .mic-status { color: var(--rec-b); }
+
+    .rec-dot {
       display: none;
-      align-items: center;
-      gap: 5px;
-      font-size: 12px;
-      color: var(--red);
-      font-weight: 600;
-    }
-    .rec-indicator .dot {
       width: 6px; height: 6px;
       border-radius: 50%;
-      background: var(--red);
-      animation: blink 1s step-end infinite;
+      background: var(--rec-b);
+      animation: blink 0.95s step-end infinite;
+      flex-shrink: 0;
     }
-    .recording .rec-indicator { display: flex; }
-    .recording .mic-caption-text { display: none; }
+    .mic-card.live .rec-dot { display: block; }
+    .mic-card.live .idle-text { display: none; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
-    /* ── Textarea ────────────────────────────────────────────── */
+    /* ── Orb button ──────────────────────────────────────────── */
+    /* Wrapper creates the soft glow aura */
+    .mic-btn-wrap {
+      position: relative;
+      width: 84px; height: 84px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .mic-btn-wrap::before {
+      content: '';
+      position: absolute;
+      inset: -24px;
+      border-radius: 50%;
+      background: radial-gradient(circle,
+        rgba(255,122,61,0.18) 0%,
+        rgba(220,63,170,0.11) 40%,
+        transparent 70%
+      );
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+    }
+    .mic-btn-wrap.live::before {
+      opacity: 1;
+      animation: auraBreath 2.8s ease-in-out infinite;
+    }
+    @keyframes auraBreath {
+      0%,100% { transform: scale(1);    opacity: 1; }
+      50%      { transform: scale(1.14); opacity: 0.75; }
+    }
+
+    .mic-btn {
+      width: 84px; height: 84px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, var(--rec-a) 0%, var(--rec-b) 100%);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 6px 28px rgba(220,63,170,0.4),
+        0 2px 8px  rgba(26,23,20,0.1);
+      transition: transform 0.24s cubic-bezier(0.4,0,0.2,1),
+                  box-shadow 0.24s cubic-bezier(0.4,0,0.2,1);
+      user-select: none;
+      position: relative;
+      z-index: 1;
+    }
+    .mic-btn:hover  {
+      transform: scale(1.07);
+      box-shadow: 0 10px 36px rgba(220,63,170,0.48), 0 2px 8px rgba(26,23,20,0.1);
+    }
+    .mic-btn:active { transform: scale(0.93); }
+
+    /* ── Transcript area ─────────────────────────────────────── */
     .field-label {
-      font-size: 11px;
-      font-weight: 500;
-      font-family: 'JetBrains Mono', monospace;
-      letter-spacing: 0.09em;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--text-3);
       margin-bottom: 8px;
@@ -289,29 +306,29 @@
       background: var(--white);
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
-      padding: 14px;
+      padding: 16px;
       color: var(--text);
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
       line-height: 1.65;
       resize: none;
       outline: none;
+      box-shadow: var(--shadow-sm);
       transition: border-color 0.2s, box-shadow 0.2s;
-      min-height: 100px;
+      min-height: 108px;
     }
     textarea:focus {
-      border-color: var(--black);
-      box-shadow: 0 0 0 2px rgba(0,0,0,0.06);
+      border-color: var(--border-hi);
+      box-shadow: 0 0 0 3px rgba(26,23,20,0.06);
     }
     textarea::placeholder { color: var(--text-3); }
-
     .field-meta {
       display: flex;
       justify-content: flex-end;
       margin-top: 6px;
       font-size: 11px;
-      font-family: 'JetBrains Mono', monospace;
       color: var(--text-3);
+      letter-spacing: 0.02em;
     }
 
     /* ── Buttons ─────────────────────────────────────────────── */
@@ -323,25 +340,25 @@
       width: 100%;
       padding: 15px 22px;
       border-radius: var(--radius-pill);
-      font-family: 'Inter', sans-serif;
+      font-family: 'DM Sans', sans-serif;
       font-size: 15px;
       font-weight: 600;
+      letter-spacing: -0.01em;
       cursor: pointer;
       border: none;
-      letter-spacing: -0.01em;
-      transition: all 0.16s;
+      transition: all 0.18s;
       user-select: none;
     }
     .btn:active { transform: scale(0.97); }
 
     .btn-primary {
       background: var(--black);
-      color: #FFFFFF;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+      color: var(--white);
+      box-shadow: 0 4px 20px rgba(26,23,20,0.22);
     }
     .btn-primary:hover {
-      background: #2C2E30;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+      background: #2E2A26;
+      box-shadow: 0 6px 24px rgba(26,23,20,0.28);
     }
     .btn-primary:disabled {
       background: var(--card-2);
@@ -351,58 +368,55 @@
       transform: none;
     }
     .btn-secondary {
-      background: var(--card);
+      background: var(--white);
       color: var(--text-2);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
     }
-    .btn-secondary:hover { background: var(--card-2); color: var(--text); }
-
-    .btn-row { display: flex; gap: 10px; }
-    .btn-row .btn { flex: 1; }
-
-    /* ── Tone pills (like Eloquent's Polish/Formal/Short) ────── */
-    .pill-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
+    .btn-secondary:hover { background: var(--card); color: var(--text); }
+    .btn-secondary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
     }
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 7px 14px;
-      border-radius: var(--radius-pill);
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      border: none;
-      background: var(--card);
+
+    /* Polish button — gradient when done */
+    .btn-polish {
+      background: var(--white);
       color: var(--text-2);
-      transition: all 0.16s;
-      white-space: nowrap;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
     }
-    .pill.selected {
-      background: var(--black);
-      color: #FFF;
+    .btn-polish:hover:not(:disabled) { background: var(--card); color: var(--text); }
+    .btn-polish:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+    .btn-polish.done {
+      background: linear-gradient(135deg, #FF8C50, #DC3FAA);
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 4px 18px rgba(220,63,170,0.28);
     }
-    .pill:hover:not(.selected) { background: var(--card-2); }
+
+    .btn-row { display:flex; gap:10px; }
+    .btn-row .btn { flex:1; }
 
     /* ── Processing ─────────────────────────────────────────── */
-    .proc-list { display: flex; flex-direction: column; gap: 8px; }
+    .proc-list { display:flex; flex-direction:column; gap:8px; }
     .proc-item {
       display: flex;
       align-items: flex-start;
       gap: 14px;
-      padding: 16px;
+      padding: 18px;
       border-radius: var(--radius-sm);
       background: var(--white);
       border: 1px solid var(--border);
-      transition: all 0.25s;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.28s;
     }
     .proc-item.active {
-      background: var(--white);
-      border-color: var(--black);
+      border-color: var(--border-hi);
+      box-shadow: var(--shadow-md);
     }
-    .proc-item.done { opacity: 0.45; }
+    .proc-item.done { opacity: 0.38; }
 
     .proc-icon-wrap {
       width: 28px; height: 28px;
@@ -411,12 +425,12 @@
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
       font-size: 13px;
-      transition: all 0.25s;
+      transition: all 0.28s;
     }
     .proc-item.active .proc-icon-wrap {
       background: var(--black);
       color: #FFF;
-      animation: spin 1.3s linear infinite;
+      animation: spin 1.4s linear infinite;
     }
     .proc-item.done .proc-icon-wrap {
       background: var(--green-bg);
@@ -428,13 +442,13 @@
       font-size: 14px;
       font-weight: 600;
       color: var(--text);
-      line-height: 1.35;
+      line-height: 1.3;
     }
     .proc-sub {
       font-size: 12px;
       color: var(--text-2);
-      margin-top: 2px;
-      font-family: 'JetBrains Mono', monospace;
+      margin-top: 3px;
+      letter-spacing: 0.01em;
     }
 
     /* ── Intent card ──────────────────────────────────────────── */
@@ -442,34 +456,34 @@
       background: var(--white);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 16px;
+      padding: 20px;
+      box-shadow: var(--shadow-md);
     }
     .intent-label {
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.09em;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--text-3);
-      font-family: 'JetBrains Mono', monospace;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
     .intent-body {
-      font-size: 14px;
+      font-size: 15px;
       color: var(--text);
       line-height: 1.65;
     }
     .domain-pill {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      margin-top: 10px;
-      padding: 4px 12px;
+      gap: 5px;
+      margin-top: 12px;
+      padding: 5px 13px;
       border-radius: var(--radius-pill);
       background: var(--card);
       font-size: 12px;
       font-weight: 500;
       color: var(--text-2);
-      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.02em;
     }
 
     /* ── Questions ────────────────────────────────────────────── */
@@ -477,19 +491,21 @@
       background: var(--white);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 16px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
       gap: 10px;
+      box-shadow: var(--shadow-sm);
     }
     .q-num {
-      font-size: 11px;
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--text-3);
+      font-size: 10px;
       font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-3);
     }
     .q-text {
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 600;
       color: var(--text);
       line-height: 1.4;
@@ -498,43 +514,63 @@
       background: var(--bg);
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
-      padding: 11px 13px;
+      padding: 12px 14px;
       color: var(--text);
-      font-family: 'Inter', sans-serif;
+      font-family: 'DM Sans', sans-serif;
       font-size: 14px;
+      line-height: 1.6;
       outline: none;
       transition: border-color 0.2s;
       resize: none;
       min-height: 52px;
       width: 100%;
+      overflow: hidden;
     }
-    .q-input:focus { border-color: var(--black); }
+    .q-input:focus { border-color: var(--border-hi); }
     .q-input::placeholder { color: var(--text-3); }
 
     /* ── Output ───────────────────────────────────────────────── */
+    .stats-row { display:flex; gap:8px; flex-wrap:wrap; }
+    .stat-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 13px;
+      border-radius: var(--radius-pill);
+      background: var(--white);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-2);
+      letter-spacing: 0.01em;
+    }
+    .stat-chip span { color: var(--text); font-weight: 700; }
+
     .output-card {
       background: var(--white);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       overflow: hidden;
+      box-shadow: var(--shadow-md);
     }
     .output-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 14px 16px;
+      padding: 14px 18px;
       border-bottom: 1px solid var(--border);
     }
     .output-title {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
       color: var(--text);
+      letter-spacing: 0.06em;
     }
     .output-body {
-      padding: 16px;
+      padding: 18px;
       font-family: 'JetBrains Mono', monospace;
       font-size: 12px;
-      line-height: 1.75;
+      line-height: 1.8;
       color: var(--text);
       white-space: pre-wrap;
       overflow-y: auto;
@@ -542,33 +578,13 @@
       word-break: break-word;
     }
 
-    .stats-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .stat-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 5px 12px;
-      border-radius: var(--radius-pill);
-      background: var(--card);
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-2);
-      font-family: 'JetBrains Mono', monospace;
-    }
-    .stat-chip span { color: var(--text); font-weight: 600; }
-
     /* ── Error ─────────────────────────────────────────────────── */
     .error-block {
       background: var(--red-bg);
-      border: 1px solid rgba(217,48,37,0.2);
+      border: 1px solid rgba(201,74,56,0.18);
       border-radius: var(--radius-sm);
       padding: 14px;
       font-size: 13px;
-      font-family: 'JetBrains Mono', monospace;
       color: var(--red);
       line-height: 1.6;
       white-space: pre-wrap;
@@ -579,26 +595,27 @@
     /* ── Settings sheet ──────────────────────────────────────── */
     .sheet-overlay {
       position: fixed; inset: 0;
-      background: rgba(0,0,0,0.4);
+      background: rgba(26,23,20,0.4);
       z-index: 50;
       opacity: 0; pointer-events: none;
       transition: opacity 0.28s;
-      backdrop-filter: blur(2px);
+      backdrop-filter: blur(3px);
     }
-    .sheet-overlay.open { opacity: 1; pointer-events: all; }
+    .sheet-overlay.open { opacity:1; pointer-events:all; }
 
     .sheet {
       position: fixed;
       bottom: 0; left: 0; right: 0;
       background: var(--white);
       border-top: 1px solid var(--border);
-      border-radius: 24px 24px 0 0;
-      padding: 16px 24px 44px;
+      border-radius: 28px 28px 0 0;
+      padding: 14px 24px 48px;
       z-index: 51;
       transform: translateY(100%);
       transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
       max-width: 480px;
       margin: 0 auto;
+      box-shadow: 0 -6px 40px rgba(26,23,20,0.12);
     }
     .sheet.open { transform: translateY(0); }
 
@@ -609,19 +626,18 @@
       margin: 0 auto 22px;
     }
     .sheet-title {
-      font-size: 17px;
+      font-size: 18px;
       font-weight: 700;
       letter-spacing: -0.02em;
-      margin-bottom: 20px;
+      margin-bottom: 22px;
       color: var(--text);
     }
 
-    .setting-row { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; }
+    .setting-row { display:flex; flex-direction:column; gap:7px; margin-bottom:18px; }
     .setting-label {
-      font-size: 11px;
-      font-weight: 500;
-      font-family: 'JetBrains Mono', monospace;
-      letter-spacing: 0.09em;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--text-2);
     }
@@ -629,7 +645,7 @@
       background: var(--bg);
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
-      padding: 12px 14px;
+      padding: 13px 15px;
       color: var(--text);
       font-family: 'JetBrains Mono', monospace;
       font-size: 13px;
@@ -637,25 +653,25 @@
       width: 100%;
       transition: border-color 0.2s;
     }
-    .setting-input:focus { border-color: var(--black); }
-    .setting-hint { font-size: 11px; color: var(--text-3); font-family: 'JetBrains Mono', monospace; }
+    .setting-input:focus { border-color: var(--border-hi); }
+    .setting-hint { font-size: 11px; color: var(--text-3); }
 
-    .connection-test { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+    .connection-test { display:flex; align-items:center; gap:10px; margin-top:10px; }
     .test-btn {
       flex-shrink: 0;
       background: var(--card);
       border: none;
       border-radius: var(--radius-pill);
-      padding: 8px 16px;
+      padding: 9px 18px;
       color: var(--text-2);
-      font-family: 'Inter', sans-serif;
+      font-family: 'DM Sans', sans-serif;
       font-size: 13px;
       font-weight: 500;
       cursor: pointer;
       transition: background 0.18s;
     }
     .test-btn:hover { background: var(--card-2); }
-    .test-status { font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--text-3); }
+    .test-status { font-size: 12px; color: var(--text-3); }
     .test-status.ok  { color: var(--green); }
     .test-status.err { color: var(--red); }
 
@@ -665,13 +681,13 @@
       bottom: 28px; left: 50%;
       transform: translateX(-50%) translateY(60px);
       background: var(--black);
-      color: #FFF;
-      font-family: 'Inter', sans-serif;
-      font-size: 13px;
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
       font-weight: 500;
-      padding: 11px 20px;
+      padding: 12px 22px;
       border-radius: var(--radius-pill);
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      box-shadow: var(--shadow-lg);
       transition: transform 0.32s cubic-bezier(0.16,1,0.3,1);
       white-space: nowrap;
       z-index: 100;
@@ -680,11 +696,11 @@
 
     /* ── Footer ───────────────────────────────────────────────── */
     footer {
-      padding: 0 0 24px;
+      padding: 0 0 28px;
       text-align: center;
       font-size: 11px;
-      font-family: 'JetBrains Mono', monospace;
       color: var(--text-3);
+      letter-spacing: 0.04em;
     }
   </style>
 </head>
@@ -692,7 +708,6 @@
 
 <div class="app">
 
-  <!-- Header -->
   <header class="header">
     <div class="wordmark">
       <div class="wordmark-icon">✦</div>
@@ -701,10 +716,8 @@
     <button class="icon-btn" onclick="openSettings()">⚙</button>
   </header>
 
-  <!-- Progress -->
   <div class="progress-track" id="progressTrack"></div>
 
-  <!-- Screens -->
   <main>
 
     <!-- ── S1: Record ──────────────────────────────────────── -->
@@ -714,18 +727,31 @@
         <div class="screen-title">Speak your idea.</div>
       </div>
 
-      <div class="card" id="micCard">
+      <!-- Mic card — transforms into gradient when live -->
+      <div class="mic-card" id="micCard">
         <div class="mic-stage">
-          <div class="mic-wrap" id="micWrap">
-            <button class="mic-btn" id="micBtn" onclick="toggleRecording()">🎙</button>
-          </div>
           <div class="waveform" id="waveform"></div>
-          <div class="mic-caption" id="micCaption">
-            <span class="mic-caption-text">Tap to record</span>
-            <div class="rec-indicator">
-              <div class="dot"></div>
-              Recording
-            </div>
+
+          <div class="mic-status" id="micStatus">
+            <div class="rec-dot"></div>
+            <span class="idle-text">Tap to start recording</span>
+            <span class="live-text" style="display:none">Listening</span>
+          </div>
+
+          <div class="mic-btn-wrap" id="micWrap">
+            <button class="mic-btn" id="micBtn" onclick="toggleRecording()">
+              <!-- Mic icon -->
+              <svg id="svgMic" width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="9" y="2" width="6" height="12" rx="3" fill="white"/>
+                <path d="M5 11a7 7 0 0014 0" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="12" y1="18" x2="12" y2="22" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                <line x1="9"  y1="22" x2="15" y2="22" stroke="white" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <!-- Stop icon (hidden by default) -->
+              <svg id="svgStop" width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:none">
+                <rect x="4" y="4" width="14" height="14" rx="3" fill="white"/>
+              </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -734,7 +760,7 @@
         <div class="field-label">Transcript</div>
         <textarea
           id="transcriptBox"
-          placeholder="Transcription appears here. You can also type or paste directly."
+          placeholder="Your words appear here as you speak. You can also type or paste."
           rows="4"
           oninput="onTranscriptInput()"
         ></textarea>
@@ -743,12 +769,14 @@
 
       <div class="error-block" id="err1"></div>
 
-      <button class="btn btn-primary" id="distillBtn" onclick="startDistill()" disabled>
-        Distill
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
+      <div class="btn-row">
+        <button class="btn btn-polish" id="polishBtn" onclick="polishTranscript()" disabled>
+          ✦ Polish
+        </button>
+        <button class="btn btn-primary" id="distillBtn" onclick="startDistill()" disabled>
+          Distill →
+        </button>
+      </div>
     </div>
 
     <!-- ── S2: Processing ──────────────────────────────────── -->
@@ -801,10 +829,7 @@
       <div id="questionsList" style="display:flex;flex-direction:column;gap:10px;"></div>
 
       <button class="btn btn-primary" onclick="generateSkill()">
-        Generate Skill File
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        Generate Skill File →
       </button>
       <button class="btn btn-secondary" onclick="goStep(1)">← Re-record</button>
     </div>
@@ -829,16 +854,14 @@
         <div class="output-body" id="skillOutput"></div>
       </div>
 
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="copySkill()">Copy to clipboard</button>
-        <button class="btn btn-secondary" onclick="downloadSkill()">↓ Save</button>
-      </div>
+      <button class="btn btn-primary" onclick="copySkill()">Copy to clipboard</button>
+      <button class="btn btn-secondary" onclick="downloadSkill()">↓ Save .md</button>
       <button class="btn btn-secondary" onclick="reset()">Start over</button>
     </div>
 
   </main>
 
-  <footer>neon experiments · 2026-05-01</footer>
+  <footer>neon · crystallizer</footer>
 </div>
 
 <!-- Settings -->
@@ -848,10 +871,6 @@
   <div class="sheet-title">Settings</div>
 
   <div class="setting-row">
-    <div class="setting-label">Ollama Endpoint</div>
-    <input class="setting-input" id="ollamaEndpoint" type="url"
-      placeholder="https://your-tunnel.loca.lt" oninput="saveSettings()">
-    <div class="setting-hint"># localtunnel or http://localhost:11434</div>
     <div class="connection-test">
       <button class="test-btn" onclick="testConnection()">Test connection</button>
       <span class="test-status" id="testStatus">—</span>
@@ -859,15 +878,22 @@
   </div>
 
   <div class="setting-row">
+    <div class="setting-label">Endpoint</div>
+    <input class="setting-input" id="ollamaEndpoint" type="text"
+      placeholder="https://your-tunnel.loca.lt" oninput="saveSettings()">
+    <div class="setting-hint">Ollama URL — localtunnel or http://localhost:11434</div>
+  </div>
+
+  <div class="setting-row">
     <div class="setting-label">Model</div>
     <input class="setting-input" id="modelName" type="text"
       placeholder="gemma4:e4b" oninput="saveSettings()">
+    <div class="setting-hint">default: gemma4:e4b</div>
   </div>
 
   <button class="btn btn-primary" style="margin-top:8px" onclick="closeSettings()">Done</button>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
@@ -875,7 +901,7 @@
 const S = {
   step:1, transcript:'', intent:'', domain:'',
   questions:[], skillFile:'', recording:false,
-  recognition:null, waveInterval:null,
+  recognition:null, waveInterval:null, polishing:false,
 };
 
 // ── Settings ───────────────────────────────────────────────
@@ -887,27 +913,34 @@ function loadSettings() {
   document.getElementById('modelName').value      = localStorage.getItem('modelName') || DEFAULT_MODEL;
 }
 function saveSettings() {
-  localStorage.setItem('ollamaEndpoint', document.getElementById('ollamaEndpoint').value);
-  localStorage.setItem('modelName',      document.getElementById('modelName').value);
+  localStorage.setItem('ollamaEndpoint', document.getElementById('ollamaEndpoint').value.trim());
+  localStorage.setItem('modelName',      document.getElementById('modelName').value.trim());
 }
 function getEndpoint() {
   return (localStorage.getItem('ollamaEndpoint') || DEFAULT_ENDPOINT).replace(/\/$/, '');
 }
-function getModel() {
-  return localStorage.getItem('modelName') || DEFAULT_MODEL;
-}
+function getModel() { return localStorage.getItem('modelName') || DEFAULT_MODEL; }
 
-function openSettings()  { document.getElementById('sheetOverlay').classList.add('open'); document.getElementById('settingsSheet').classList.add('open'); }
-function closeSettings() { document.getElementById('sheetOverlay').classList.remove('open'); document.getElementById('settingsSheet').classList.remove('open'); }
+function openSettings()  {
+  document.getElementById('sheetOverlay').classList.add('open');
+  document.getElementById('settingsSheet').classList.add('open');
+}
+function closeSettings() {
+  document.getElementById('sheetOverlay').classList.remove('open');
+  document.getElementById('settingsSheet').classList.remove('open');
+}
 
 async function testConnection() {
   const el = document.getElementById('testStatus');
   el.className = 'test-status'; el.textContent = 'testing…';
   try {
-    const r = await fetch(`${getEndpoint()}/api/tags`, { signal: AbortSignal.timeout(6000), headers: { 'bypass-tunnel-reminder': 'true' } });
+    const r = await fetch(`${getEndpoint()}/api/tags`, {
+      signal: AbortSignal.timeout(6000),
+      headers: { 'bypass-tunnel-reminder': 'true' },
+    });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const data = await r.json();
-    const names = (data.models||[]).map(m=>m.name.split(':')[0]).join(', ');
+    const names = (data.models || []).map(m => m.name.split(':')[0]).join(', ');
     el.className = 'test-status ok';
     el.textContent = `✓ ${names || 'connected'}`;
   } catch(e) {
@@ -937,7 +970,7 @@ function renderProgress(current) {
 function initWaveform() {
   const wf = document.getElementById('waveform');
   wf.innerHTML = '';
-  for (let i = 0; i < 18; i++) {
+  for (let i = 0; i < 22; i++) {
     const b = document.createElement('div');
     b.className = 'wb';
     wf.appendChild(b);
@@ -945,13 +978,16 @@ function initWaveform() {
 }
 function animateWaveform(on) {
   clearInterval(S.waveInterval);
-  const wf = document.getElementById('waveform');
-  const bars = wf.querySelectorAll('.wb');
-  wf.className = 'waveform' + (on ? ' live' : '');
+  const bars = document.querySelectorAll('.wb');
   if (!on) { bars.forEach(b => b.style.height = '4px'); return; }
   S.waveInterval = setInterval(() => {
-    bars.forEach(b => { b.style.height = (Math.random() * 20 + 3) + 'px'; });
-  }, 80);
+    bars.forEach((b, i) => {
+      // Center bars taller for a natural waveform shape
+      const center = Math.abs(i - 10) / 10;
+      const max = 44 - center * 28;
+      b.style.height = (Math.random() * max + 4) + 'px';
+    });
+  }, 75);
 }
 
 // ── Recording ──────────────────────────────────────────────
@@ -959,51 +995,139 @@ function toggleRecording() { S.recording ? stopRecording() : startRecording(); }
 
 function startRecording() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) { showError('err1','Speech recognition not supported. Use Chrome on Android or paste text.'); return; }
-  S.recognition = new SR();
-  S.recognition.continuous = true;
-  S.recognition.interimResults = true;
-  S.recognition.lang = 'en-US';
+  if (!SR) {
+    showError('err1', 'Speech recognition not supported.\nUse Chrome on Android, or type / paste your idea.');
+    return;
+  }
 
-  let finalText = document.getElementById('transcriptBox').value;
+  S.recording = true;
+  S.finalText = document.getElementById('transcriptBox').value;
+  if (S.finalText && !/\s$/.test(S.finalText)) S.finalText += ' ';
+  S.restartCount = 0;
+  S.lastRestart = 0;
 
-  S.recognition.onresult = (e) => {
+  spawnRecognition(SR);
+  setRecordingUI(true);
+}
+
+function spawnRecognition(SR) {
+  const rec = new SR();
+  rec.continuous     = true;
+  rec.interimResults = true;
+  rec.lang           = 'en-US';
+
+  rec.onresult = (e) => {
     let interim = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
-      if (e.results[i].isFinal) finalText += e.results[i][0].transcript + ' ';
+      if (e.results[i].isFinal) S.finalText += e.results[i][0].transcript + ' ';
       else interim += e.results[i][0].transcript;
     }
-    document.getElementById('transcriptBox').value = finalText + interim;
+    document.getElementById('transcriptBox').value = S.finalText + interim;
     onTranscriptInput();
   };
-  S.recognition.onerror = (e) => {
-    if (e.error !== 'no-speech') { showError('err1', 'Mic error: ' + e.error); stopRecording(); }
-  };
-  S.recognition.start();
-  S.recording = true;
 
-  document.getElementById('micBtn').classList.add('live');
-  document.getElementById('micBtn').textContent = '⏹';
-  document.getElementById('micWrap').classList.add('live');
-  document.getElementById('micCaption').classList.add('recording');
-  document.getElementById('micCard').classList.add('active-state');
-  animateWaveform(true);
+  rec.onerror = (e) => {
+    if (e.error === 'no-speech' || e.error === 'aborted') return;
+    if (e.error === 'audio-capture' || e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+      showError('err1', 'Mic error: ' + e.error);
+      stopRecording();
+    }
+  };
+
+  rec.onend = () => {
+    if (!S.recording || S.recognition !== rec) return;
+    const now = Date.now();
+    if (now - S.lastRestart < 500) S.restartCount++; else S.restartCount = 0;
+    S.lastRestart = now;
+    if (S.restartCount > 8) { showError('err1','Mic stopped — tap record to resume.'); stopRecording(); return; }
+    setTimeout(() => { if (S.recording) spawnRecognition(SR); }, 120);
+  };
+
+  S.recognition = rec;
+  try { rec.start(); }
+  catch (_) { setTimeout(() => { if (S.recording) spawnRecognition(SR); }, 250); }
 }
 
 function stopRecording() {
-  S.recognition?.stop(); S.recognition = null; S.recording = false;
-  document.getElementById('micBtn').classList.remove('live');
-  document.getElementById('micBtn').textContent = '🎙';
-  document.getElementById('micWrap').classList.remove('live');
-  document.getElementById('micCaption').classList.remove('recording');
-  document.getElementById('micCard').classList.remove('active-state');
-  animateWaveform(false);
+  S.recording = false;
+  if (S.recognition) {
+    try { S.recognition.onend = null; S.recognition.stop(); } catch (_) {}
+    S.recognition = null;
+  }
+  setRecordingUI(false);
+}
+
+function setRecordingUI(on) {
+  document.getElementById('micCard').classList.toggle('live', on);
+  document.getElementById('micWrap').classList.toggle('live', on);
+
+  document.getElementById('svgMic').style.display  = on ? 'none' : '';
+  document.getElementById('svgStop').style.display = on ? ''     : 'none';
+
+  const idle = document.querySelector('.idle-text');
+  const live = document.querySelector('.live-text');
+  if (idle) idle.style.display = on ? 'none' : '';
+  if (live) live.style.display = on ? ''     : 'none';
+
+  animateWaveform(on);
 }
 
 function onTranscriptInput() {
   const len = document.getElementById('transcriptBox').value.trim().length;
   document.getElementById('charCount').textContent = len + ' chars';
-  document.getElementById('distillBtn').disabled = len < 10;
+  const has = len >= 10;
+  document.getElementById('distillBtn').disabled = !has;
+  const pb = document.getElementById('polishBtn');
+  pb.disabled = !has;
+  // Reset polish badge if text changes after polishing
+  if (pb.classList.contains('done')) {
+    pb.classList.remove('done');
+    pb.textContent = '✦ Polish';
+    S.polishing = false;
+  }
+}
+
+// ── Polish ─────────────────────────────────────────────────
+async function polishTranscript() {
+  if (S.polishing) return;
+  const raw = document.getElementById('transcriptBox').value.trim();
+  if (raw.length < 10) return;
+  if (S.recording) stopRecording();
+
+  S.polishing = true;
+  const btn = document.getElementById('polishBtn');
+  btn.disabled = true;
+  btn.textContent = 'Polishing…';
+
+  try {
+    const cleaned = await ollamaGenerate(
+      `You are an expert editor. Clean up this raw voice transcription:
+- Fix grammar and punctuation
+- Remove filler words (um, uh, like, you know, sort of, kind of, basically)
+- Fix run-on sentences
+- Make it clear, direct, and professional
+- Preserve the exact meaning and all key details
+- Do not add new information or interpretation
+
+Return ONLY the cleaned text. No explanation, no commentary, no quotes.
+
+TRANSCRIPTION:
+${raw}`
+    );
+
+    document.getElementById('transcriptBox').value = cleaned.trim();
+    onTranscriptInput();
+    // Mark as done — gradient button state
+    btn.disabled = false;
+    btn.classList.add('done');
+    btn.textContent = '✦ Polished';
+    S.polishing = false;
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = '✦ Polish';
+    S.polishing = false;
+    showError('err1', 'Polish failed: ' + e.message);
+  }
 }
 
 // ── Ollama ─────────────────────────────────────────────────
@@ -1020,8 +1144,12 @@ async function ollamaGenerate(prompt) {
   }
   return (await r.json()).response || '';
 }
+
 function cleanJSON(raw) {
-  return raw.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
+  return raw
+    .replace(/```json\n?/g,'').replace(/```\n?/g,'')
+    .replace(/<json>\n?/gi,'').replace(/<\/json>\n?/gi,'')
+    .trim();
 }
 
 // ── Distill ────────────────────────────────────────────────
@@ -1034,47 +1162,41 @@ async function startDistill() {
   clearError('err2');
   setProc('extract','active');
 
-  const p1 = `Extract the core intent from this voice dictation. Identify information gaps.
+  const p1 = `Extract the core intent from this text. Identify information gaps.
 
-DICTATION:
+TEXT:
 """${S.transcript}"""
 
-Rules: strip filler, compress to 2-4 sentences, find 3-5 gaps.
-Return ONLY valid JSON: {"intent":"...","domain":"one-word (e.g. skill-file, workflow, android-app)","missing":["gap1","gap2","gap3"]}`;
+Rules: compress to 2-4 sentences, find 3-5 gaps.
+Return ONLY valid JSON (no markdown fences): {"intent":"...","domain":"one-word (e.g. skill-file, workflow, android-app)","missing":["gap1","gap2","gap3"]}`;
 
   let distilled;
   try {
     distilled = JSON.parse(cleanJSON(await ollamaGenerate(p1)));
   } catch(e) {
-    const isNetwork = e.message.includes('fetch') || e.message.includes('network') || e.message.includes('timeout') || e.message.includes('unreachable');
-    showError('err2', isNetwork
+    showError('err2', e.message.includes('fetch') || e.message.includes('timeout')
       ? `Cannot reach Ollama.\nEndpoint: ${getEndpoint()}\nTap ⚙ → Test connection to diagnose.\n\n${e.message}`
       : `Distillation failed: ${e.message}`);
     setProc('extract',''); return;
   }
 
-  S.intent  = distilled.intent  || '';
-  S.domain  = distilled.domain  || '';
+  S.intent = distilled.intent  || '';
+  S.domain = distilled.domain  || '';
   const gaps = distilled.missing || [];
 
-  setProc('extract','done');
-  setProc('gaps','active');
+  setProc('extract','done'); setProc('gaps','active');
   await sleep(200);
-  setProc('gaps','done');
-  setProc('questions','active');
+  setProc('gaps','done'); setProc('questions','active');
 
   const p2 = `Generate 3–5 clarifying questions for this task.
 INTENT: ${S.intent}
 GAPS: ${gaps.join(' | ')}
 Rules: each question targets ONE gap, specific not open-ended, ordered by importance.
-Return ONLY valid JSON: {"questions":["q1","q2","q3"]}`;
+Return ONLY valid JSON (no markdown fences): {"questions":["q1","q2","q3"]}`;
 
   let qData;
-  try {
-    qData = JSON.parse(cleanJSON(await ollamaGenerate(p2)));
-  } catch {
-    qData = { questions: gaps.slice(0,5) };
-  }
+  try { qData = JSON.parse(cleanJSON(await ollamaGenerate(p2))); }
+  catch { qData = { questions: gaps.slice(0,5) }; }
 
   S.questions = qData.questions || [];
   setProc('questions','done');
@@ -1094,7 +1216,8 @@ function buildClarify() {
     el.className = 'q-block';
     el.innerHTML = `<div class="q-num">Q${i+1} of ${S.questions.length}</div>
       <div class="q-text">${q}</div>
-      <textarea class="q-input" id="ans-${i}" placeholder="your answer…" rows="2"></textarea>`;
+      <textarea class="q-input" id="ans-${i}" placeholder="your answer…" rows="2"
+        oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>`;
     list.appendChild(el);
   });
 }
@@ -1135,12 +1258,13 @@ description: "[one sentence: when this skill activates]"
 ## Hard Rules
 [3-5 bullet constraints]
 Output ONLY markdown. Start with ---.`);
+
     S.skillFile = raw.trim();
     document.getElementById('skillOutput').textContent = S.skillFile;
     const origT = Math.round(S.transcript.split(/\s+/).length * 1.3);
     const skillT = Math.round(S.skillFile.split(/\s+/).length * 1.3);
     document.getElementById('tokenCount').textContent = skillT;
-    document.getElementById('compressionRate').textContent = Math.max(0, Math.round((1-skillT/origT)*100));
+    document.getElementById('compressionRate').textContent = Math.max(0, Math.round((1 - skillT/origT)*100));
   } catch(e) {
     document.getElementById('skillOutput').textContent = '✗ ' + e.message;
   }
@@ -1161,8 +1285,8 @@ function setProc(id, state) {
   const el = document.getElementById(`proc-${id}`);
   if (!el) return;
   el.className = 'proc-item' + (state ? ` ${state}` : '');
-  const icon = el.querySelector('.proc-icon-wrap');
-  icon.textContent = state==='done' ? '✓' : state==='active' ? '◌' : '○';
+  el.querySelector('.proc-icon-wrap').textContent =
+    state==='done' ? '✓' : state==='active' ? '◌' : '○';
 }
 
 // ── Errors ─────────────────────────────────────────────────
@@ -1175,20 +1299,36 @@ function clearError(id) {
   if (el) { el.textContent = ''; el.classList.remove('show'); }
 }
 
-// ── Copy / Download ─────────────────────────────────────────
+// ── Copy ───────────────────────────────────────────────────
 async function copySkill() {
+  if (!S.skillFile) return;
   try {
     await navigator.clipboard.writeText(S.skillFile);
-    showToast('Copied to clipboard ✓');
-  } catch { showToast('Select text and copy manually'); }
+    showToast('Copied ✓');
+  } catch {
+    const el = document.getElementById('skillOutput');
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    showToast('Select text above, then copy');
+  }
 }
+
 function downloadSkill() {
-  const blob = new Blob([S.skillFile], { type:'text/markdown' });
+  if (!S.skillFile) return;
+  const blob = new Blob([S.skillFile], { type: 'text/markdown' });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
-  a.href = url; a.download = `skill-${S.domain||'output'}.md`; a.click();
+  a.href = url;
+  a.download = `skill-${S.domain || 'output'}.md`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
   URL.revokeObjectURL(url);
+  showToast('Saved ✓');
 }
+
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
@@ -1197,15 +1337,31 @@ function showToast(msg) {
 
 // ── Reset ──────────────────────────────────────────────────
 function reset() {
-  Object.assign(S,{step:1,transcript:'',intent:'',domain:'',questions:[],skillFile:'',recording:false,recognition:null,waveInterval:null});
+  if (S.recording) stopRecording();
+  Object.assign(S, {
+    step:1, transcript:'', intent:'', domain:'',
+    questions:[], skillFile:'', recording:false,
+    recognition:null, waveInterval:null, polishing:false,
+    finalText:'', restartCount:0, lastRestart:0,
+  });
   document.getElementById('transcriptBox').value = '';
   document.getElementById('charCount').textContent = '0 chars';
   document.getElementById('distillBtn').disabled = true;
+  const pb = document.getElementById('polishBtn');
+  pb.disabled = true; pb.classList.remove('done'); pb.textContent = '✦ Polish';
   clearError('err1'); clearError('err2');
   ['extract','gaps','questions'].forEach(id => setProc(id,''));
   initWaveform(); goStep(1);
 }
-function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ── Service Worker ─────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
 
 // ── Init ───────────────────────────────────────────────────
 loadSettings(); initWaveform(); renderProgress(1);

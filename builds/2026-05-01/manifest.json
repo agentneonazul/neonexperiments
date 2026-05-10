@@ -1,0 +1,15 @@
+{
+  "name": "Skill Crystallizer",
+  "short_name": "Crystallizer",
+  "description": "Voice-to-SKILL.md distiller",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F4F0E8",
+  "theme_color": "#111214",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "./icon.svg",          "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "./icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

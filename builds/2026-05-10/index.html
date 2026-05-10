@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Picross — Neon Experiments</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #08080f;
+  --surface: #111120;
+  --surface2: #191928;
+  --border: #252540;
+  --border2: #353560;
+  --accent: #7c6ef7;
+  --accent2: #5a4ecc;
+  --neon: #00e5ff;
+  --green: #3ddc84;
+  --red: #ff5f7e;
+  --text: #dde0f5;
+  --muted: #5a5a80;
+  --muted2: #8080b0;
+  --filled: #7c6ef7;
+  --filled-glow: rgba(124,110,247,0.35);
+  --cross: #222235;
+  --satisfied-clue: #3ddc84;
+  --cell-size: 40px;
+  --clue-w: 72px;
+  --clue-h: 72px;
+}
+
+html, body {
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 16px 40px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ── Header ── */
+.hdr {
+  text-align: center;
+  margin-bottom: 28px;
+}
+.hdr h1 {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--neon);
+  text-shadow: 0 0 24px rgba(0,229,255,0.45);
+}
+.hdr p {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+  letter-spacing: 0.06em;
+}
+
+/* ── Puzzle Tabs ── */
+.tabs {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+.tab {
+  padding: 5px 14px;
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  background: var(--surface);
+  color: var(--muted2);
+  cursor: pointer;
+  font-size: 11px;
+  font-family: inherit;
+  letter-spacing: 0.05em;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+.tab:hover { border-color: var(--accent); color: var(--text); }
+.tab.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.tab .diff {
+  opacity: 0.6;
+  font-size: 9px;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+/* ── Timer ── */
+.timer-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.timer {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--muted2);
+  letter-spacing: 0.12em;
+  min-width: 60px;
+  text-align: center;
+}
+.mistakes {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+.mistake-dot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--red);
+  margin-left: 3px;
+  opacity: 0.25;
+  transition: opacity 0.3s;
+}
+.mistake-dot.lit { opacity: 1; }
+
+/* ── Board ── */
+.board-wrap {
+  overflow-x: auto;
+  margin-bottom: 20px;
+  max-width: 100%;
+}
+.board {
+  display: inline-grid;
+  /* columns/rows set by JS */
+}
+
+/* Corner */
+.corner { background: transparent; }
+
+/* Column clues */
+.col-clue {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 6px;
+  gap: 3px;
+  width: var(--cell-size);
+  height: var(--clue-h);
+  border-bottom: 2px solid var(--border2);
+  transition: background 0.1s;
+}
+.col-clue.hl { background: rgba(124,110,247,0.07); }
+.col-clue.done .clue-n { color: var(--satisfied-clue); opacity: 0.7; }
+
+/* Row clues */
+.row-clue {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  width: var(--clue-w);
+  height: var(--cell-size);
+  padding-right: 10px;
+  border-right: 2px solid var(--border2);
+  transition: background 0.1s;
+}
+.row-clue.hl { background: rgba(124,110,247,0.07); }
+.row-clue.done .clue-n { color: var(--satisfied-clue); opacity: 0.7; }
+
+.clue-n {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted2);
+  min-width: 13px;
+  text-align: center;
+  transition: color 0.25s, opacity 0.25s;
+}
+
+/* Cells */
+.cell {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  position: relative;
+  transition: background 0.07s, border-color 0.07s;
+  background: transparent;
+}
+
+/* Subgrid borders every 5 */
+.cell.bx { border-right: 2px solid var(--border2); }
+.cell.by { border-bottom: 2px solid var(--border2); }
+
+.cell.rhl { background: rgba(124,110,247,0.055); }
+.cell.chl { background: rgba(124,110,247,0.055); }
+.cell.rhl.chl { background: rgba(124,110,247,0.12); }
+
+.cell.filled {
+  background: var(--filled);
+  border-color: var(--accent2);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+}
+.cell.filled.rhl, .cell.filled.chl, .cell.filled.rhl.chl {
+  background: var(--filled);
+}
+
+.cell.crossed {
+  background: var(--cross);
+}
+.cell.crossed::before,
+.cell.crossed::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 55%; height: 1.5px;
+  background: var(--border2);
+  border-radius: 1px;
+  transform-origin: center;
+}
+.cell.crossed::before { transform: translate(-50%,-50%) rotate(45deg); }
+.cell.crossed::after  { transform: translate(-50%,-50%) rotate(-45deg); }
+
+/* ── Controls ── */
+.controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.btn {
+  padding: 7px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: all 0.18s;
+}
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.btn.primary:hover { background: var(--accent2); }
+
+/* ── Legend ── */
+.legend {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.lswatch {
+  width: 15px; height: 15px;
+  border-radius: 3px;
+  border: 1px solid var(--border2);
+  flex-shrink: 0;
+}
+.ls-fill { background: var(--filled); border-color: var(--accent2); }
+.ls-cross { background: var(--cross); position: relative; }
+.ls-cross::before, .ls-cross::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 60%; height: 1.5px;
+  background: var(--border2);
+  transform-origin: center;
+}
+.ls-cross::before { transform: translate(-50%,-50%) rotate(45deg); }
+.ls-cross::after  { transform: translate(-50%,-50%) rotate(-45deg); }
+
+/* ── Win Modal ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.modal-overlay.show { opacity: 1; pointer-events: all; }
+.modal-box {
+  background: var(--surface2);
+  border: 1px solid var(--accent);
+  border-radius: 18px;
+  padding: 44px 40px 36px;
+  text-align: center;
+  max-width: 360px;
+  width: 90%;
+  box-shadow: 0 0 60px rgba(124,110,247,0.25), 0 20px 60px rgba(0,0,0,0.5);
+  transform: translateY(10px);
+  transition: transform 0.3s;
+}
+.modal-overlay.show .modal-box { transform: translateY(0); }
+.modal-icon { font-size: 36px; margin-bottom: 8px; }
+.modal-box h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--neon);
+  text-shadow: 0 0 20px rgba(0,229,255,0.5);
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+.modal-puzz-name {
+  font-size: 13px;
+  color: var(--accent);
+  margin-bottom: 16px;
+  letter-spacing: 0.04em;
+}
+.modal-time {
+  font-size: 52px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+  letter-spacing: 0.06em;
+}
+.modal-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 28px;
+}
+.modal-actions { display: flex; gap: 10px; justify-content: center; }
+
+/* ── Mistake flash ── */
+@keyframes wrongFlash {
+  0%   { background: rgba(255,95,126,0.3); }
+  100% { background: transparent; }
+}
+.cell.wrong-flash { animation: wrongFlash 0.4s ease forwards; }
+
+/* ── Row/col solved flash ── */
+@keyframes solveFlash {
+  0%   { background: rgba(61,220,132,0.25); }
+  100% { background: var(--filled); }
+}
+.cell.solve-flash { animation: solveFlash 0.5s ease forwards; }
+
+/* ── Neon glow pulse on win ── */
+@keyframes neonPulse {
+  0%, 100% { box-shadow: none; }
+  50%       { box-shadow: 0 0 0 2px rgba(0,229,255,0.3); }
+}
+.board.won .cell.filled { animation: neonPulse 1.5s ease infinite; }
+
+/* ── Footer ── */
+footer {
+  margin-top: auto;
+  padding-top: 30px;
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+  letter-spacing: 0.06em;
+}
+footer a { color: var(--muted2); text-decoration: none; }
+footer a:hover { color: var(--text); }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <h1>PICROSS</h1>
+  <p>Fill the grid · read the clues · find the picture</p>
+</div>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="timer-row">
+  <span class="timer" id="timer">00:00</span>
+  <span class="mistakes" id="mistakes"></span>
+</div>
+
+<div class="board-wrap">
+  <div class="board" id="board"></div>
+</div>
+
+<div class="controls">
+  <button class="btn" id="btn-reset">Reset</button>
+  <button class="btn" id="btn-reveal">Reveal</button>
+  <button class="btn primary" id="btn-check">Check</button>
+</div>
+
+<div class="legend">
+  <span class="legend-item"><span class="lswatch ls-fill"></span>Left click — Fill</span>
+  <span class="legend-item"><span class="lswatch ls-cross"></span>Right click — Mark empty</span>
+  <span class="legend-item"><span style="color:var(--satisfied-clue)">■</span> Clue satisfied</span>
+</div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal-box">
+    <div class="modal-icon">✦</div>
+    <h2>SOLVED</h2>
+    <div class="modal-puzz-name" id="m-name"></div>
+    <div class="modal-time" id="m-time"></div>
+    <div class="modal-sub" id="m-sub"></div>
+    <div class="modal-actions">
+      <button class="btn" id="m-reset">Play again</button>
+      <button class="btn primary" id="m-next">Next puzzle →</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <a href="https://agentneonazul.github.io/neonexperiments/">← neon experiments</a>
+</footer>
+
+<script>
+// ── Puzzles ──────────────────────────────────────────────────────────────────
+
+const PUZZLES = [
+  {
+    name: 'Plus',
+    difficulty: 'Easy',
+    size: 5,
+    grid: [
+      [0,0,1,0,0],
+      [0,0,1,0,0],
+      [1,1,1,1,1],
+      [0,0,1,0,0],
+      [0,0,1,0,0],
+    ]
+  },
+  {
+    name: 'Heart',
+    difficulty: 'Medium',
+    size: 7,
+    grid: [
+      [0,1,1,0,1,1,0],
+      [1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1],
+      [0,1,1,1,1,1,0],
+      [0,0,1,1,1,0,0],
+      [0,0,0,1,0,0,0],
+    ]
+  },
+  {
+    name: 'House',
+    difficulty: 'Medium',
+    size: 7,
+    grid: [
+      [0,0,0,1,0,0,0],
+      [0,0,1,1,1,0,0],
+      [0,1,1,1,1,1,0],
+      [1,1,1,1,1,1,1],
+      [1,1,0,0,0,1,1],
+      [1,1,0,0,0,1,1],
+      [1,1,0,0,0,1,1],
+    ]
+  },
+  {
+    name: 'Diamond',
+    difficulty: 'Hard',
+    size: 8,
+    grid: [
+      [0,0,0,1,1,0,0,0],
+      [0,0,1,1,1,1,0,0],
+      [0,1,1,1,1,1,1,0],
+      [1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1],
+      [0,1,1,1,1,1,1,0],
+      [0,0,1,1,1,1,0,0],
+      [0,0,0,1,1,0,0,0],
+    ]
+  },
+  {
+    name: 'Mushroom',
+    difficulty: 'Hard',
+    size: 8,
+    grid: [
+      [0,0,1,1,1,1,0,0],
+      [0,1,1,1,1,1,1,0],
+      [1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1],
+      [0,0,0,1,1,0,0,0],
+      [0,0,0,1,1,0,0,0],
+      [0,0,0,1,1,0,0,0],
+      [0,0,0,1,1,0,0,0],
+    ]
+  }
+];
+
+// ── State ────────────────────────────────────────────────────────────────────
+
+let puzzleIdx = 0;
+let state = [];           // 0=empty, 1=filled, 2=crossed
+let solution = [];
+let size = 0;
+let rowClues = [];
+let colClues = [];
+
+let dragging = false;
+let dragMode = null;      // 'fill' | 'erase' | 'cross' | 'uncross'
+let hoverRow = -1;
+let hoverCol = -1;
+
+let timerInterval = null;
+let timerSec = 0;
+let won = false;
+let mistakes = 0;
+const MAX_MISTAKES = 5;
+
+// ── Clue computation ─────────────────────────────────────────────────────────
+
+function computeClue(arr) {
+  const result = [];
+  let count = 0;
+  for (const v of arr) {
+    if (v === 1) { count++; }
+    else if (count > 0) { result.push(count); count = 0; }
+  }
+  if (count > 0) result.push(count);
+  return result.length ? result : [0];
+}
+
+function getClues(grid, type) {
+  const n = grid.length;
+  const clues = [];
+  if (type === 'row') {
+    for (let r = 0; r < n; r++) clues.push(computeClue(grid[r]));
+  } else {
+    for (let c = 0; c < n; c++) clues.push(computeClue(grid.map(row => row[c])));
+  }
+  return clues;
+}
+
+// ── Row/col satisfaction ─────────────────────────────────────────────────────
+
+function isRowSatisfied(r) {
+  for (let c = 0; c < size; c++) {
+    const need = solution[r][c] === 1;
+    const have = state[r][c] === 1;
+    if (need !== have) return false;
+  }
+  return true;
+}
+
+function isColSatisfied(c) {
+  for (let r = 0; r < size; r++) {
+    const need = solution[r][c] === 1;
+    const have = state[r][c] === 1;
+    if (need !== have) return false;
+  }
+  return true;
+}
+
+function checkWin() {
+  for (let r = 0; r < size; r++)
+    for (let c = 0; c < size; c++)
+      if ((solution[r][c] === 1) !== (state[r][c] === 1)) return false;
+  return true;
+}
+
+// ── Timer ────────────────────────────────────────────────────────────────────
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const ss = s % 60;
+  return `${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+}
+
+function startTimer() {
+  stopTimer();
+  timerSec = 0;
+  document.getElementById('timer').textContent = '00:00';
+  timerInterval = setInterval(() => {
+    timerSec++;
+    document.getElementById('timer').textContent = formatTime(timerSec);
+  }, 1000);
+}
+
+function stopTimer() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+}
+
+// ── Board rendering ───────────────────────────────────────────────────────────
+
+function renderTabs() {
+  const el = document.getElementById('tabs');
+  el.innerHTML = '';
+  PUZZLES.forEach((p, i) => {
+    const tab = document.createElement('button');
+    tab.className = 'tab' + (i === puzzleIdx ? ' active' : '');
+    tab.innerHTML = `${p.name}<span class="diff">${p.difficulty}</span>`;
+    tab.onclick = () => { if (i !== puzzleIdx) loadPuzzle(i); };
+    el.appendChild(tab);
+  });
+}
+
+function renderMistakes() {
+  const el = document.getElementById('mistakes');
+  if (MAX_MISTAKES <= 0) { el.textContent = ''; return; }
+  let html = 'mistakes: ';
+  for (let i = 0; i < MAX_MISTAKES; i++) {
+    html += `<span class="mistake-dot${i < mistakes ? ' lit' : ''}"></span>`;
+  }
+  el.innerHTML = html;
+}
+
+function buildBoard() {
+  const board = document.getElementById('board');
+  board.className = 'board';
+
+  // Cell size: shrink for bigger puzzles
+  let cellSize = 40;
+  if (size >= 8) cellSize = 36;
+  if (size >= 10) cellSize = 30;
+  document.documentElement.style.setProperty('--cell-size', cellSize + 'px');
+
+  // Clue widths
+  const maxRowNums = Math.max(...rowClues.map(c => c.length));
+  const clueW = Math.max(44, maxRowNums * 18 + 12);
+  document.documentElement.style.setProperty('--clue-w', clueW + 'px');
+
+  const maxColNums = Math.max(...colClues.map(c => c.length));
+  const clueH = Math.max(40, maxColNums * 18 + 8);
+  document.documentElement.style.setProperty('--clue-h', clueH + 'px');
+
+  // CSS grid: 1 col for row-clues + N cell cols
+  board.style.gridTemplateColumns = `${clueW}px repeat(${size}, ${cellSize}px)`;
+  board.style.gridTemplateRows = `${clueH}px repeat(${size}, ${cellSize}px)`;
+
+  board.innerHTML = '';
+
+  // Corner
+  const corner = document.createElement('div');
+  corner.className = 'corner';
+  board.appendChild(corner);
+
+  // Column clue headers
+  for (let c = 0; c < size; c++) {
+    const div = document.createElement('div');
+    div.className = 'col-clue';
+    div.id = `cc-${c}`;
+    colClues[c].forEach(n => {
+      const span = document.createElement('span');
+      span.className = 'clue-n';
+      span.textContent = n === 0 ? '—' : n;
+      div.appendChild(span);
+    });
+    board.appendChild(div);
+  }
+
+  // Rows: [row-clue] + [cells]
+  for (let r = 0; r < size; r++) {
+    // Row clue
+    const rclue = document.createElement('div');
+    rclue.className = 'row-clue';
+    rclue.id = `rc-${r}`;
+    rowClues[r].forEach(n => {
+      const span = document.createElement('span');
+      span.className = 'clue-n';
+      span.textContent = n === 0 ? '—' : n;
+      rclue.appendChild(span);
+    });
+    board.appendChild(rclue);
+
+    // Cells
+    for (let c = 0; c < size; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.id = `cell-${r}-${c}`;
+      // Bold borders every 5 for large puzzles
+      if (size > 5 && (c + 1) % 5 === 0 && c < size - 1) cell.classList.add('bx');
+      if (size > 5 && (r + 1) % 5 === 0 && r < size - 1) cell.classList.add('by');
+
+      cell.addEventListener('mousedown', e => onCellDown(e, r, c));
+      cell.addEventListener('mouseenter', () => onCellEnter(r, c));
+      cell.addEventListener('contextmenu', e => { e.preventDefault(); });
+      board.appendChild(cell);
+    }
+  }
+
+  // Board-level events
+  board.addEventListener('mouseleave', clearHighlight);
+
+  window.addEventListener('mouseup', () => { dragging = false; dragMode = null; });
+}
+
+// ── Interaction ───────────────────────────────────────────────────────────────
+
+function onCellDown(e, r, c) {
+  e.preventDefault();
+  if (won) return;
+
+  const isRight = e.button === 2;
+  const cur = state[r][c];
+
+  if (isRight) {
+    dragMode = cur === 2 ? 'uncross' : 'cross';
+  } else {
+    dragMode = cur === 1 ? 'erase' : 'fill';
+  }
+
+  dragging = true;
+  applyToCell(r, c);
+}
+
+function onCellEnter(r, c) {
+  setHighlight(r, c);
+  if (dragging && dragMode) applyToCell(r, c);
+}
+
+function applyToCell(r, c) {
+  const prev = state[r][c];
+  if (dragMode === 'fill') {
+    if (prev === 1) return;
+    state[r][c] = 1;
+    // Wrong move detection
+    if (solution[r][c] !== 1) {
+      mistakes++;
+      renderMistakes();
+      flashWrong(r, c);
+      // Still apply it so player can see; they need to fix it
+    }
+  } else if (dragMode === 'erase') {
+    if (prev !== 1) return;
+    state[r][c] = 0;
+  } else if (dragMode === 'cross') {
+    if (prev === 2) return;
+    state[r][c] = 2;
+  } else if (dragMode === 'uncross') {
+    if (prev !== 2) return;
+    state[r][c] = 0;
+  }
+
+  updateCell(r, c);
+  updateClues(r, c);
+
+  if (checkWin()) onWin();
+}
+
+function flashWrong(r, c) {
+  const el = document.getElementById(`cell-${r}-${c}`);
+  el.classList.add('wrong-flash');
+  setTimeout(() => el.classList.remove('wrong-flash'), 400);
+}
+
+function updateCell(r, c) {
+  const el = document.getElementById(`cell-${r}-${c}`);
+  el.classList.remove('filled', 'crossed', 'wrong-flash', 'solve-flash');
+  if (state[r][c] === 1) el.classList.add('filled');
+  if (state[r][c] === 2) el.classList.add('crossed');
+}
+
+function updateClues(r, c) {
+  // Row
+  const rcEl = document.getElementById(`rc-${r}`);
+  if (isRowSatisfied(r)) rcEl.classList.add('done');
+  else rcEl.classList.remove('done');
+
+  // Col
+  const ccEl = document.getElementById(`cc-${c}`);
+  if (isColSatisfied(c)) ccEl.classList.add('done');
+  else ccEl.classList.remove('done');
+}
+
+function setHighlight(r, c) {
+  if (r === hoverRow && c === hoverCol) return;
+
+  // Clear previous
+  if (hoverRow >= 0) {
+    document.getElementById(`rc-${hoverRow}`)?.classList.remove('hl');
+    for (let cc = 0; cc < size; cc++) document.getElementById(`cell-${hoverRow}-${cc}`)?.classList.remove('rhl');
+  }
+  if (hoverCol >= 0) {
+    document.getElementById(`cc-${hoverCol}`)?.classList.remove('hl');
+    for (let rr = 0; rr < size; rr++) document.getElementById(`cell-${rr}-${hoverCol}`)?.classList.remove('chl');
+  }
+
+  hoverRow = r; hoverCol = c;
+
+  // Apply new
+  document.getElementById(`rc-${r}`)?.classList.add('hl');
+  for (let cc = 0; cc < size; cc++) document.getElementById(`cell-${r}-${cc}`)?.classList.add('rhl');
+  document.getElementById(`cc-${c}`)?.classList.add('hl');
+  for (let rr = 0; rr < size; rr++) document.getElementById(`cell-${rr}-${c}`)?.classList.add('chl');
+}
+
+function clearHighlight() {
+  if (hoverRow >= 0) {
+    document.getElementById(`rc-${hoverRow}`)?.classList.remove('hl');
+    for (let cc = 0; cc < size; cc++) document.getElementById(`cell-${hoverRow}-${cc}`)?.classList.remove('rhl');
+  }
+  if (hoverCol >= 0) {
+    document.getElementById(`cc-${hoverCol}`)?.classList.remove('hl');
+    for (let rr = 0; rr < size; rr++) document.getElementById(`cell-${rr}-${hoverCol}`)?.classList.remove('chl');
+  }
+  hoverRow = -1; hoverCol = -1;
+}
+
+// ── Win ───────────────────────────────────────────────────────────────────────
+
+function onWin() {
+  if (won) return;
+  won = true;
+  stopTimer();
+
+  // Flash all filled cells green
+  document.getElementById('board').classList.add('won');
+
+  // Show modal
+  setTimeout(() => {
+    document.getElementById('m-name').textContent = PUZZLES[puzzleIdx].name;
+    document.getElementById('m-time').textContent = formatTime(timerSec);
+    const mins = Math.floor(timerSec / 60);
+    const secs = timerSec % 60;
+    document.getElementById('m-sub').textContent =
+      timerSec < 60 ? 'under a minute — impressive.' :
+      timerSec < 180 ? 'clean solve.' :
+      'puzzles take time. well done.';
+    document.getElementById('modal').classList.add('show');
+  }, 600);
+}
+
+// ── Controls ──────────────────────────────────────────────────────────────────
+
+function checkSolution() {
+  let errors = 0;
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      if (state[r][c] === 1 && solution[r][c] !== 1) {
+        errors++;
+        flashWrong(r, c);
+      }
+    }
+  }
+  if (errors === 0 && checkWin()) { onWin(); return; }
+  if (errors === 0) {
+    // Partially correct but missing cells — flash timer
+    const t = document.getElementById('timer');
+    t.style.color = 'var(--green)';
+    setTimeout(() => t.style.color = '', 600);
+  } else {
+    mistakes = Math.min(mistakes + errors, MAX_MISTAKES);
+    renderMistakes();
+  }
+}
+
+function revealSolution() {
+  stopTimer();
+  won = true;
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      state[r][c] = solution[r][c] === 1 ? 1 : 2;
+      updateCell(r, c);
+      updateClues(r, c);
+    }
+  }
+}
+
+function resetPuzzle() {
+  state = Array.from({length: size}, () => Array(size).fill(0));
+  mistakes = 0;
+  won = false;
+  renderMistakes();
+  document.getElementById('board').classList.remove('won');
+  document.getElementById('modal').classList.remove('show');
+  for (let r = 0; r < size; r++) {
+    document.getElementById(`rc-${r}`).classList.remove('done');
+    for (let c = 0; c < size; c++) {
+      updateCell(r, c);
+    }
+  }
+  for (let c = 0; c < size; c++) {
+    document.getElementById(`cc-${c}`).classList.remove('done');
+  }
+  startTimer();
+}
+
+// ── Load puzzle ───────────────────────────────────────────────────────────────
+
+function loadPuzzle(idx) {
+  stopTimer();
+  puzzleIdx = idx;
+  const p = PUZZLES[idx];
+  solution = p.grid;
+  size = p.size;
+  state = Array.from({length: size}, () => Array(size).fill(0));
+  rowClues = getClues(solution, 'row');
+  colClues = getClues(solution, 'col');
+  mistakes = 0;
+  won = false;
+  hoverRow = -1; hoverCol = -1;
+  dragging = false; dragMode = null;
+
+  renderTabs();
+  renderMistakes();
+  buildBoard();
+  startTimer();
+
+  document.getElementById('modal').classList.remove('show');
+}
+
+// ── Event wiring ──────────────────────────────────────────────────────────────
+
+document.getElementById('btn-reset').onclick = resetPuzzle;
+document.getElementById('btn-check').onclick = checkSolution;
+document.getElementById('btn-reveal').onclick = revealSolution;
+document.getElementById('m-reset').onclick = () => {
+  document.getElementById('modal').classList.remove('show');
+  resetPuzzle();
+};
+document.getElementById('m-next').onclick = () => {
+  document.getElementById('modal').classList.remove('show');
+  loadPuzzle((puzzleIdx + 1) % PUZZLES.length);
+};
+
+// Prevent default right-click globally
+document.addEventListener('contextmenu', e => e.preventDefault());
+// Stop drag on any mouseup
+document.addEventListener('mouseup', () => { dragging = false; dragMode = null; });
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+
+loadPuzzle(0);
+</script>
+</body>
+</html>
