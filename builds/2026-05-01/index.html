@@ -1010,6 +1010,40 @@ function startRecording() {
   setRecordingUI(true);
 }
 
+// Strip the part of `chunk` that overlaps with the tail of `existing`.
+// Mobile SR re-emits buffered audio on restart, so successive finals often
+// repeat the last words. We dedupe by finding the longest suffix of existing
+// that matches a prefix of chunk (word-boundary aligned), and dropping it.
+// `chunk` is assumed pre-trimmed (single-spaced, no leading/trailing ws).
+function dedupAgainstTail(existing, chunk) {
+  const a = existing.toLowerCase().replace(/\s+$/, '');
+  const b = chunk.toLowerCase();
+  const maxLen = Math.min(a.length, b.length);
+  for (let len = maxLen; len > 0; len--) {
+    if (a.endsWith(b.slice(0, len))) {
+      // Require the overlap to end at a word boundary so we don't chop
+      // a real partial-word continuation.
+      const next = chunk.charAt(len);
+      if (!next || /\s/.test(next)) return chunk.slice(len);
+    }
+  }
+  return chunk;
+}
+
+function appendFinal(rawChunk) {
+  const chunk = rawChunk.replace(/\s+/g, ' ').trim();
+  if (!chunk) return;
+  // Only dedupe close to a restart — preserves deliberate repeats in normal speech.
+  const justRestarted = S.lastRestart && (Date.now() - S.lastRestart) < 2500;
+  let toAppend = chunk;
+  if (justRestarted && S.finalText) {
+    toAppend = dedupAgainstTail(S.finalText, chunk).trim();
+  }
+  if (!toAppend) return;
+  if (S.finalText && !/\s$/.test(S.finalText)) S.finalText += ' ';
+  S.finalText += toAppend + ' ';
+}
+
 function spawnRecognition(SR) {
   const rec = new SR();
   rec.continuous     = true;
@@ -1019,7 +1053,7 @@ function spawnRecognition(SR) {
   rec.onresult = (e) => {
     let interim = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
-      if (e.results[i].isFinal) S.finalText += e.results[i][0].transcript + ' ';
+      if (e.results[i].isFinal) appendFinal(e.results[i][0].transcript);
       else interim += e.results[i][0].transcript;
     }
     document.getElementById('transcriptBox').value = S.finalText + interim;
@@ -1039,13 +1073,16 @@ function spawnRecognition(SR) {
     const now = Date.now();
     if (now - S.lastRestart < 500) S.restartCount++; else S.restartCount = 0;
     S.lastRestart = now;
-    if (S.restartCount > 8) { showError('err1','Mic stopped — tap record to resume.'); stopRecording(); return; }
-    setTimeout(() => { if (S.recording) spawnRecognition(SR); }, 120);
+    if (S.restartCount > 12) { showError('err1','Mic stopped — tap record to resume.'); stopRecording(); return; }
+    // Slight delay lets the mic buffer drain so the next instance doesn't
+    // re-capture trailing audio. 300ms is a tradeoff: lower = less missed
+    // speech across the gap, higher = less overlap re-finalization.
+    setTimeout(() => { if (S.recording) spawnRecognition(SR); }, 300);
   };
 
   S.recognition = rec;
   try { rec.start(); }
-  catch (_) { setTimeout(() => { if (S.recording) spawnRecognition(SR); }, 250); }
+  catch (_) { setTimeout(() => { if (S.recording) spawnRecognition(SR); }, 300); }
 }
 
 function stopRecording() {

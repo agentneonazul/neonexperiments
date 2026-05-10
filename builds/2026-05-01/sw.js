@@ -1,7 +1,7 @@
 // Skill Crystallizer — Service Worker
 // Cache-first for app shell, network-only for API calls.
 
-const CACHE = 'crystallizer-v2';
+const CACHE = 'crystallizer-v3';
 const SHELL = ['./', './manifest.json', './icon.svg', './icon-maskable.svg'];
 
 self.addEventListener('install', e => {
