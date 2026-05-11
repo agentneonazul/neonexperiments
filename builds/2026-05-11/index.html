@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#000000">
+  <title>Ritual — Daily Operating System</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #030303;
+      --bg-1: #0a0a0a;
+      --bg-2: #111;
+      --fg: #f0f0f2;
+      --fg-mid: #888;
+      --fg-dim: #444;
+      --accent: #e01a8a;
+      --accent-soft: rgba(224,26,138,0.12);
+      --green: #71d45c;
+      --green-soft: rgba(113,212,92,0.1);
+      --lavender: #c67fff;
+      --periwinkle: #5b93ff;
+      --glass: rgba(255,255,255,0.04);
+      --glass-border: rgba(255,255,255,0.09);
+      --radius: 20px;
+      --radius-sm: 12px;
+      --ease: cubic-bezier(0,0,0.2,1);
+    }
+
+    html, body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.5;
+    }
+
+    /* ── Layout ── */
+    .app {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 20px 64px;
+    }
+
+    /* ── Header ── */
+    .site-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .header-left {}
+
+    .header-greeting {
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      margin-bottom: 2px;
+    }
+
+    .header-date {
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--fg);
+      letter-spacing: -0.01em;
+    }
+
+    .mode-selector {
+      display: flex;
+      gap: 6px;
+    }
+
+    .mode-btn {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.06em;
+      padding: 5px 11px;
+      border-radius: 999px;
+      border: 1px solid var(--glass-border);
+      background: transparent;
+      color: var(--fg-dim);
+      cursor: pointer;
+      transition: all 0.18s var(--ease);
+    }
+
+    .mode-btn:hover { color: var(--fg-mid); border-color: rgba(255,255,255,0.18); }
+    .mode-btn.active {
+      background: var(--accent-soft);
+      border-color: rgba(224,26,138,0.35);
+      color: var(--accent);
+    }
+
+    /* ── Grid ── */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 640px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+
+    .span-full { grid-column: 1 / -1; }
+
+    /* ── Panel ── */
+    .panel {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+
+    .panel-label {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 0.63rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+      margin-bottom: 18px;
+    }
+
+    /* ── Focus Three ── */
+    .focus-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .focus-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-1);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      transition: border-color 0.2s;
+    }
+
+    .focus-item:focus-within {
+      border-color: rgba(255,255,255,0.18);
+    }
+
+    .focus-item.done {
+      opacity: 0.45;
+    }
+
+    .focus-check {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1.5px solid var(--fg-dim);
+      background: transparent;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.18s var(--ease);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .focus-check.checked {
+      background: var(--green);
+      border-color: var(--green);
+    }
+
+    .focus-check.checked::after {
+      content: '';
+      display: block;
+      width: 5px;
+      height: 9px;
+      border: 2px solid #000;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg) translate(-1px, -1px);
+    }
+
+    .focus-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--fg);
+      font-size: 0.9rem;
+      font-family: inherit;
+      line-height: 1.4;
+    }
+
+    .focus-input::placeholder { color: var(--fg-dim); }
+
+    .focus-item.done .focus-input {
+      text-decoration: line-through;
+      color: var(--fg-mid);
+    }
+
+    .focus-number {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 0.65rem;
+      color: var(--fg-dim);
+      flex-shrink: 0;
+      width: 12px;
+      text-align: right;
+    }
+
+    /* ── Timer ── */
+    .timer-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .timer-ring-wrap {
+      position: relative;
+      width: 140px;
+      height: 140px;
+      margin: 8px 0 20px;
+    }
+
+    .timer-ring-svg {
+      width: 140px;
+      height: 140px;
+      transform: rotate(-90deg);
+    }
+
+    .ring-bg {
+      fill: none;
+      stroke: var(--glass-border);
+      stroke-width: 3;
+    }
+
+    .ring-progress {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-dasharray: 339.29;
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 1s linear, stroke 0.3s;
+      filter: drop-shadow(0 0 6px rgba(224,26,138,0.5));
+    }
+
+    .ring-progress.done-ring { stroke: var(--green); filter: drop-shadow(0 0 6px rgba(113,212,92,0.5)); }
+
+    .timer-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+    }
+
+    .timer-display {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 1.8rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: var(--fg);
+      line-height: 1;
+    }
+
+    .timer-phase {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+    }
+
+    .timer-durations {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .dur-btn {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.04em;
+      padding: 5px 11px;
+      border-radius: 999px;
+      border: 1px solid var(--glass-border);
+      background: transparent;
+      color: var(--fg-dim);
+      cursor: pointer;
+      transition: all 0.18s var(--ease);
+    }
+
+    .dur-btn:hover { color: var(--fg-mid); }
+    .dur-btn.active {
+      background: var(--accent-soft);
+      border-color: rgba(224,26,138,0.35);
+      color: var(--accent);
+    }
+
+    .timer-controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    .ctrl-btn {
+      padding: 9px 20px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--glass-border);
+      background: var(--bg-1);
+      color: var(--fg);
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.18s var(--ease);
+    }
+
+    .ctrl-btn:hover { border-color: rgba(255,255,255,0.18); background: var(--bg-2); }
+
+    .ctrl-btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .ctrl-btn.primary:hover { filter: brightness(1.1); }
+
+    .sessions-count {
+      margin-top: 14px;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 0.65rem;
+      color: var(--fg-dim);
+      letter-spacing: 0.08em;
+      text-align: center;
+    }
+
+    .sessions-pips {
+      display: inline-flex;
+      gap: 4px;
+      margin-left: 6px;
+    }
+
+    .pip {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--fg-dim);
+    }
+
+    .pip.done-pip { background: var(--green); box-shadow: 0 0 4px rgba(113,212,92,0.4); }
+
+    /* ── Capture stream ── */
+    .capture-input-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .tag-select {
+      background: var(--bg-1);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      color: var(--fg-mid);
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.04em;
+      padding: 0 10px;
+      cursor: pointer;
+      outline: none;
+      flex-shrink: 0;
+    }
+
+    .capture-field {
+      flex: 1;
+      background: var(--bg-1);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      color: var(--fg);
+      font-size: 0.875rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .capture-field:focus { border-color: rgba(255,255,255,0.18); }
+    .capture-field::placeholder { color: var(--fg-dim); }
+
+    .capture-add {
+      flex-shrink: 0;
+      padding: 10px 14px;
+      background: var(--bg-1);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      color: var(--fg-mid);
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.18s;
+      line-height: 1;
+    }
+
+    .capture-add:hover { color: var(--fg); border-color: rgba(255,255,255,0.18); }
+
+    .capture-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .capture-list::-webkit-scrollbar { width: 3px; }
+    .capture-list::-webkit-scrollbar-track { background: transparent; }
+    .capture-list::-webkit-scrollbar-thumb { background: var(--fg-dim); border-radius: 999px; }
+
+    .capture-entry {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      padding: 9px 12px;
+      background: var(--bg-1);
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      font-size: 0.85rem;
+      animation: slideIn 0.2s var(--ease) both;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .entry-tag {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.06em;
+      padding: 2px 7px;
+      border-radius: 999px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .tag-think { background: rgba(198,127,255,0.12); color: var(--lavender); border: 1px solid rgba(198,127,255,0.2); }
+    .tag-do    { background: rgba(224,26,138,0.1);  color: var(--accent);    border: 1px solid rgba(224,26,138,0.2); }
+    .tag-later { background: rgba(91,147,255,0.1);  color: var(--periwinkle); border: 1px solid rgba(91,147,255,0.2); }
+    .tag-note  { background: rgba(113,212,92,0.1);  color: var(--green);     border: 1px solid rgba(113,212,92,0.2); }
+
+    .entry-text { flex: 1; color: var(--fg); line-height: 1.45; }
+    .entry-time {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 0.6rem;
+      color: var(--fg-dim);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .entry-del {
+      background: transparent;
+      border: none;
+      color: var(--fg-dim);
+      cursor: pointer;
+      font-size: 0.85rem;
+      line-height: 1;
+      padding: 0;
+      flex-shrink: 0;
+      transition: color 0.18s;
+    }
+
+    .entry-del:hover { color: var(--accent); }
+
+    .capture-empty {
+      font-size: 0.8rem;
+      color: var(--fg-dim);
+      text-align: center;
+      padding: 20px 0;
+      font-style: italic;
+    }
+
+    /* ── Reflect ── */
+    .reflect-prompt {
+      font-size: 0.82rem;
+      color: var(--fg-mid);
+      margin-bottom: 12px;
+      line-height: 1.55;
+      font-style: italic;
+    }
+
+    .reflect-textarea {
+      width: 100%;
+      min-height: 100px;
+      background: var(--bg-1);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      color: var(--fg);
+      font-size: 0.875rem;
+      font-family: inherit;
+      line-height: 1.65;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .reflect-textarea:focus { border-color: rgba(255,255,255,0.18); }
+    .reflect-textarea::placeholder { color: var(--fg-dim); }
+
+    .reflect-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+    }
+
+    .reflect-saved {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 0.63rem;
+      color: var(--green);
+      letter-spacing: 0.08em;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .reflect-saved.show { opacity: 1; }
+
+    .save-btn {
+      padding: 8px 18px;
+      background: var(--bg-1);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      color: var(--fg-mid);
+      font-family: inherit;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+
+    .save-btn:hover { color: var(--fg); border-color: rgba(255,255,255,0.18); }
+
+    /* ── Stats bar ── */
+    .stats-bar {
+      display: flex;
+      gap: 20px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--glass-border);
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-value {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--fg);
+      letter-spacing: -0.02em;
+    }
+
+    .stat-label {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+    }
+
+    /* ── Reset day ── */
+    .reset-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 1px solid var(--glass-border);
+    }
+
+    .reset-label {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 0.63rem;
+      color: var(--fg-dim);
+      letter-spacing: 0.06em;
+    }
+
+    .reset-day-btn {
+      background: transparent;
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      padding: 6px 14px;
+      color: var(--fg-dim);
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 0.63rem;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+
+    .reset-day-btn:hover { border-color: rgba(255,80,80,0.4); color: #ff6b6b; }
+
+    /* ── Notification flash ── */
+    .notif {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-80px);
+      background: var(--bg-2);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      padding: 12px 20px;
+      font-size: 0.85rem;
+      color: var(--fg);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      transition: transform 0.3s var(--ease);
+      z-index: 1000;
+      white-space: nowrap;
+    }
+
+    .notif.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── Reduced motion ── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; animation: none !important; }
+      .ring-progress { transition: stroke-dashoffset 0s linear !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Notification toast -->
+  <div class="notif" id="notif"></div>
+
+  <div class="app">
+
+    <!-- Header -->
+    <header class="site-header">
+      <div class="header-left">
+        <div class="header-greeting">ritual · daily os</div>
+        <div class="header-date" id="header-date"></div>
+      </div>
+      <div class="mode-selector" id="mode-selector">
+        <button class="mode-btn active" data-mode="deep">deep work</button>
+        <button class="mode-btn" data-mode="creative">creative</button>
+        <button class="mode-btn" data-mode="meetings">meetings</button>
+        <button class="mode-btn" data-mode="admin">admin</button>
+      </div>
+    </header>
+
+    <div class="main-grid">
+
+      <!-- Focus Three -->
+      <div class="panel">
+        <div class="panel-label">today's three</div>
+        <div class="focus-list" id="focus-list">
+          <div class="focus-item" data-idx="0">
+            <span class="focus-number">1</span>
+            <button class="focus-check" data-idx="0" aria-label="Toggle done"></button>
+            <input class="focus-input" type="text" placeholder="What must happen today?" data-idx="0">
+          </div>
+          <div class="focus-item" data-idx="1">
+            <span class="focus-number">2</span>
+            <button class="focus-check" data-idx="1" aria-label="Toggle done"></button>
+            <input class="focus-input" type="text" placeholder="Second priority..." data-idx="1">
+          </div>
+          <div class="focus-item" data-idx="2">
+            <span class="focus-number">3</span>
+            <button class="focus-check" data-idx="2" aria-label="Toggle done"></button>
+            <input class="focus-input" type="text" placeholder="Third priority..." data-idx="2">
+          </div>
+        </div>
+        <div class="stats-bar" id="stats-bar">
+          <div class="stat">
+            <span class="stat-value" id="stat-done">0</span>
+            <span class="stat-label">done</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="stat-sessions">0</span>
+            <span class="stat-label">sessions</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="stat-captured">0</span>
+            <span class="stat-label">captured</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="stat-focus">0h 0m</span>
+            <span class="stat-label">focused</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timer -->
+      <div class="panel timer-panel">
+        <div class="panel-label" style="align-self: flex-start; width: 100%">focus timer</div>
+
+        <div class="timer-ring-wrap">
+          <svg class="timer-ring-svg" viewBox="0 0 120 120">
+            <circle class="ring-bg" cx="60" cy="60" r="54"/>
+            <circle class="ring-progress" id="ring-progress" cx="60" cy="60" r="54"/>
+          </svg>
+          <div class="timer-center">
+            <div class="timer-display" id="timer-display">25:00</div>
+            <div class="timer-phase" id="timer-phase">ready</div>
+          </div>
+        </div>
+
+        <div class="timer-durations">
+          <button class="dur-btn active" data-mins="25">25 min</button>
+          <button class="dur-btn" data-mins="45">45 min</button>
+          <button class="dur-btn" data-mins="60">60 min</button>
+          <button class="dur-btn" data-mins="5">5 min</button>
+        </div>
+
+        <div class="timer-controls">
+          <button class="ctrl-btn primary" id="start-btn">Start</button>
+          <button class="ctrl-btn" id="reset-btn">Reset</button>
+        </div>
+
+        <div class="sessions-count">
+          <span id="sessions-label">0 sessions today</span>
+          <span class="sessions-pips" id="sessions-pips"></span>
+        </div>
+      </div>
+
+      <!-- Capture Stream -->
+      <div class="panel span-full">
+        <div class="panel-label">thought stream</div>
+        <div class="capture-input-row">
+          <select class="tag-select" id="tag-select">
+            <option value="think">think</option>
+            <option value="do">do</option>
+            <option value="later">later</option>
+            <option value="note">note</option>
+          </select>
+          <input class="capture-field" id="capture-field" type="text" placeholder="Capture anything surfacing right now — thought, task, idea, question...">
+          <button class="capture-add" id="capture-add" title="Add (Enter)">+</button>
+        </div>
+        <div class="capture-list" id="capture-list">
+          <div class="capture-empty" id="capture-empty">Nothing captured yet. Brain dumping is productive.</div>
+        </div>
+      </div>
+
+      <!-- Reflect -->
+      <div class="panel span-full">
+        <div class="panel-label">end of day · reflect</div>
+        <p class="reflect-prompt" id="reflect-prompt">Loading prompt...</p>
+        <textarea class="reflect-textarea" id="reflect-text" placeholder="Write freely — this is just for you."></textarea>
+        <div class="reflect-footer">
+          <span class="reflect-saved" id="reflect-saved">✓ saved</span>
+          <button class="save-btn" id="save-reflect">Save reflection</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Reset bar -->
+    <div class="reset-bar">
+      <span class="reset-label">ritual · built by neon</span>
+      <button class="reset-day-btn" id="reset-day-btn">reset day</button>
+    </div>
+
+  </div>
+
+  <script>
+    // ── Utilities ──
+    const $ = id => document.getElementById(id);
+    const today = () => new Date().toISOString().slice(0, 10);
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    function formatTime(secs) {
+      const m = Math.floor(secs / 60);
+      const s = secs % 60;
+      return `${pad(m)}:${pad(s)}`;
+    }
+
+    function fmtDuration(mins) {
+      if (mins < 60) return `${mins}m`;
+      const h = Math.floor(mins / 60);
+      const m = mins % 60;
+      return m ? `${h}h ${m}m` : `${h}h`;
+    }
+
+    function getTime12() {
+      const now = new Date();
+      let h = now.getHours();
+      const m = pad(now.getMinutes());
+      const ampm = h >= 12 ? 'pm' : 'am';
+      h = h % 12 || 12;
+      return `${h}:${m} ${ampm}`;
+    }
+
+    // ── State key ──
+    const KEY = `ritual:${today()}`;
+
+    function loadState() {
+      try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; }
+    }
+
+    function saveState(patch) {
+      const s = loadState();
+      Object.assign(s, patch);
+      localStorage.setItem(KEY, JSON.stringify(s));
+    }
+
+    // ── Header date ──
+    function renderDate() {
+      const d = new Date();
+      const opts = { weekday: 'long', month: 'long', day: 'numeric' };
+      $('header-date').textContent = d.toLocaleDateString('en-US', opts);
+    }
+    renderDate();
+
+    // ── Mode ──
+    let mode = loadState().mode || 'deep';
+
+    document.getElementById('mode-selector').addEventListener('click', e => {
+      const btn = e.target.closest('.mode-btn');
+      if (!btn) return;
+      mode = btn.dataset.mode;
+      document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+      saveState({ mode });
+    });
+
+    // Set initial mode UI
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+
+    // ── Focus Three ──
+    const focusState = loadState().focus || [
+      { text: '', done: false },
+      { text: '', done: false },
+      { text: '', done: false }
+    ];
+
+    function renderFocusItem(idx) {
+      const item = document.querySelector(`.focus-item[data-idx="${idx}"]`);
+      const input = document.querySelector(`.focus-input[data-idx="${idx}"]`);
+      const check = document.querySelector(`.focus-check[data-idx="${idx}"]`);
+      if (!item) return;
+      item.classList.toggle('done', focusState[idx].done);
+      check.classList.toggle('checked', focusState[idx].done);
+      input.value = focusState[idx].text;
+    }
+
+    [0, 1, 2].forEach(i => renderFocusItem(i));
+
+    document.getElementById('focus-list').addEventListener('input', e => {
+      if (!e.target.classList.contains('focus-input')) return;
+      const idx = parseInt(e.target.dataset.idx);
+      focusState[idx].text = e.target.value;
+      saveState({ focus: focusState });
+      updateStats();
+    });
+
+    document.getElementById('focus-list').addEventListener('click', e => {
+      const check = e.target.closest('.focus-check');
+      if (!check) return;
+      const idx = parseInt(check.dataset.idx);
+      focusState[idx].done = !focusState[idx].done;
+      renderFocusItem(idx);
+      saveState({ focus: focusState });
+      updateStats();
+    });
+
+    // ── Timer ──
+    const CIRCUMFERENCE = 2 * Math.PI * 54; // 339.29
+
+    let totalSecs = 25 * 60;
+    let remainSecs = totalSecs;
+    let timerRunning = false;
+    let timerInterval = null;
+    let sessionMins = loadState().sessionMins || 0;
+    let completedSessions = loadState().sessions || 0;
+
+    const ring = $('ring-progress');
+    const timerDisplay = $('timer-display');
+    const timerPhase = $('timer-phase');
+    const startBtn = $('start-btn');
+
+    ring.style.strokeDasharray = CIRCUMFERENCE;
+
+    function setRingProgress(remaining, total) {
+      const pct = remaining / total;
+      const offset = CIRCUMFERENCE * (1 - pct);
+      ring.style.strokeDashoffset = offset;
+    }
+
+    function updateTimerDisplay() {
+      timerDisplay.textContent = formatTime(remainSecs);
+      setRingProgress(remainSecs, totalSecs);
+    }
+
+    function setDuration(mins) {
+      if (timerRunning) return;
+      totalSecs = mins * 60;
+      remainSecs = totalSecs;
+      timerPhase.textContent = 'ready';
+      ring.classList.remove('done-ring');
+      updateTimerDisplay();
+    }
+
+    document.querySelectorAll('.dur-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (timerRunning) return;
+        document.querySelectorAll('.dur-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        setDuration(parseInt(btn.dataset.mins));
+      });
+    });
+
+    startBtn.addEventListener('click', () => {
+      if (timerRunning) {
+        pauseTimer();
+      } else {
+        startTimer();
+      }
+    });
+
+    $('reset-btn').addEventListener('click', () => {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      remainSecs = totalSecs;
+      timerPhase.textContent = 'ready';
+      ring.classList.remove('done-ring');
+      startBtn.textContent = 'Start';
+      updateTimerDisplay();
+    });
+
+    function startTimer() {
+      timerRunning = true;
+      startBtn.textContent = 'Pause';
+      timerPhase.textContent = 'focusing';
+      ring.classList.remove('done-ring');
+      timerInterval = setInterval(() => {
+        remainSecs--;
+        updateTimerDisplay();
+        if (remainSecs <= 0) {
+          clearInterval(timerInterval);
+          timerRunning = false;
+          timerPhase.textContent = 'done!';
+          ring.classList.add('done-ring');
+          startBtn.textContent = 'Start';
+          completedSessions++;
+          sessionMins += Math.round(totalSecs / 60);
+          saveState({ sessions: completedSessions, sessionMins });
+          renderSessionPips();
+          updateStats();
+          showNotif('✓ Session complete — take a break.');
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      startBtn.textContent = 'Resume';
+      timerPhase.textContent = 'paused';
+    }
+
+    function renderSessionPips() {
+      const pips = $('sessions-pips');
+      const label = $('sessions-label');
+      const n = Math.min(completedSessions, 8);
+      pips.innerHTML = Array.from({ length: n }, (_, i) =>
+        `<span class="pip done-pip"></span>`
+      ).join('');
+      label.textContent = `${completedSessions} session${completedSessions !== 1 ? 's' : ''} today`;
+    }
+
+    renderSessionPips();
+    updateTimerDisplay();
+
+    // ── Capture stream ──
+    let captures = loadState().captures || [];
+
+    function renderCaptures() {
+      const list = $('capture-list');
+      const empty = $('capture-empty');
+      if (captures.length === 0) {
+        empty.style.display = '';
+        list.querySelectorAll('.capture-entry').forEach(e => e.remove());
+        return;
+      }
+      empty.style.display = 'none';
+      // Full re-render on load; incremental on add
+      list.querySelectorAll('.capture-entry').forEach(e => e.remove());
+      captures.slice().reverse().forEach(c => {
+        list.insertBefore(makeEntry(c), empty.nextSibling || null);
+      });
+    }
+
+    function makeEntry(c) {
+      const div = document.createElement('div');
+      div.className = 'capture-entry';
+      div.dataset.id = c.id;
+      div.innerHTML = `
+        <span class="entry-tag tag-${c.tag}">${c.tag}</span>
+        <span class="entry-text">${escapeHtml(c.text)}</span>
+        <span class="entry-time">${c.time}</span>
+        <button class="entry-del" data-id="${c.id}" title="Delete">×</button>
+      `;
+      return div;
+    }
+
+    function escapeHtml(s) {
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    $('capture-list').addEventListener('click', e => {
+      const del = e.target.closest('.entry-del');
+      if (!del) return;
+      const id = del.dataset.id;
+      captures = captures.filter(c => c.id !== id);
+      saveState({ captures });
+      del.closest('.capture-entry').remove();
+      if (captures.length === 0) $('capture-empty').style.display = '';
+      updateStats();
+    });
+
+    function addCapture() {
+      const field = $('capture-field');
+      const text = field.value.trim();
+      if (!text) return;
+      const tag = $('tag-select').value;
+      const entry = { id: Date.now().toString(), text, tag, time: getTime12() };
+      captures.push(entry);
+      saveState({ captures });
+      // Prepend to list
+      $('capture-empty').style.display = 'none';
+      const list = $('capture-list');
+      const el = makeEntry(entry);
+      list.insertBefore(el, list.firstChild);
+      field.value = '';
+      updateStats();
+    }
+
+    $('capture-add').addEventListener('click', addCapture);
+    $('capture-field').addEventListener('keydown', e => {
+      if (e.key === 'Enter') addCapture();
+    });
+
+    renderCaptures();
+
+    // ── Reflect ──
+    const PROMPTS = [
+      "What happened today that surprised you? What would you do differently?",
+      "What's one thing you shipped today, and one thing you're carrying into tomorrow?",
+      "Where did your energy go? Was that the right place for it?",
+      "What decision are you sitting with right now? What's the actual fear underneath it?",
+      "What did you learn today that you'd want to remember in six months?",
+      "What was the most important moment of the day? Why does it matter?",
+      "What are you proud of? What's still unresolved?"
+    ];
+
+    const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+    $('reflect-prompt').textContent = PROMPTS[dayOfYear % PROMPTS.length];
+
+    const savedReflect = loadState().reflect || '';
+    $('reflect-text').value = savedReflect;
+
+    $('save-reflect').addEventListener('click', () => {
+      saveState({ reflect: $('reflect-text').value });
+      const saved = $('reflect-saved');
+      saved.classList.add('show');
+      setTimeout(() => saved.classList.remove('show'), 2200);
+    });
+
+    // Auto-save reflect on blur
+    $('reflect-text').addEventListener('blur', () => {
+      saveState({ reflect: $('reflect-text').value });
+    });
+
+    // ── Stats ──
+    function updateStats() {
+      const done = focusState.filter(f => f.done).length;
+      $('stat-done').textContent = `${done}/3`;
+      $('stat-sessions').textContent = completedSessions;
+      $('stat-captured').textContent = captures.length;
+
+      const totalMins = sessionMins;
+      const h = Math.floor(totalMins / 60);
+      const m = totalMins % 60;
+      $('stat-focus').textContent = `${h}h ${m}m`;
+    }
+
+    updateStats();
+
+    // ── Reset day ──
+    $('reset-day-btn').addEventListener('click', () => {
+      if (!confirm('Reset today\'s ritual? This clears focus, captures, and reflection for today.')) return;
+      localStorage.removeItem(KEY);
+      location.reload();
+    });
+
+    // ── Notification ──
+    let notifTimer = null;
+    function showNotif(msg) {
+      const n = $('notif');
+      n.textContent = msg;
+      n.classList.add('show');
+      clearTimeout(notifTimer);
+      notifTimer = setTimeout(() => n.classList.remove('show'), 3500);
+    }
+
+    // ── Timer sound (silent but schedules wake) ──
+    // Uses AudioContext beep on session complete
+    function beep() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(520, ctx.currentTime);
+        gain.gain.setValueAtTime(0.18, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.8);
+      } catch (_) {}
+    }
+
+    // Patch start to include beep on done
+    const _origInterval = setInterval;
+    // Override session complete to add beep
+    const _origStart = startTimer;
+    // Inline patch: just add beep call inline — already done below via override
+    // Re-wire: patch timer interval handler to call beep
+    function startTimerWithBeep() {
+      timerRunning = true;
+      startBtn.textContent = 'Pause';
+      timerPhase.textContent = 'focusing';
+      ring.classList.remove('done-ring');
+      timerInterval = setInterval(() => {
+        remainSecs--;
+        updateTimerDisplay();
+        if (remainSecs <= 0) {
+          clearInterval(timerInterval);
+          timerRunning = false;
+          timerPhase.textContent = 'done!';
+          ring.classList.add('done-ring');
+          startBtn.textContent = 'Start';
+          completedSessions++;
+          sessionMins += Math.round(totalSecs / 60);
+          saveState({ sessions: completedSessions, sessionMins });
+          renderSessionPips();
+          updateStats();
+          beep();
+          showNotif('✓ Session complete — take a break.');
+        }
+      }, 1000);
+    }
+
+    // Replace start binding with beep version
+    startBtn.removeEventListener('click', startBtn._handler);
+    startBtn.addEventListener('click', () => {
+      if (timerRunning) {
+        pauseTimer();
+      } else {
+        startTimerWithBeep();
+      }
+    });
+  </script>
+</body>
+</html>

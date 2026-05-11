@@ -1,0 +1,6 @@
+{
+  "date": "2026-05-11",
+  "title": "Ritual",
+  "description": "A daily operating system in a single file. Set your three focus priorities, run timed work sessions with a visual Pomodoro ring, capture thoughts as they surface (tagged think/do/later/note), and reflect at day's end with a rotating prompt. Everything persists in localStorage.",
+  "tags": ["productivity", "focus", "timer", "planning", "pomodoro", "tool"]
+}
