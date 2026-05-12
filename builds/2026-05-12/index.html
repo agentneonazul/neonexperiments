@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brief Machine — AI Product Brief Generator</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #060608;
+  --bg2: #0d0d12;
+  --bg3: #13131a;
+  --border: rgba(255,255,255,0.08);
+  --border-active: rgba(255,255,255,0.18);
+  --text: #f0f0f5;
+  --text-muted: #86868b;
+  --text-dim: #505058;
+  --accent: #c67fff;
+  --accent2: #5b93ff;
+  --accent3: #ff6b9d;
+  --green: #71d45c;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --font: "DM Sans", system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* Gradient orbs */
+.orb {
+  pointer-events: none;
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.12;
+  z-index: 0;
+}
+.orb-1 { width: 500px; height: 500px; background: var(--accent); top: -200px; right: -100px; }
+.orb-2 { width: 400px; height: 400px; background: var(--accent2); bottom: -100px; left: -150px; }
+
+.page {
+  position: relative;
+  z-index: 1;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+/* Header */
+.header {
+  margin-bottom: 48px;
+}
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  margin-bottom: 32px;
+  transition: color 0.2s;
+}
+.back-link:hover { color: var(--text); }
+.back-link svg { width: 14px; height: 14px; }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(198, 127, 255, 0.12);
+  border: 1px solid rgba(198, 127, 255, 0.25);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 16px;
+}
+.badge-dot {
+  width: 5px; height: 5px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+
+h1 {
+  font-size: clamp(28px, 5vw, 40px);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+
+.subtitle {
+  font-size: 16px;
+  color: var(--text-muted);
+  font-weight: 400;
+  max-width: 520px;
+  line-height: 1.6;
+}
+
+/* Progress bar */
+.progress-track {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 36px;
+  align-items: center;
+}
+.progress-step {
+  height: 3px;
+  flex: 1;
+  background: var(--border);
+  border-radius: 2px;
+  transition: background 0.4s;
+}
+.progress-step.active { background: var(--accent); }
+.progress-step.done { background: rgba(198, 127, 255, 0.35); }
+.progress-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  min-width: 60px;
+  text-align: right;
+}
+
+/* Form sections */
+.form-section {
+  display: none;
+  animation: fadeUp 0.35s ease forwards;
+}
+.form-section.active { display: block; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section-header {
+  margin-bottom: 28px;
+}
+.section-num {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.section-desc {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* Fields */
+.field {
+  margin-bottom: 20px;
+}
+.field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 7px;
+  letter-spacing: 0.01em;
+}
+.field input,
+.field textarea,
+.field select {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  padding: 12px 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  resize: none;
+  appearance: none;
+}
+.field textarea { min-height: 88px; line-height: 1.6; }
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(198, 127, 255, 0.1);
+}
+.field input::placeholder,
+.field textarea::placeholder { color: var(--text-dim); }
+
+.field select option { background: #1a1a22; }
+
+/* Chip selects */
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chip {
+  padding: 7px 13px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+  background: transparent;
+  transition: all 0.18s;
+  user-select: none;
+  font-family: var(--font);
+}
+.chip:hover { border-color: var(--border-active); color: var(--text); }
+.chip.selected {
+  background: rgba(198, 127, 255, 0.12);
+  border-color: rgba(198, 127, 255, 0.4);
+  color: var(--accent);
+}
+
+/* Risk matrix */
+.risk-matrix {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.risk-item {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all 0.18s;
+  user-select: none;
+}
+.risk-item:hover { border-color: var(--border-active); }
+.risk-item.selected {
+  background: rgba(91, 147, 255, 0.08);
+  border-color: rgba(91, 147, 255, 0.35);
+}
+.risk-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 3px;
+}
+.risk-icon { font-size: 15px; }
+.risk-desc { font-size: 12px; color: var(--text-muted); line-height: 1.45; }
+.risk-item.selected .risk-label { color: var(--accent2); }
+
+/* Trust signals */
+.trust-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+.trust-chip {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  text-align: center;
+  color: var(--text-muted);
+  cursor: pointer;
+  background: transparent;
+  transition: all 0.18s;
+  line-height: 1.4;
+  font-family: var(--font);
+}
+.trust-chip:hover { border-color: var(--border-active); color: var(--text); }
+.trust-chip.selected {
+  background: rgba(113, 212, 92, 0.1);
+  border-color: rgba(113, 212, 92, 0.35);
+  color: var(--green);
+}
+
+/* Nav buttons */
+.nav-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 32px;
+  align-items: center;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 20px;
+  border-radius: 999px;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  letter-spacing: 0.01em;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #000;
+}
+.btn-primary:hover { background: #d490ff; transform: translateY(-1px); }
+.btn-secondary {
+  background: var(--bg3);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover { color: var(--text); border-color: var(--border-active); }
+.btn svg { width: 14px; height: 14px; }
+.btn:active { transform: scale(0.98); }
+
+.skip-link {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--text-dim);
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: var(--font);
+  transition: color 0.2s;
+}
+.skip-link:hover { color: var(--text-muted); }
+
+/* ─── OUTPUT SECTION ─── */
+#output-section {
+  display: none;
+  animation: fadeUp 0.4s ease forwards;
+}
+
+.output-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.output-header h2 {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.output-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.btn-copy {
+  background: var(--bg3);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  padding: 8px 14px;
+}
+.btn-copy:hover { color: var(--text); border-color: var(--border-active); }
+.btn-copy.copied {
+  background: rgba(113, 212, 92, 0.1);
+  border-color: rgba(113, 212, 92, 0.35);
+  color: var(--green);
+}
+.btn-restart {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 8px 14px;
+}
+.btn-restart:hover { border-color: var(--border-active); color: var(--text); }
+
+.brief-doc {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.brief-topbar {
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.brief-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+}
+.dot-red { background: #ff5f56; }
+.dot-yellow { background: #ffbd2e; }
+.dot-green { background: #27c93f; }
+.brief-filename {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  margin-left: 8px;
+}
+
+.brief-content {
+  padding: 28px 28px 32px;
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--text);
+  white-space: pre-wrap;
+  font-family: var(--font-mono);
+  overflow-x: auto;
+}
+
+/* Syntax-like highlighting in brief */
+.brief-content .hdr {
+  color: var(--accent);
+  font-weight: 600;
+}
+.brief-content .sub {
+  color: var(--accent2);
+}
+.brief-content .label {
+  color: var(--text-muted);
+}
+.brief-content .value {
+  color: var(--text);
+}
+.brief-content .flag {
+  color: var(--accent3);
+}
+.brief-content .ok {
+  color: var(--green);
+}
+
+/* Callout */
+.callout {
+  margin-top: 20px;
+  background: rgba(198, 127, 255, 0.06);
+  border: 1px solid rgba(198, 127, 255, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+.callout strong { color: var(--accent); }
+
+/* Responsive */
+@media (max-width: 540px) {
+  .risk-matrix { grid-template-columns: 1fr; }
+  .trust-grid { grid-template-columns: 1fr 1fr; }
+  .brief-content { padding: 18px; font-size: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<div class="page">
+
+  <header class="header">
+    <a class="back-link" href="../../index.html">
+      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M10 6H2M2 6L6 2M2 6l4 4"/>
+      </svg>
+      All Builds
+    </a>
+    <div class="badge"><span class="badge-dot"></span>Designing for Tomorrow</div>
+    <h1>Brief Machine</h1>
+    <p class="subtitle">Turn a rough AI feature idea into a complete product brief — user intent, trust signals, failure modes, edge cases, and success metrics. No hallucination, no vagueness.</p>
+  </header>
+
+  <!-- Progress -->
+  <div class="progress-track" id="progress-track">
+    <div class="progress-step active" id="ps-1"></div>
+    <div class="progress-step" id="ps-2"></div>
+    <div class="progress-step" id="ps-3"></div>
+    <div class="progress-step" id="ps-4"></div>
+    <div class="progress-step" id="ps-5"></div>
+    <span class="progress-label" id="progress-label">Step 1 / 5</span>
+  </div>
+
+  <!-- ─── SECTION 1: The Feature ─── -->
+  <div class="form-section active" id="section-1">
+    <div class="section-header">
+      <div class="section-num">Section 01</div>
+      <div class="section-title">The Feature</div>
+      <div class="section-desc">Start with what you're actually building.</div>
+    </div>
+
+    <div class="field">
+      <label>Feature name</label>
+      <input type="text" id="f-name" placeholder="e.g. Smart Reply Suggestions, AI Document Summarizer…">
+    </div>
+    <div class="field">
+      <label>Product or surface it lives in</label>
+      <input type="text" id="f-product" placeholder="e.g. Gmail mobile, Notion sidebar, customer support portal…">
+    </div>
+    <div class="field">
+      <label>What AI capability powers it?</label>
+      <div class="chip-group" id="ai-cap-group">
+        <button class="chip" data-val="llm-generation">Text generation (LLM)</button>
+        <button class="chip" data-val="classification">Classification / intent detection</button>
+        <button class="chip" data-val="summarization">Summarization</button>
+        <button class="chip" data-val="recommendations">Recommendations / ranking</button>
+        <button class="chip" data-val="vision">Vision / image understanding</button>
+        <button class="chip" data-val="speech">Speech / voice recognition</button>
+        <button class="chip" data-val="search">Semantic search / RAG</button>
+        <button class="chip" data-val="agentic">Agentic / multi-step execution</button>
+        <button class="chip" data-val="prediction">Prediction / forecasting</button>
+        <button class="chip" data-val="other">Other</button>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-primary" onclick="next(1)">
+        Continue
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ─── SECTION 2: The User ─── -->
+  <div class="form-section" id="section-2">
+    <div class="section-header">
+      <div class="section-num">Section 02</div>
+      <div class="section-title">The User</div>
+      <div class="section-desc">Who uses this, why, and what do they already believe?</div>
+    </div>
+
+    <div class="field">
+      <label>Primary user and their goal</label>
+      <textarea id="f-user" placeholder="e.g. A customer support agent who needs to respond to 80+ tickets per day. Their goal is to resolve tickets faster without sounding robotic."></textarea>
+    </div>
+    <div class="field">
+      <label>What are they doing right now (without AI)?</label>
+      <textarea id="f-current" placeholder="e.g. Manually reading each ticket, writing responses from scratch or copying from a saved reply bank, then personalizing."></textarea>
+    </div>
+    <div class="field">
+      <label>User's starting trust level in AI</label>
+      <div class="chip-group" id="trust-level-group">
+        <button class="chip" data-val="skeptic">Skeptic — AI has failed them before</button>
+        <button class="chip" data-val="neutral">Neutral — open but cautious</button>
+        <button class="chip" data-val="believer">Believer — expects it to work</button>
+        <button class="chip" data-val="overconfident">Overconfident — likely to over-rely</button>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="back(2)">Back</button>
+      <button class="btn btn-primary" onclick="next(2)">
+        Continue
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ─── SECTION 3: Failure Modes ─── -->
+  <div class="form-section" id="section-3">
+    <div class="section-header">
+      <div class="section-num">Section 03</div>
+      <div class="section-title">Failure Modes</div>
+      <div class="section-desc">Where can this go wrong? Select all that apply to your feature.</div>
+    </div>
+
+    <div class="risk-matrix" id="risk-group">
+      <div class="risk-item" data-val="hallucination">
+        <div class="risk-label"><span class="risk-icon">🧠</span> Hallucination</div>
+        <div class="risk-desc">Model outputs confident but factually wrong content</div>
+      </div>
+      <div class="risk-item" data-val="overreliance">
+        <div class="risk-label"><span class="risk-icon">🪤</span> Over-reliance</div>
+        <div class="risk-desc">User stops thinking critically and defers to AI blindly</div>
+      </div>
+      <div class="risk-item" data-val="bias">
+        <div class="risk-label"><span class="risk-icon">⚖️</span> Bias / fairness</div>
+        <div class="risk-desc">Output reflects training biases that harm certain groups</div>
+      </div>
+      <div class="risk-item" data-val="privacy">
+        <div class="risk-label"><span class="risk-icon">🔐</span> Privacy leak</div>
+        <div class="risk-desc">Sensitive context leaks into prompts, outputs, or logs</div>
+      </div>
+      <div class="risk-item" data-val="irreversible">
+        <div class="risk-label"><span class="risk-icon">⚡</span> Irreversible action</div>
+        <div class="risk-desc">AI-triggered action that's hard or impossible to undo</div>
+      </div>
+      <div class="risk-item" data-val="ambiguity">
+        <div class="risk-label"><span class="risk-icon">🌫️</span> Scope ambiguity</div>
+        <div class="risk-desc">User doesn't know what the AI will or won't do</div>
+      </div>
+      <div class="risk-item" data-val="latency">
+        <div class="risk-label"><span class="risk-icon">🐢</span> Latency / timeout</div>
+        <div class="risk-desc">Slow responses break the workflow or imply failure</div>
+      </div>
+      <div class="risk-item" data-val="trust-collapse">
+        <div class="risk-label"><span class="risk-icon">💔</span> Trust collapse</div>
+        <div class="risk-desc">A single bad output poisons perception of the whole feature</div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="back(3)">Back</button>
+      <button class="btn btn-primary" onclick="next(3)">
+        Continue
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ─── SECTION 4: Trust & Transparency ─── -->
+  <div class="form-section" id="section-4">
+    <div class="section-header">
+      <div class="section-num">Section 04</div>
+      <div class="section-title">Trust & Transparency</div>
+      <div class="section-desc">Which signals will your design use to earn and maintain trust?</div>
+    </div>
+
+    <div class="field">
+      <label>Select all trust mechanisms you'll implement</label>
+      <div class="trust-grid" id="trust-group">
+        <button class="trust-chip" data-val="confidence-score">Confidence scores / indicators</button>
+        <button class="trust-chip" data-val="sourcing">Source attribution / citations</button>
+        <button class="trust-chip" data-val="edit-mode">Editable AI output</button>
+        <button class="trust-chip" data-val="undo">Undo / revert</button>
+        <button class="trust-chip" data-val="explain">Explanations ("why this")</button>
+        <button class="trust-chip" data-val="preview">Preview before commit</button>
+        <button class="trust-chip" data-val="thumbs">Feedback (👍/👎)</button>
+        <button class="trust-chip" data-val="human-review">Human review gate</button>
+        <button class="trust-chip" data-val="scope-label">Visible scope boundary</button>
+        <button class="trust-chip" data-val="disclosure">AI disclosure label</button>
+        <button class="trust-chip" data-val="degradation">Graceful fallback / empty state</button>
+        <button class="trust-chip" data-val="data-control">User data controls</button>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="back(4)">Back</button>
+      <button class="btn btn-primary" onclick="next(4)">
+        Continue
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ─── SECTION 5: Success ─── -->
+  <div class="form-section" id="section-5">
+    <div class="section-header">
+      <div class="section-num">Section 05</div>
+      <div class="section-title">What Does Success Look Like?</div>
+      <div class="section-desc">Quantitative and qualitative — not just engagement.</div>
+    </div>
+
+    <div class="field">
+      <label>Primary success metric (be specific)</label>
+      <input type="text" id="f-metric" placeholder="e.g. Avg ticket resolution time drops from 4.5 min → 2.5 min within 60 days">
+    </div>
+    <div class="field">
+      <label>North star signal — what does "this worked" feel like for the user?</label>
+      <textarea id="f-northstar" placeholder="e.g. Agents stop thinking of it as a suggestion tool and start thinking of it as a first draft. They edit, not rewrite."></textarea>
+    </div>
+    <div class="field">
+      <label>Kill condition — when do you pull the feature?</label>
+      <input type="text" id="f-kill" placeholder="e.g. If user correction rate exceeds 70% in the first 30 days, pause and audit model outputs.">
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="back(5)">Back</button>
+      <button class="btn btn-primary" onclick="generate()">
+        Generate Brief
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ─── OUTPUT ─── -->
+  <div id="output-section">
+    <div class="output-header">
+      <h2>Your AI Product Brief</h2>
+      <div class="output-actions">
+        <button class="btn btn-copy" id="copy-btn" onclick="copyBrief()">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" style="width:13px;height:13px"><rect x="1" y="3" width="8" height="9" rx="1.5"/><path d="M3 3V2a1 1 0 011-1h6a1 1 0 011 1v7a1 1 0 01-1 1h-1"/></svg>
+          Copy
+        </button>
+        <button class="btn btn-restart" onclick="restart()">
+          ↺ New Brief
+        </button>
+      </div>
+    </div>
+
+    <div class="brief-doc">
+      <div class="brief-topbar">
+        <div class="brief-dot dot-red"></div>
+        <div class="brief-dot dot-yellow"></div>
+        <div class="brief-dot dot-green"></div>
+        <span class="brief-filename" id="brief-filename">product-brief.md</span>
+      </div>
+      <div class="brief-content" id="brief-output"></div>
+    </div>
+
+    <div class="callout">
+      <strong>Next step:</strong> Paste this into Notion, a Figma annotation, or a doc. Share with engineering and PM before any design work starts. The brief is the contract.
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+// ─── State ───────────────────────────────────────────
+const state = {
+  aiCaps: [],
+  trustLevel: null,
+  risks: [],
+  trustMechs: [],
+};
+
+let currentSection = 1;
+const TOTAL = 5;
+
+// ─── Navigation ──────────────────────────────────────
+function showSection(n) {
+  document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+  const sec = document.getElementById(`section-${n}`);
+  if (sec) sec.classList.add('active');
+  // update progress
+  for (let i = 1; i <= TOTAL; i++) {
+    const el = document.getElementById(`ps-${i}`);
+    if (!el) continue;
+    el.classList.remove('active', 'done');
+    if (i < n) el.classList.add('done');
+    if (i === n) el.classList.add('active');
+  }
+  document.getElementById('progress-label').textContent = `Step ${n} / ${TOTAL}`;
+  document.getElementById('progress-track').style.display = '';
+  currentSection = n;
+}
+
+function next(from) {
+  if (from === TOTAL) { generate(); return; }
+  showSection(from + 1);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function back(from) {
+  showSection(from - 1);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function restart() {
+  document.getElementById('output-section').style.display = 'none';
+  document.getElementById('progress-track').style.display = '';
+  // clear inputs
+  ['f-name','f-product','f-user','f-current','f-metric','f-northstar','f-kill'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.querySelectorAll('.chip.selected, .risk-item.selected, .trust-chip.selected').forEach(el => el.classList.remove('selected'));
+  state.aiCaps = [];
+  state.trustLevel = null;
+  state.risks = [];
+  state.trustMechs = [];
+  showSection(1);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ─── Multi-select chips ───────────────────────────────
+function initChips(groupId, stateKey, single) {
+  const group = document.getElementById(groupId);
+  if (!group) return;
+  group.querySelectorAll('[data-val]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const val = btn.dataset.val;
+      if (single) {
+        group.querySelectorAll('[data-val]').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        state[stateKey] = val;
+      } else {
+        btn.classList.toggle('selected');
+        const idx = state[stateKey].indexOf(val);
+        if (idx > -1) state[stateKey].splice(idx, 1);
+        else state[stateKey].push(val);
+      }
+    });
+  });
+}
+
+// Risk items (multi)
+document.querySelectorAll('#risk-group .risk-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const val = item.dataset.val;
+    item.classList.toggle('selected');
+    const idx = state.risks.indexOf(val);
+    if (idx > -1) state.risks.splice(idx, 1);
+    else state.risks.push(val);
+  });
+});
+
+// Trust chips (multi)
+document.querySelectorAll('#trust-group .trust-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const val = chip.dataset.val;
+    chip.classList.toggle('selected');
+    const idx = state.trustMechs.indexOf(val);
+    if (idx > -1) state.trustMechs.splice(idx, 1);
+    else state.trustMechs.push(val);
+  });
+});
+
+initChips('ai-cap-group', 'aiCaps', false);
+initChips('trust-level-group', 'trustLevel', true);
+
+// ─── Label maps ──────────────────────────────────────
+const aiCapLabels = {
+  'llm-generation': 'Text generation (LLM)',
+  'classification': 'Classification / intent detection',
+  'summarization': 'Summarization',
+  'recommendations': 'Recommendations / ranking',
+  'vision': 'Vision / image understanding',
+  'speech': 'Speech / voice recognition',
+  'search': 'Semantic search / RAG',
+  'agentic': 'Agentic / multi-step execution',
+  'prediction': 'Prediction / forecasting',
+  'other': 'Other',
+};
+
+const riskLabels = {
+  'hallucination': 'Hallucination — model outputs confident but wrong content',
+  'overreliance': 'Over-reliance — user defers without critical review',
+  'bias': 'Bias / fairness — output reflects harmful training biases',
+  'privacy': 'Privacy leak — sensitive context exposed via prompts or logs',
+  'irreversible': 'Irreversible action — AI-triggered action that can\'t be undone',
+  'ambiguity': 'Scope ambiguity — user unclear on what AI will/won\'t do',
+  'latency': 'Latency / timeout — slow responses break workflow flow',
+  'trust-collapse': 'Trust collapse — one bad output poisons the whole feature',
+};
+
+const riskMitigations = {
+  'hallucination': 'Mitigation: surface confidence indicators; require citation or source for factual claims; add explicit "AI can make mistakes" disclosure near output',
+  'overreliance': 'Mitigation: design friction for high-stakes decisions; never autosubmit AI output; add periodic "did you review this?" nudges',
+  'bias': 'Mitigation: audit training data provenance; run fairness evals across demographic slices before launch; build feedback pipeline',
+  'privacy': 'Mitigation: strip PII before prompts hit the model; never log raw completions; give users data-access controls',
+  'irreversible': 'Mitigation: require explicit confirmation before execution; add undo grace window; audit log every AI-triggered action',
+  'ambiguity': 'Mitigation: visible scope label ("what this does / doesn\'t do"); progressive disclosure on first use; clear empty-state messaging',
+  'latency': 'Mitigation: skeleton loading with estimated time; stream tokens when possible; graceful timeout with retry',
+  'trust-collapse': 'Mitigation: thumbs feedback on every output; route bad feedback to immediate review queue; fast rollback capability',
+};
+
+const trustLabels = {
+  'confidence-score': 'Confidence scores / uncertainty indicators',
+  'sourcing': 'Source attribution and citations',
+  'edit-mode': 'Editable AI output (user is always author)',
+  'undo': 'Undo / revert for AI-triggered actions',
+  'explain': 'Inline explanations ("why this result")',
+  'preview': 'Preview before commit / confirm step',
+  'thumbs': 'Thumbs up/down feedback on outputs',
+  'human-review': 'Human review gate before action executes',
+  'scope-label': 'Visible scope boundary (what AI will/won\'t do)',
+  'disclosure': 'Clear AI disclosure label on all outputs',
+  'degradation': 'Graceful fallback and meaningful empty states',
+  'data-control': 'User controls over their data in the system',
+};
+
+const trustLevelCopy = {
+  'skeptic': 'Skeptic. They\'ve been burned before. Design for doubt — emphasize control, editability, and failure transparency above all else. Never oversell capability. The first win must be undeniable.',
+  'neutral': 'Neutral. Open but waiting for proof. Give them a low-stakes first interaction where the AI visibly succeeds. Build confidence incrementally before revealing full capability.',
+  'believer': 'Believer. They expect it to work and trust it quickly. Your risk is over-reliance — design friction into high-stakes actions and ensure they stay in the decision loop.',
+  'overconfident': 'Overconfident. They\'ll trust it too much, too fast. This is your highest-risk segment. Build mandatory review steps. Do not let AI output auto-commit anywhere consequential.',
+};
+
+// ─── Generate ─────────────────────────────────────────
+function generate() {
+  const name = document.getElementById('f-name').value.trim() || 'Unnamed Feature';
+  const product = document.getElementById('f-product').value.trim() || 'Unspecified product';
+  const user = document.getElementById('f-user').value.trim() || 'Not specified.';
+  const current = document.getElementById('f-current').value.trim() || 'Not specified.';
+  const metric = document.getElementById('f-metric').value.trim() || 'Not defined.';
+  const northstar = document.getElementById('f-northstar').value.trim() || 'Not defined.';
+  const kill = document.getElementById('f-kill').value.trim() || 'Not defined.';
+
+  const caps = state.aiCaps.map(c => aiCapLabels[c] || c);
+  const tl = state.trustLevel ? trustLevelCopy[state.trustLevel] : 'Not specified.';
+  const risks = state.risks;
+  const mechs = state.trustMechs;
+
+  const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  const filename = name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') + '-brief.md';
+  document.getElementById('brief-filename').textContent = filename;
+
+  const divider = '─'.repeat(56);
+  const dividerThin = '·'.repeat(56);
+
+  let brief = '';
+
+  brief += `# AI PRODUCT BRIEF\n`;
+  brief += `${divider}\n`;
+  brief += `Feature      ${name}\n`;
+  brief += `Surface      ${product}\n`;
+  brief += `Generated    ${today}\n`;
+  brief += `${divider}\n\n`;
+
+  brief += `## 01 · AI CAPABILITY\n\n`;
+  if (caps.length) {
+    caps.forEach(c => { brief += `  ▸ ${c}\n`; });
+  } else {
+    brief += `  ▸ Not specified\n`;
+  }
+  brief += `\n`;
+
+  brief += `## 02 · USER CONTEXT\n\n`;
+  brief += `WHO + GOAL\n`;
+  brief += `  ${user}\n\n`;
+  brief += `CURRENT WORKFLOW (WITHOUT AI)\n`;
+  brief += `  ${current}\n\n`;
+  brief += `TRUST POSTURE\n`;
+  brief += `  ${tl}\n\n`;
+
+  brief += `## 03 · FAILURE MODES + MITIGATIONS\n\n`;
+  if (risks.length) {
+    risks.forEach((r, i) => {
+      brief += `[RISK ${i+1}] ${riskLabels[r] || r}\n`;
+      brief += `  → ${riskMitigations[r] || 'Define mitigation strategy.'}\n\n`;
+    });
+  } else {
+    brief += `  No failure modes selected. Consider revisiting — AI features always have failure modes.\n\n`;
+  }
+
+  brief += `## 04 · TRUST + TRANSPARENCY MECHANISMS\n\n`;
+  if (mechs.length) {
+    mechs.forEach(m => { brief += `  ✓ ${trustLabels[m] || m}\n`; });
+    brief += `\n`;
+    // Flag if disclosure is missing
+    if (!mechs.includes('disclosure')) {
+      brief += `  ⚠ WARNING: No AI disclosure label selected. This is non-negotiable for any\n`;
+      brief += `            AI-facing surface. Add it.\n\n`;
+    }
+    if (!mechs.includes('edit-mode') && !mechs.includes('undo') && !mechs.includes('human-review')) {
+      brief += `  ⚠ WARNING: No user-control mechanism selected (edit, undo, or review gate).\n`;
+      brief += `            Users need at least one way to override AI output.\n\n`;
+    }
+  } else {
+    brief += `  ⚠ WARNING: No trust mechanisms selected. An AI feature with no user control\n`;
+    brief += `             signals is a trust liability. Revisit this section.\n\n`;
+  }
+
+  brief += `## 05 · SUCCESS CRITERIA\n\n`;
+  brief += `PRIMARY METRIC\n`;
+  brief += `  ${metric}\n\n`;
+  brief += `NORTH STAR SIGNAL\n`;
+  brief += `  ${northstar}\n\n`;
+  brief += `KILL CONDITION\n`;
+  brief += `  ${kill}\n\n`;
+
+  brief += `${divider}\n`;
+  brief += `## PRE-LAUNCH CHECKLIST\n\n`;
+  brief += `  □ Failure modes reviewed with engineering\n`;
+  brief += `  □ Trust mechanisms signed off by PM + legal\n`;
+  brief += `  □ Empty state designed (AI unavailable / no result)\n`;
+  brief += `  □ Error state designed (AI failed / timeout)\n`;
+  brief += `  □ Feedback loop instrumented (at minimum: thumbs)\n`;
+  brief += `  □ Rollback plan defined and tested\n`;
+  brief += `  □ User study or usability test scheduled pre-launch\n`;
+  brief += `  □ Post-launch review date locked (recommend: 30 days)\n`;
+  brief += `\n${dividerThin}\n`;
+  brief += `Generated by Brief Machine · Designing for Tomorrow\n`;
+  brief += `neonexperiments · agentneonazul.github.io\n`;
+
+  // Render with color classes
+  const rendered = brief
+    .replace(/^(# .+)$/gm, '<span class="hdr">$1</span>')
+    .replace(/^(## .+)$/gm, '<span class="sub">$1</span>')
+    .replace(/^(\s*⚠.+)$/gm, '<span class="flag">$1</span>')
+    .replace(/^(\s*✓.+)$/gm, '<span class="ok">$1</span>')
+    .replace(/^(\s*□.+)$/gm, '<span class="label">$1</span>');
+
+  document.getElementById('brief-output').innerHTML = rendered;
+  document.getElementById('brief-raw').textContent = brief;
+
+  // Show output
+  document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('progress-track').style.display = 'none';
+  const out = document.getElementById('output-section');
+  out.style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Hidden raw text element for copy
+const rawEl = document.createElement('textarea');
+rawEl.id = 'brief-raw';
+rawEl.style.cssText = 'position:absolute;left:-9999px;top:0;opacity:0;pointer-events:none;';
+document.body.appendChild(rawEl);
+
+function copyBrief() {
+  const text = document.getElementById('brief-raw').value;
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '✓ Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('copied'); }, 2000);
+  }).catch(() => {
+    document.getElementById('brief-raw').select();
+    document.execCommand('copy');
+  });
+}
+</script>
+</body>
+</html>
