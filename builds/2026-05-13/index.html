@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Release Playbook — Ada Fen</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #070b12;
+      --bg2: #0c1220;
+      --bg3: #111827;
+      --border: rgba(91,147,255,0.12);
+      --border-bright: rgba(91,147,255,0.28);
+      --blue: #5b93ff;
+      --blue-soft: rgba(91,147,255,0.15);
+      --blue-glow: rgba(91,147,255,0.35);
+      --lavender: #c67fff;
+      --lavender-soft: rgba(198,127,255,0.12);
+      --pink: #ff6bb3;
+      --green: #52d9a4;
+      --amber: #ffc94d;
+      --white: #f0f4ff;
+      --grey1: #8892aa;
+      --grey2: #4a5568;
+      --font-sans: -apple-system, "Inter", "Helvetica Neue", sans-serif;
+      --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+      --font-display: "Georgia", "Palatino Linotype", serif;
+      --radius: 14px;
+      --radius-sm: 8px;
+      --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    html, body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    /* ── Ambient background ── */
+    body::before {
+      content: '';
+      pointer-events: none;
+      position: fixed;
+      top: -30%;
+      left: -20%;
+      width: 70%;
+      height: 70%;
+      background: radial-gradient(ellipse, rgba(91,147,255,0.07) 0%, transparent 70%);
+      z-index: 0;
+    }
+    body::after {
+      content: '';
+      pointer-events: none;
+      position: fixed;
+      bottom: -20%;
+      right: -15%;
+      width: 60%;
+      height: 60%;
+      background: radial-gradient(ellipse, rgba(198,127,255,0.06) 0%, transparent 70%);
+      z-index: 0;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 0 20px 80px;
+    }
+
+    /* ── Header ── */
+    .site-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 24px 0 0;
+      margin-bottom: 48px;
+    }
+    .site-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--blue);
+      box-shadow: 0 0 8px var(--blue-glow);
+    }
+    .site-name {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      color: var(--grey1);
+      text-transform: uppercase;
+    }
+    .site-name span { color: var(--blue); }
+
+    /* ── Hero / Track Card ── */
+    .track-hero {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px 32px 28px;
+      margin-bottom: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .track-hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--blue), var(--lavender), transparent);
+      opacity: 0.5;
+    }
+
+    .hero-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 32px;
+    }
+
+    .hero-info { flex: 1; }
+
+    .hero-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .hero-eyebrow::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .hero-title-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .hero-title-input {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-weight: normal;
+      color: var(--white);
+      background: transparent;
+      border: none;
+      outline: none;
+      border-bottom: 1px dashed var(--border-bright);
+      width: 100%;
+      padding-bottom: 4px;
+      transition: border-color 0.2s;
+      letter-spacing: -0.01em;
+    }
+    .hero-title-input:focus {
+      border-bottom-color: var(--blue);
+    }
+    .hero-title-input::placeholder { color: var(--grey2); }
+
+    .hero-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .hero-field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .hero-field label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      color: var(--grey1);
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .hero-field input {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--white);
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 5px 10px;
+      outline: none;
+      transition: border-color 0.2s;
+      min-width: 0;
+    }
+    .hero-field input:focus { border-color: var(--blue); }
+    .hero-field input[type="date"] { color-scheme: dark; }
+
+    /* ── Progress Ring ── */
+    .progress-ring-wrap {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .ring-svg { transform: rotate(-90deg); }
+    .ring-track { fill: none; stroke: var(--bg3); stroke-width: 5; }
+    .ring-fill  { fill: none; stroke: var(--blue); stroke-width: 5; stroke-linecap: round;
+      transition: stroke-dashoffset 0.5s var(--ease); }
+    .ring-label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--grey1);
+      letter-spacing: 0.06em;
+      text-align: center;
+    }
+    .ring-pct {
+      position: relative;
+      width: 80px;
+      height: 80px;
+    }
+    .ring-pct svg { position: absolute; top: 0; left: 0; }
+    .ring-number {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    /* ── Stats strip ── */
+    .stats-strip {
+      display: flex;
+      gap: 24px;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+    .stat {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .stat-val {
+      font-family: var(--font-mono);
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--white);
+    }
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
+      color: var(--grey1);
+      text-transform: uppercase;
+    }
+
+    /* ── Phase tabs ── */
+    .phase-tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 4px;
+      margin-bottom: 24px;
+      overflow-x: auto;
+    }
+    .phase-tab {
+      flex: 1;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--grey1);
+      background: transparent;
+      border: none;
+      border-radius: 10px;
+      padding: 8px 10px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s, color 0.2s;
+      min-width: 70px;
+      text-align: center;
+    }
+    .phase-tab.active {
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+    .phase-tab:hover:not(.active) {
+      background: rgba(255,255,255,0.04);
+      color: var(--white);
+    }
+
+    /* ── Week block ── */
+    .week-block {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 12px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .week-block.has-focus { border-color: var(--border-bright); }
+
+    .week-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      cursor: pointer;
+      user-select: none;
+      background: transparent;
+      width: 100%;
+      border: none;
+      color: inherit;
+      text-align: left;
+      transition: background 0.15s;
+    }
+    .week-header:hover { background: rgba(255,255,255,0.02); }
+
+    .week-toggle {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .week-toggle svg {
+      width: 14px; height: 14px;
+      stroke: var(--grey1);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      transition: transform 0.25s var(--ease), stroke 0.2s;
+    }
+    .week-block.open .week-toggle svg { transform: rotate(90deg); }
+
+    .week-badge {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      color: var(--blue);
+      background: var(--blue-soft);
+      padding: 3px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .week-badge.release  { color: var(--pink); background: rgba(255,107,179,0.12); }
+    .week-badge.post     { color: var(--green); background: rgba(82,217,164,0.12); }
+    .week-badge.current  { color: var(--amber); background: rgba(255,201,77,0.12); }
+
+    .week-title {
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--white);
+      flex: 1;
+    }
+
+    .week-progress {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--grey1);
+      flex-shrink: 0;
+    }
+    .week-progress.done { color: var(--green); }
+
+    .week-body {
+      padding: 0 20px 4px;
+      display: none;
+    }
+    .week-block.open .week-body { display: block; }
+
+    /* ── Task item ── */
+    .task-category {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 12px 0 6px;
+    }
+    .task-cat-label {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--grey2);
+    }
+    .task-cat-line { flex: 1; height: 1px; background: var(--border); }
+
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      transition: opacity 0.2s;
+    }
+    .task-item:last-child { border-bottom: none; margin-bottom: 12px; }
+    .task-item.done { opacity: 0.45; }
+
+    .task-check {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      border-radius: 5px;
+      border: 1.5px solid var(--border-bright);
+      background: transparent;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      position: relative;
+      transition: background 0.15s, border-color 0.15s;
+      margin-top: 1px;
+    }
+    .task-check:checked {
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+    .task-check:checked::after {
+      content: '';
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 8px; height: 5px;
+      border-left: 2px solid #000;
+      border-bottom: 2px solid #000;
+      transform: rotate(-45deg);
+    }
+    .task-check:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+    .task-text-col { flex: 1; }
+    .task-text {
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: var(--white);
+    }
+    .task-item.done .task-text {
+      text-decoration: line-through;
+      color: var(--grey1);
+    }
+    .task-note-btn {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--grey2);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      margin-top: 3px;
+      transition: color 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .task-note-btn:hover { color: var(--blue); }
+    .task-note-btn.has-note { color: var(--lavender); }
+
+    .task-note-input {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--grey1);
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 6px 10px;
+      width: 100%;
+      margin-top: 6px;
+      outline: none;
+      resize: vertical;
+      min-height: 52px;
+      transition: border-color 0.2s;
+    }
+    .task-note-input:focus { border-color: var(--blue); }
+    .task-note-input::placeholder { color: var(--grey2); }
+    .task-note-hidden { display: none; }
+
+    .task-priority {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 6px;
+    }
+    .priority-high   { background: var(--pink); }
+    .priority-med    { background: var(--amber); }
+    .priority-low    { background: var(--grey2); }
+
+    /* ── Actions bar ── */
+    .actions-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+    .btn {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      background: var(--bg2);
+      color: var(--grey1);
+      transition: all 0.2s;
+    }
+    .btn:hover { border-color: var(--border-bright); color: var(--white); background: var(--bg3); }
+    .btn-primary {
+      background: var(--blue-soft);
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+    .btn-primary:hover {
+      background: rgba(91,147,255,0.25);
+      color: var(--white);
+    }
+
+    /* ── Export overlay ── */
+    .export-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(8px);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .export-overlay.open { opacity: 1; pointer-events: all; }
+    .export-modal {
+      background: var(--bg2);
+      border: 1px solid var(--border-bright);
+      border-radius: 20px;
+      padding: 28px;
+      max-width: 600px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+    }
+    .export-close {
+      position: absolute;
+      top: 16px; right: 16px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--grey1);
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      padding: 4px 10px;
+    }
+    .export-close:hover { color: var(--white); }
+    .export-title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      color: var(--white);
+      margin-bottom: 16px;
+    }
+    .export-pre {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--grey1);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      white-space: pre-wrap;
+      line-height: 1.6;
+      max-height: 50vh;
+      overflow-y: auto;
+      margin-bottom: 16px;
+    }
+    .copy-feedback {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--green);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .copy-feedback.show { opacity: 1; }
+
+    /* ── Responsive ── */
+    @media (max-width: 580px) {
+      .hero-row { flex-direction: column; }
+      .progress-ring-wrap { flex-direction: row; align-items: center; }
+      .stats-strip { flex-wrap: wrap; gap: 16px; }
+      .phase-tabs { display: none; }
+      .week-block { border-radius: var(--radius-sm); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Site header -->
+  <header class="site-header">
+    <div class="site-dot"></div>
+    <span class="site-name"><span>Ada Fen</span> · Release Playbook</span>
+  </header>
+
+  <!-- Track Hero -->
+  <div class="track-hero">
+    <div class="hero-row">
+      <div class="hero-info">
+        <div class="hero-eyebrow">track in progress</div>
+        <div class="hero-title-wrapper">
+          <input class="hero-title-input" id="trackTitle" type="text"
+                 placeholder="Track / EP title…" value="">
+        </div>
+        <div class="hero-meta-row">
+          <div class="hero-field">
+            <label>Release</label>
+            <input type="date" id="releaseDate">
+          </div>
+          <div class="hero-field">
+            <label>Genre</label>
+            <input type="text" id="genreField" placeholder="moody electronic pop" style="width:160px;">
+          </div>
+          <div class="hero-field">
+            <label>Distributor</label>
+            <input type="text" id="distField" placeholder="DistroKid / etc." style="width:130px;">
+          </div>
+        </div>
+        <div class="stats-strip">
+          <div class="stat"><span class="stat-val" id="statDone">0</span><span class="stat-label">completed</span></div>
+          <div class="stat"><span class="stat-val" id="statTotal">0</span><span class="stat-label">total tasks</span></div>
+          <div class="stat"><span class="stat-val" id="statDaysOut">—</span><span class="stat-label">days out</span></div>
+          <div class="stat"><span class="stat-val" id="statPhase">—</span><span class="stat-label">current phase</span></div>
+        </div>
+      </div>
+      <div class="progress-ring-wrap">
+        <div class="ring-pct">
+          <svg class="ring-svg" width="80" height="80" viewBox="0 0 80 80">
+            <circle class="ring-track" cx="40" cy="40" r="34"/>
+            <circle class="ring-fill" id="ringFill" cx="40" cy="40" r="34"
+                    stroke-dasharray="213.63" stroke-dashoffset="213.63"/>
+          </svg>
+          <span class="ring-number" id="ringPct">0%</span>
+        </div>
+        <span class="ring-label">complete</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase tabs -->
+  <div class="phase-tabs" id="phaseTabs">
+    <button class="phase-tab active" data-phase="all">All</button>
+    <button class="phase-tab" data-phase="pre">Pre-release</button>
+    <button class="phase-tab" data-phase="release">Release week</button>
+    <button class="phase-tab" data-phase="post">Post-release</button>
+  </div>
+
+  <!-- Action buttons -->
+  <div class="actions-bar">
+    <button class="btn btn-primary" onclick="exportPlaybook()">↑ Export Checklist</button>
+    <button class="btn" onclick="expandAll()">Expand All</button>
+    <button class="btn" onclick="collapseAll()">Collapse All</button>
+    <button class="btn" onclick="resetConfirm()">Reset</button>
+  </div>
+
+  <!-- Timeline -->
+  <div id="timeline"></div>
+
+</div>
+
+<!-- Export overlay -->
+<div class="export-overlay" id="exportOverlay">
+  <div class="export-modal">
+    <button class="export-close" onclick="closeExport()">close</button>
+    <div class="export-title">Release Checklist Export</div>
+    <pre class="export-pre" id="exportPre"></pre>
+    <button class="btn btn-primary" onclick="copyExport()">Copy to clipboard</button>
+    <span class="copy-feedback" id="copyFeedback">Copied!</span>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────
+// Data: Release Timeline
+// ─────────────────────────────────────────
+const WEEKS = [
+  {
+    id: 'w8',
+    phase: 'pre',
+    badge: 'pre',
+    label: '8 Weeks Out',
+    title: 'Foundation & Vision',
+    categories: [
+      {
+        name: 'Production',
+        tasks: [
+          { id: 'p1', text: 'Final mix decision — is this done or does it need another pass?', priority: 'high' },
+          { id: 'p2', text: 'Decide mastering approach (self / engineer / online service)', priority: 'high' },
+          { id: 'p3', text: 'Archive all session files with stems to backup location', priority: 'med' },
+        ]
+      },
+      {
+        name: 'Strategy',
+        tasks: [
+          { id: 's1', text: 'Write one-sentence artist statement for this release', priority: 'high' },
+          { id: 's2', text: 'Define the emotional core: what does this song do to the listener?', priority: 'med' },
+          { id: 's3', text: 'Identify 3–5 target Spotify editorial playlists to pitch', priority: 'high' },
+          { id: 's4', text: 'Research 3 blogs / playlist curators in your genre', priority: 'med' },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'w6',
+    phase: 'pre',
+    badge: 'pre',
+    label: '6 Weeks Out',
+    title: 'Visuals & Assets',
+    categories: [
+      {
+        name: 'Cover Art',
+        tasks: [
+          { id: 'ca1', text: 'Final cover art approved and exported at 3000×3000px (minimum 1400×1400px for streaming)', priority: 'high' },
+          { id: 'ca2', text: 'Cover art squared and sized for each platform', priority: 'med' },
+          { id: 'ca3', text: 'Create a 1:1 version for Instagram feed', priority: 'med' },
+          { id: 'ca4', text: 'Create a 9:16 version for Stories / Reels', priority: 'med' },
+        ]
+      },
+      {
+        name: 'Visual Identity',
+        tasks: [
+          { id: 'vi1', text: 'Pull a consistent color palette from the cover — use for all content this cycle', priority: 'med' },
+          { id: 'vi2', text: 'Choose 1–2 fonts that match the mood for any text overlays', priority: 'low' },
+          { id: 'vi3', text: 'Shoot or commission 3–5 press / promo photos', priority: 'med' },
+        ]
+      },
+      {
+        name: 'Distribution Prep',
+        tasks: [
+          { id: 'd1', text: 'Set up distributor account and choose release date', priority: 'high' },
+          { id: 'd2', text: 'Write ISRC code info — confirm distributor assigns automatically or acquire one', priority: 'med' },
+          { id: 'd3', text: 'Prepare all metadata: song title, artist name, composer, genre, language', priority: 'high' },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'w4',
+    phase: 'pre',
+    badge: 'pre',
+    label: '4 Weeks Out',
+    title: 'Upload & Pitch',
+    categories: [
+      {
+        name: 'Distribution',
+        tasks: [
+          { id: 'ud1', text: 'Master upload complete to distributor with all metadata', priority: 'high' },
+          { id: 'ud2', text: 'Set release date in distributor — minimum 3 weeks before Spotify for playlist consideration', priority: 'high' },
+          { id: 'ud3', text: 'Enable Spotify Canvas if applicable (3–8 second looping vertical video)', priority: 'low' },
+        ]
+      },
+      {
+        name: 'Spotify for Artists',
+        tasks: [
+          { id: 'sp1', text: 'Claim your Spotify for Artists profile if not already done', priority: 'high' },
+          { id: 'sp2', text: 'Submit to Spotify editorial playlists via Spotify for Artists', priority: 'high' },
+          { id: 'sp3', text: 'Update artist bio, profile photo, and header image', priority: 'med' },
+        ]
+      },
+      {
+        name: 'Press Outreach',
+        tasks: [
+          { id: 'pr1', text: 'Write a 2–3 sentence pitch for blog/curator outreach', priority: 'high' },
+          { id: 'pr2', text: 'Send to 3 target blogs/curators with private SoundCloud link', priority: 'high' },
+          { id: 'pr3', text: 'Pitch to SubmitHub if budget allows (5–10 credits)', priority: 'low' },
+        ]
+      },
+      {
+        name: 'Content Planning',
+        tasks: [
+          { id: 'cp1', text: 'Plan 3 posts for the 2 weeks leading to release (behind-the-scenes, story, teaser)', priority: 'med' },
+          { id: 'cp2', text: 'Draft captions for all 3 posts now while energy is high', priority: 'med' },
+          { id: 'cp3', text: 'Plan announcement post content and caption', priority: 'high' },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'w2',
+    phase: 'pre',
+    badge: 'pre',
+    label: '2 Weeks Out',
+    title: 'Warm-Up & Announce',
+    categories: [
+      {
+        name: 'Social',
+        tasks: [
+          { id: 'soc1', text: 'Post a tease — behind-the-scenes, clip, or lyric fragment. No date reveal yet.', priority: 'high' },
+          { id: 'soc2', text: 'Start using release-specific hashtag (create one if needed)', priority: 'low' },
+          { id: 'soc3', text: 'Add release date to bio link or Linktree / Beacons page', priority: 'med' },
+          { id: 'soc4', text: 'Post announcement with pre-save or pre-add link if available', priority: 'high' },
+        ]
+      },
+      {
+        name: 'Email / Community',
+        tasks: [
+          { id: 'em1', text: 'Send announcement email to mailing list if you have one', priority: 'med' },
+          { id: 'em2', text: 'Post in any community/Discord/Patreon spaces', priority: 'low' },
+        ]
+      },
+      {
+        name: 'Logistics',
+        tasks: [
+          { id: 'lg1', text: 'Create a Linktree or smart link page for the release with all platforms', priority: 'high' },
+          { id: 'lg2', text: 'Test that the smart link works on mobile', priority: 'med' },
+          { id: 'lg3', text: 'Prepare a lyrics video or visualizer (optional but adds value)', priority: 'low' },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'w1',
+    phase: 'pre',
+    badge: 'pre',
+    label: '1 Week Out',
+    title: 'Final Push',
+    categories: [
+      {
+        name: 'Content',
+        tasks: [
+          { id: 'fw1', text: 'Post a 30-second Reel/TikTok of the most compelling section', priority: 'high' },
+          { id: 'fw2', text: 'Story countdown with pre-save link (Spotify Countdown or similar)', priority: 'med' },
+          { id: 'fw3', text: 'Prepare release day caption — write it now, schedule or post on the day', priority: 'high' },
+          { id: 'fw4', text: 'Record a personal "before it drops" voice memo or short video for authenticity content', priority: 'low' },
+        ]
+      },
+      {
+        name: 'Tech',
+        tasks: [
+          { id: 'tw1', text: 'Verify track is live in distributor dashboard as "ready to release"', priority: 'high' },
+          { id: 'tw2', text: 'Screenshot/save your pre-release Spotify for Artists pitch submission', priority: 'med' },
+          { id: 'tw3', text: 'Check that cover art renders correctly on Spotify and Apple Music previews', priority: 'med' },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'day0',
+    phase: 'release',
+    badge: 'release',
+    label: 'Release Day',
+    title: 'Drop Day',
+    categories: [
+      {
+        name: 'Morning',
+        tasks: [
+          { id: 'rd1', text: 'Confirm track is live on Spotify, Apple Music, and YouTube Music', priority: 'high' },
+          { id: 'rd2', text: 'Post announcement — cover art + caption + streaming links', priority: 'high' },
+          { id: 'rd3', text: 'Post to Stories immediately with link sticker', priority: 'high' },
+          { id: 'rd4', text: 'Text/message the people who know you personally — they\'ll share', priority: 'med' },
+        ]
+      },
+      {
+        name: 'Evening',
+        tasks: [
+          { id: 're1', text: 'Post a second Story: "It\'s out. Here\'s what this song is really about…"', priority: 'med' },
+          { id: 're2', text: 'Share any early support, tags, or re-posts', priority: 'med' },
+          { id: 're3', text: 'Check analytics — note your first 24h numbers as baseline', priority: 'high' },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'post1',
+    phase: 'post',
+    badge: 'post',
+    label: 'Week After Release',
+    title: 'Momentum & Follow-Through',
+    categories: [
+      {
+        name: 'Content',
+        tasks: [
+          { id: 'po1', text: 'Post a "making of" or behind-the-scenes content piece', priority: 'high' },
+          { id: 'po2', text: 'Share any playlisting wins or listener screenshots', priority: 'med' },
+          { id: 'po3', text: 'Create a lyric graphic for Instagram (specific line that hits)', priority: 'med' },
+          { id: 'po4', text: 'Post a Reel of the song in context — live setting, on the road, in your studio', priority: 'low' },
+        ]
+      },
+      {
+        name: 'Analytics',
+        tasks: [
+          { id: 'an1', text: 'Check Spotify for Artists: streams, saves, playlist adds in first 7 days', priority: 'high' },
+          { id: 'an2', text: 'Note the listener demographics — are your people where you expected?', priority: 'med' },
+          { id: 'an3', text: 'Look at what platform is driving the most traffic — double down there', priority: 'med' },
+        ]
+      },
+      {
+        name: 'Outreach',
+        tasks: [
+          { id: 'out1', text: 'Follow up with any blogs/curators who haven\'t responded', priority: 'med' },
+          { id: 'out2', text: 'Pitch the track to 3 new playlist curators now that it\'s live (Groover, SubmitHub)', priority: 'med' },
+          { id: 'out3', text: 'Respond to every comment on the release posts — this week, not next', priority: 'high' },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'post4',
+    phase: 'post',
+    badge: 'post',
+    label: '1 Month Out',
+    title: 'Sustain & Capture',
+    categories: [
+      {
+        name: 'Sustain',
+        tasks: [
+          { id: 'su1', text: 'Add the track to a "best of" or genre playlist if you curate one on Spotify', priority: 'low' },
+          { id: 'su2', text: 'Repurpose any content that performed well into a new version / clip', priority: 'med' },
+          { id: 'su3', text: 'Post an honest reflection: what worked, what didn\'t, what was unexpected', priority: 'high' },
+        ]
+      },
+      {
+        name: 'Archive & Plan',
+        tasks: [
+          { id: 'ar1', text: 'Document final streaming numbers and save to your artist tracking doc', priority: 'high' },
+          { id: 'ar2', text: 'Write one paragraph: what would I do differently next release?', priority: 'high' },
+          { id: 'ar3', text: 'Start the Release Playbook for the next track', priority: 'med' },
+        ]
+      }
+    ]
+  }
+];
+
+// ─────────────────────────────────────────
+// State
+// ─────────────────────────────────────────
+const STORAGE_KEY = 'adafen-release-playbook-v1';
+
+function loadState() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+  } catch { return {}; }
+}
+
+function saveState(state) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+let state = loadState();
+if (!state.checks)  state.checks  = {};
+if (!state.notes)   state.notes   = {};
+if (!state.track)   state.track   = {};
+if (!state.open)    state.open    = {};
+
+// Default some weeks open
+if (Object.keys(state.open).length === 0) {
+  state.open = { w8: true, w6: false, w4: false, w2: false, w1: false, day0: false, post1: false, post4: false };
+}
+
+// ─────────────────────────────────────────
+// Render
+// ─────────────────────────────────────────
+let activePhase = 'all';
+
+function renderTimeline() {
+  const container = document.getElementById('timeline');
+  container.innerHTML = '';
+
+  const weeks = activePhase === 'all'
+    ? WEEKS
+    : WEEKS.filter(w => w.phase === activePhase);
+
+  weeks.forEach(week => {
+    const isOpen = !!state.open[week.id];
+    const allTasks = week.categories.flatMap(c => c.tasks);
+    const doneTasks = allTasks.filter(t => state.checks[t.id]);
+    const allDone = doneTasks.length === allTasks.length;
+    const hasFocus = doneTasks.length > 0 && !allDone;
+
+    const block = document.createElement('div');
+    block.className = `week-block${isOpen ? ' open' : ''}${hasFocus ? ' has-focus' : ''}`;
+    block.dataset.weekId = week.id;
+
+    let badgeClass = '';
+    if (week.badge === 'release') badgeClass = 'release';
+    else if (week.badge === 'post') badgeClass = 'post';
+    else if (hasFocus) badgeClass = 'current';
+
+    const progressLabel = allDone
+      ? `✓ all done`
+      : `${doneTasks.length}/${allTasks.length}`;
+
+    block.innerHTML = `
+      <button class="week-header" aria-expanded="${isOpen}" data-week-id="${week.id}">
+        <span class="week-toggle">
+          <svg viewBox="0 0 14 14"><path d="M5 3l4 4-4 4"/></svg>
+        </span>
+        <span class="week-badge ${badgeClass}">${week.label}</span>
+        <span class="week-title">${week.title}</span>
+        <span class="week-progress${allDone ? ' done' : ''}">${progressLabel}</span>
+      </button>
+      <div class="week-body">${renderBody(week)}</div>
+    `;
+
+    container.appendChild(block);
+  });
+
+  // Attach header toggle listeners
+  container.querySelectorAll('.week-header').forEach(btn => {
+    btn.addEventListener('click', () => toggleWeek(btn.dataset.weekId));
+  });
+
+  // Attach checkbox listeners
+  container.querySelectorAll('.task-check').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const taskId = cb.dataset.taskId;
+      state.checks[taskId] = cb.checked;
+      saveState(state);
+      updateStats();
+      // refresh week progress display
+      const weekId = cb.closest('.week-block').dataset.weekId;
+      refreshWeekProgress(weekId);
+    });
+  });
+
+  // Attach note button listeners
+  container.querySelectorAll('.task-note-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const taskId = btn.dataset.taskId;
+      const noteEl = document.getElementById(`note-${taskId}`);
+      const hidden = noteEl.classList.toggle('task-note-hidden');
+      if (!hidden) noteEl.focus();
+    });
+  });
+
+  // Attach note input listeners
+  container.querySelectorAll('.task-note-input').forEach(inp => {
+    inp.addEventListener('input', () => {
+      const taskId = inp.dataset.taskId;
+      state.notes[taskId] = inp.value;
+      saveState(state);
+      const btn = inp.closest('.task-text-col').querySelector('.task-note-btn');
+      btn.classList.toggle('has-note', !!inp.value.trim());
+    });
+  });
+
+  updateStats();
+}
+
+function renderBody(week) {
+  return week.categories.map(cat => `
+    <div class="task-category">
+      <span class="task-cat-label">${cat.name}</span>
+      <div class="task-cat-line"></div>
+    </div>
+    ${cat.tasks.map(t => {
+      const checked = !!state.checks[t.id];
+      const note    = state.notes[t.id] || '';
+      const hasNote = !!note.trim();
+      return `
+        <div class="task-item${checked ? ' done' : ''}" data-task-id="${t.id}">
+          <input class="task-check" type="checkbox" data-task-id="${t.id}" ${checked ? 'checked' : ''} aria-label="${t.text}">
+          <div class="task-text-col">
+            <div class="task-text">${t.text}</div>
+            <button class="task-note-btn${hasNote ? ' has-note' : ''}" data-task-id="${t.id}">
+              ${hasNote ? '✎ note' : '+ note'}
+            </button>
+            <textarea class="task-note-input ${hasNote ? '' : 'task-note-hidden'}"
+                      id="note-${t.id}"
+                      data-task-id="${t.id}"
+                      placeholder="Add a note…">${note}</textarea>
+          </div>
+          <span class="task-priority priority-${t.priority}" title="${t.priority} priority"></span>
+        </div>
+      `;
+    }).join('')}
+  `).join('');
+}
+
+function toggleWeek(weekId) {
+  state.open[weekId] = !state.open[weekId];
+  saveState(state);
+  const block = document.querySelector(`.week-block[data-week-id="${weekId}"]`);
+  if (block) {
+    block.classList.toggle('open', state.open[weekId]);
+    block.querySelector('.week-header').setAttribute('aria-expanded', state.open[weekId]);
+  }
+}
+
+function refreshWeekProgress(weekId) {
+  const week = WEEKS.find(w => w.id === weekId);
+  if (!week) return;
+  const block = document.querySelector(`.week-block[data-week-id="${weekId}"]`);
+  if (!block) return;
+  const allTasks = week.categories.flatMap(c => c.tasks);
+  const done = allTasks.filter(t => state.checks[t.id]).length;
+  const allDone = done === allTasks.length;
+  const hasFocus = done > 0 && !allDone;
+  const prog = block.querySelector('.week-progress');
+  if (prog) {
+    prog.textContent = allDone ? '✓ all done' : `${done}/${allTasks.length}`;
+    prog.classList.toggle('done', allDone);
+  }
+  block.classList.toggle('has-focus', hasFocus);
+}
+
+function updateStats() {
+  const allTasks = WEEKS.flatMap(w => w.categories.flatMap(c => c.tasks));
+  const done = allTasks.filter(t => state.checks[t.id]).length;
+  const total = allTasks.length;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+  document.getElementById('statDone').textContent = done;
+  document.getElementById('statTotal').textContent = total;
+
+  // Progress ring
+  const circumference = 213.63;
+  const offset = circumference - (pct / 100) * circumference;
+  document.getElementById('ringFill').style.strokeDashoffset = offset;
+  document.getElementById('ringPct').textContent = `${pct}%`;
+
+  // Days out
+  const releaseDateVal = document.getElementById('releaseDate').value;
+  if (releaseDateVal) {
+    const releaseDate = new Date(releaseDateVal + 'T12:00:00');
+    const today = new Date();
+    const diff = Math.round((releaseDate - today) / (1000 * 60 * 60 * 24));
+    if (diff > 0) {
+      document.getElementById('statDaysOut').textContent = `${diff}d`;
+      document.getElementById('statPhase').textContent = diff > 14 ? 'prep' : diff > 7 ? 'ramp' : diff > 0 ? 'final' : 'drop';
+    } else if (diff === 0) {
+      document.getElementById('statDaysOut').textContent = 'TODAY';
+      document.getElementById('statPhase').textContent = 'drop day';
+    } else {
+      document.getElementById('statDaysOut').textContent = `+${Math.abs(diff)}d`;
+      document.getElementById('statPhase').textContent = 'post';
+    }
+  }
+}
+
+// ─────────────────────────────────────────
+// Phase filter
+// ─────────────────────────────────────────
+document.getElementById('phaseTabs').addEventListener('click', e => {
+  const btn = e.target.closest('.phase-tab');
+  if (!btn) return;
+  activePhase = btn.dataset.phase;
+  document.querySelectorAll('.phase-tab').forEach(t => t.classList.toggle('active', t === btn));
+  renderTimeline();
+});
+
+// ─────────────────────────────────────────
+// Track info persistence
+// ─────────────────────────────────────────
+function initTrackFields() {
+  const fields = ['trackTitle', 'releaseDate', 'genreField', 'distField'];
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if (state.track[id]) el.value = state.track[id];
+    el.addEventListener('input', () => {
+      state.track[id] = el.value;
+      saveState(state);
+      if (id === 'releaseDate') updateStats();
+    });
+  });
+}
+
+// ─────────────────────────────────────────
+// Expand / Collapse
+// ─────────────────────────────────────────
+function expandAll() {
+  WEEKS.forEach(w => { state.open[w.id] = true; });
+  saveState(state);
+  document.querySelectorAll('.week-block').forEach(b => b.classList.add('open'));
+}
+
+function collapseAll() {
+  WEEKS.forEach(w => { state.open[w.id] = false; });
+  saveState(state);
+  document.querySelectorAll('.week-block').forEach(b => b.classList.remove('open'));
+}
+
+// ─────────────────────────────────────────
+// Export
+// ─────────────────────────────────────────
+function exportPlaybook() {
+  const title = document.getElementById('trackTitle').value || 'Untitled';
+  const releaseDate = document.getElementById('releaseDate').value || '—';
+  const lines = [];
+  lines.push(`ADA FEN — RELEASE PLAYBOOK`);
+  lines.push(`Track: ${title}  |  Release: ${releaseDate}`);
+  lines.push(`Generated: ${new Date().toLocaleDateString()}`);
+  lines.push('');
+
+  WEEKS.forEach(week => {
+    const allTasks = week.categories.flatMap(c => c.tasks);
+    const done = allTasks.filter(t => state.checks[t.id]).length;
+    lines.push(`── ${week.label.toUpperCase()}: ${week.title} [${done}/${allTasks.length}]`);
+    week.categories.forEach(cat => {
+      lines.push(`  ${cat.name}:`);
+      cat.tasks.forEach(t => {
+        const check = state.checks[t.id] ? '[x]' : '[ ]';
+        lines.push(`    ${check} ${t.text}`);
+        if (state.notes[t.id]) {
+          lines.push(`        note: ${state.notes[t.id]}`);
+        }
+      });
+    });
+    lines.push('');
+  });
+
+  document.getElementById('exportPre').textContent = lines.join('\n');
+  document.getElementById('exportOverlay').classList.add('open');
+}
+
+function closeExport() {
+  document.getElementById('exportOverlay').classList.remove('open');
+}
+
+function copyExport() {
+  const text = document.getElementById('exportPre').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const fb = document.getElementById('copyFeedback');
+    fb.classList.add('show');
+    setTimeout(() => fb.classList.remove('show'), 2000);
+  });
+}
+
+document.getElementById('exportOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('exportOverlay')) closeExport();
+});
+
+// ─────────────────────────────────────────
+// Reset
+// ─────────────────────────────────────────
+function resetConfirm() {
+  if (confirm('Reset all progress? This cannot be undone.')) {
+    state.checks = {};
+    state.notes  = {};
+    saveState(state);
+    renderTimeline();
+  }
+}
+
+// ─────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────
+initTrackFields();
+renderTimeline();
+</script>
+</body>
+</html>
