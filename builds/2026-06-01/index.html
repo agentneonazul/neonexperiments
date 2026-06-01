@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI UX Brief Builder — Designing for Tomorrow</title>
+<style>
+  :root {
+    --bg: #0f0f11;
+    --surface: #18181c;
+    --surface-2: #222228;
+    --border: rgba(255,255,255,0.08);
+    --border-hover: rgba(255,255,255,0.18);
+    --text: #e8e8ec;
+    --text-muted: #888898;
+    --text-faint: #555565;
+    --accent: #b69df8;
+    --accent-warm: #f0a6ca;
+    --accent-dim: rgba(182,157,248,0.12);
+    --accent-dim-hover: rgba(182,157,248,0.2);
+    --green: #7ed4a8;
+    --yellow: #f4d06f;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 2px 20px rgba(0,0,0,0.4);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ── Layout ── */
+  .app {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    grid-template-rows: auto 1fr;
+    min-height: 100vh;
+  }
+
+  header {
+    grid-column: 1 / -1;
+    padding: 28px 40px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+  }
+
+  .header-left { flex: 1; }
+
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+
+  h1 {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  .header-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    max-width: 560px;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  /* ── Main form panel ── */
+  .form-panel {
+    padding: 40px;
+    overflow-y: auto;
+    border-right: 1px solid var(--border);
+  }
+
+  /* ── Preview panel ── */
+  .preview-panel {
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    height: calc(100vh - 89px);
+    overflow-y: auto;
+  }
+
+  .preview-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .preview-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .preview-box {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    font-family: "SF Mono", "Fira Code", "Cascadia Code", Consolas, monospace;
+    font-size: 11.5px;
+    line-height: 1.7;
+    color: var(--text-muted);
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-y: auto;
+  }
+
+  .preview-box .ph { color: var(--text-faint); font-style: italic; }
+
+  /* ── Section ── */
+  .section {
+    margin-bottom: 48px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .section-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .section-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  /* ── Context inputs ── */
+  .context-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field.full { grid-column: 1 / -1; }
+
+  label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.03em;
+  }
+
+  input[type="text"],
+  textarea,
+  select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    padding: 10px 14px;
+    width: 100%;
+    transition: border-color 0.2s;
+    outline: none;
+    resize: vertical;
+  }
+
+  input[type="text"]:focus,
+  textarea:focus,
+  select:focus {
+    border-color: var(--accent);
+  }
+
+  textarea { min-height: 72px; }
+
+  input::placeholder, textarea::placeholder { color: var(--text-faint); }
+
+  /* ── Lens cards ── */
+  .lens-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 16px;
+    transition: border-color 0.2s;
+  }
+
+  .lens-card.active { border-color: var(--accent); }
+
+  .lens-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .lens-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    background: var(--accent-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .lens-name {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .lens-question {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  /* ── Radio options ── */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.15s;
+    background: transparent;
+  }
+
+  .option:hover {
+    border-color: var(--border-hover);
+    background: rgba(255,255,255,0.02);
+  }
+
+  .option input[type="radio"] {
+    display: none;
+  }
+
+  .option.selected {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+  }
+
+  .option-radio {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid var(--text-faint);
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .option.selected .option-radio {
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+
+  .option.selected .option-radio::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fff;
+  }
+
+  .option-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.4;
+  }
+
+  .option-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+    line-height: 1.5;
+  }
+
+  /* ── Notes field ── */
+  .lens-notes label { font-size: 11px; letter-spacing: 0.08em; }
+
+  /* ── Completion meter ── */
+  .progress-bar-wrap {
+    margin-bottom: 32px;
+  }
+
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .progress-bar {
+    height: 3px;
+    background: var(--surface-2);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-warm));
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 18px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    white-space: nowrap;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #13002a;
+  }
+
+  .btn-primary:hover { background: #c8b1ff; }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+
+  .btn-ghost:hover {
+    color: var(--text);
+    border-color: var(--border-hover);
+    background: var(--surface);
+  }
+
+  .btn-success {
+    background: var(--green);
+    color: #001a0d;
+  }
+
+  /* ── Preview highlights ── */
+  .preview-box .h1 { color: var(--text); font-weight: bold; }
+  .preview-box .h2 { color: var(--accent); }
+  .preview-box .rec { color: var(--green); }
+  .preview-box .muted { color: var(--text-faint); }
+
+  /* ── Divider ── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 40px 0;
+  }
+
+  /* ── Footer ── */
+  .form-footer {
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .completeness-text {
+    font-size: 13px;
+    color: var(--text-muted);
+    flex: 1;
+  }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--surface-2);
+    border: 1px solid var(--border-hover);
+    border-radius: var(--radius-sm);
+    padding: 12px 20px;
+    font-size: 13px;
+    color: var(--text);
+    box-shadow: var(--shadow);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 999;
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── Recommendation pills ── */
+  .rec-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .rec-pill {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 99px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    border: 1px solid rgba(182,157,248,0.2);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .app { grid-template-columns: 1fr; }
+    .preview-panel { display: none; }
+    header { padding: 20px 24px; }
+    .form-panel { padding: 24px; }
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--surface-2); border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Header -->
+  <header>
+    <div class="header-left">
+      <div class="eyebrow">Designing for Tomorrow</div>
+      <h1>AI UX Brief Builder</h1>
+      <p class="header-desc">Answer five lenses. Get a complete, exportable design brief for any AI-powered feature. Built for practitioners navigating the human-to-AI shift.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-ghost" onclick="resetAll()">Reset</button>
+      <button class="btn btn-primary" onclick="exportBrief()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 6l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Export Brief
+      </button>
+    </div>
+  </header>
+
+  <!-- Form Panel -->
+  <main class="form-panel">
+
+    <!-- Progress -->
+    <div class="progress-bar-wrap">
+      <div class="progress-meta">
+        <span id="progress-label">0 of 5 lenses complete</span>
+        <span id="progress-pct" style="color: var(--accent)">0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+
+    <!-- Context -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-num">✦</div>
+        <div>
+          <div class="section-title">Product Context</div>
+          <div class="section-subtitle">What are you designing? Who's it for?</div>
+        </div>
+      </div>
+
+      <div class="context-grid">
+        <div class="field">
+          <label for="feature-name">Feature Name</label>
+          <input type="text" id="feature-name" placeholder="e.g. Smart Reply Suggestions" oninput="updatePreview()">
+        </div>
+        <div class="field">
+          <label for="user-type">Primary User</label>
+          <input type="text" id="user-type" placeholder="e.g. Customer support agents" oninput="updatePreview()">
+        </div>
+        <div class="field full">
+          <label for="feature-desc">What does it do?</label>
+          <textarea id="feature-desc" placeholder="Describe the feature in plain language — what AI capability is involved and what user problem it solves." oninput="updatePreview()"></textarea>
+        </div>
+        <div class="field">
+          <label for="stakes">Decision Stakes</label>
+          <select id="stakes" onchange="updatePreview()">
+            <option value="">Select stakes level</option>
+            <option value="low">Low — reversible, low consequence</option>
+            <option value="medium">Medium — moderate impact, correctable</option>
+            <option value="high">High — significant consequence if wrong</option>
+            <option value="critical">Critical — safety, legal, or financial exposure</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="ai-visibility">AI Visibility to User</label>
+          <select id="ai-visibility" onchange="updatePreview()">
+            <option value="">Select visibility</option>
+            <option value="invisible">Invisible — user doesn't know AI is involved</option>
+            <option value="implicit">Implicit — AI implied but not stated</option>
+            <option value="explicit">Explicit — clearly labeled as AI</option>
+            <option value="foregrounded">Foregrounded — AI is the product narrative</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Lens 1: Trust Calibration -->
+    <div class="lens-card" id="lens-0">
+      <div class="lens-header">
+        <div class="lens-icon">⚖️</div>
+        <div>
+          <div class="lens-name">Lens 1 — Trust Calibration</div>
+          <div class="lens-question">How much should users trust this AI output by default?</div>
+        </div>
+      </div>
+      <div class="options" id="options-0">
+        <label class="option" onclick="selectOption(0,'full')">
+          <input type="radio" name="lens-0" value="full">
+          <div class="option-radio"></div>
+          <div>
+            <div class="option-label">Full trust by default</div>
+            <div class="option-desc">Output is treated as ground truth unless user actively challenges it. No scaffolding shown.</div>
+          </div>
+        </label>
+        <label class="option" onclick="selectOption(0,'signal')">
+          <input type="radio" name="lens-0" value="signal">
+          <div class="option-radio"></div>
+          <div>
+            <div class="option-label">Trust with confidence signals</div>
+            <div class="option-desc">Show confidence indicators, source attribution, or quality markers so users can calibrate appropriately.</div>
+          </div>
+        </label>
+        <label class="option" onclick="selectOption(0,'provisional')">
+          <input type="radio" name="lens-0" value="provisional">
+          <div class="option-radio"></div>
+          <div>
+            <div class="option-label">Provisional trust</div>
+            <div class="option-desc">AI output is a starting point. Interface always surfaces an easy override path, even when the output looks good.</div>
+          </div>
+        </label>
+        <label class="option" onclick="selectOption(0,'skeptical')">
+          <input type="radio" name="lens-0" value="skeptical">
+          <div class="option-radio"></div>
+          <div>
+            <div class="option-label">Skeptical trust</div>
+            <div class="option-desc">High-stakes outputs require human confirmation before any action is taken. Trust must be actively granted per instance.</div>
+          </div>
+        </label>
+      </div>
+      <div class="field lens-notes">
+        <label>Notes (optional)</label>
+        <textarea placeholder="Edge cases, user research insights, stakeholder constraints…" oninput="updatePreview()" id="notes-0"></textarea>
+      </div>
+    </div>
+
+    <!-- Lens 2: Agency Distribution -->
+    <div class="lens-card" id="lens-1">
+      <div class="lens-header">
+        <div class="lens-icon">🎛️</div>
+        <div>
+          <div class="lens-name">Lens 2 — Agency Distribution</div>
+          <div class="lens-question">Who holds decision authority in this feature?</div>
+        </div>
+      </div>
+      <div class="options" id="options-1">
+        <label class="option" onclick="selectOption(1,'ai-decides')">
+          <input type="radio" name="lens-1" value="ai-decides">
+          <div class="option-radio"></div>
+          <div>
+            <div class="option-label">AI decides, human monitors</div>
+            <div class="option-desc">Automation runs by default. Human reviews exceptions or outcomes on a cadence, not per decision.</div>
+          </div>
+        </label>
+        <label class="option" onclick="selectOption(1,'ai-recommends')">
+          <input type="radio" name="lens-1" value="ai-recommends">
+          <div class="option-radio"></div>
+          <div>
+            <div class="option-label">AI recommends, human approves</div>
+            <div class="option-desc">AI surfaces the best option with reasoning. Human retains the final trigger. Approval is the default pattern.</div>
+          </div>
+        </label>
+        <label class="option" onclick="selectOption(1,'human-leads')">
+          <input type="radio" name="lens-1" value="human-leads">
+          <div class="option-radio"></div>
+          <div>
+            <div class="option-label">Human leads, AI assists</div>
+            <div class="option-desc">Human drives the workflow. AI surfaces options, fills gaps, and reduces friction at specific moments.</div>
+          </div>
+        </label>
+        <label class="option" onclick="selectOption(1,'parallel')">
+          <input type="radio" name="lens-1" value="parallel">
+          <div class="option-radio"></div>
+          <div>
+            <div class="option-label">Parallel paths</div>
+            <div class="option-desc">AI and human generate independently. Human reviews both and chooses — or synthesizes — without AI pre-selection bias.</div>
+          </div>
+        </label>
+      </div>
+      <div class="field lens-notes">
+        <label>Notes (optional)</label>
+        <textarea placeholder="Regulatory constraints, organizational approval flows, automation appetite…" oninput="updatePreview()" id="notes-1"></textarea>
+      </div>
+    </div>
+
+    <!-- Lens 3: Error Recovery -->
+    <div class="lens-card" id="lens-2">
+      <div class="lens-header">
+        <div class="lens-icon">🔁</div>
+        <div>
+          <div class="lens-name">Lens 3 — Error Recovery</div>
+          <div class="lens-question">When the AI gets it wrong, what's the recovery path?</div>
+        </div>
+      </div>
+      <div class="options" id="options-2">
+        <label class="option" onclick="selectOption(2,'retry')">
+          <input type="radio" name="lens-2" value="retry">
+          <div class="option-radio"></div>
+          <div>
+            <div class="option-label">Automatic retry</div>
+            <div class="option-desc">System detects failure signals and retries autonomously. User sees the resolved output, not the failure.</div>
+          </div>
+        </label>
+        <label class="option" onclick="selectOption(2,'correction-ui')">
+          <input type="radio" name="lens-2" value="correction-ui">
+          <div class="option-radio"></div>
+          <div>
+            <div class="option-label">Human correction UI</div>
+            <div class="option-desc">Clear error state with structured input for the human to correct and resubmit. Error is surfaced, not hidden.</div>
+          </div>
+        </label>
+        <label class="option" onclick="selectOption(2,'graceful-degrade')">
+          <input type="radio" name="lens-2" value="graceful-degrade">
+          <div class="option-radio"></div>
+          <div>
+            <div class="option-label">Graceful degradation</div>
+            <div class="option-desc">AI failure silently falls back to the non-AI baseline flow. User experience continues without interruption.</div>
+          </div>
+        </label>
+        <label class="option" onclick="selectOption(2,'transparent-fail')">
+          <input type="radio" name="lens-2" value="transparent-fail">
+          <div class="option-radio"></div>
+          <div>
+            <div class="option-label">Transparent failure with escalation</div>
+            <div class="option-desc">Failure is acknowledged explicitly. User gets an explanation and a clear path to human support or alternative resolution.</div>
+          </div>
+        </label>
+      </div>
+      <div class="field lens-notes">
+        <label>Notes (optional)</label>
+        <textarea placeholder="Known failure modes, user expectations around error, SLA requirements…" oninput="updatePreview()" id="notes-2"></textarea>
+      </div>
+    </div>
+
+    <!-- Lens 4: Transparency -->
+    <div class="lens-card" id="lens-3">
+      <div class="lens-header">
+        <div class="lens-icon">🔍</div>
+        <div>
+          <div class="lens-name">Lens 4 — Transparency Requirements</div>
+          <div class="lens-question">How much should users know about how this works?</div>
+        </div>
+      </div>
+      <div class="options" id="options-3">
+        <label class="option" onclick="selectOption(3,'invisible')">
+          <input type="radio" name="lens-3" value="invisible">
+          <div class="option-radio"></div>
+          <div>
+            <div class="option-label">Invisible — outcome only</div>
+            <div class="option-desc">AI implementation is an internal detail. User sees a clean result without any AI framing or attribution.</div>
+          </div>
+        </label>
+        <label class="option" onclick="selectOption(3,'attribute')">
+          <input type="radio" name="lens-3" value="attribute">
+          <div class="option-radio"></div>
+          <div>
+            <div class="option-label">Attribute — label as AI-generated</div>
+            <div class="option-desc">Output is clearly labeled as AI-generated so users know what they're working with. No reasoning shown.</div>
+          </div>
+        </label>
+        <label class="option" onclick="selectOption(3,'explain')">
+          <input type="radio" name="lens-3" value="explain">
+          <div class="option-radio"></div>
+          <div>
+            <div class="option-label">Explain — show reasoning or sources</div>
+            <div class="option-desc">AI shares the basis for its output — data sources, key factors, confidence rationale — so users can evaluate it meaningfully.</div>
+          </div>
+        </label>
+        <label class="option" onclick="selectOption(3,'audit')">
+          <input type="radio" name="lens-3" value="audit">
+          <div class="option-radio"></div>
+          <div>
+            <div class="option-label">Audit — full log and reproducibility</div>
+            <div class="option-desc">Every AI decision is logged with inputs, outputs, timestamp, and model version. Reproducibility and review are first-class features.</div>
+          </div>
+        </label>
+      </div>
+      <div class="field lens-notes">
+        <label>Notes (optional)</label>
+        <textarea placeholder="Regulatory requirements, user research on explanation needs, trust dynamics…" oninput="updatePreview()" id="notes-3"></textarea>
+      </div>
+    </div>
+
+    <!-- Lens 5: Long-term Adaptation -->
+    <div class="lens-card" id="lens-4">
+      <div class="lens-header">
+        <div class="lens-icon">🌱</div>
+        <div>
+          <div class="lens-name">Lens 5 — Long-term Adaptation</div>
+          <div class="lens-question">How should this feature evolve with user behavior over time?</div>
+        </div>
+      </div>
+      <div class="options" id="options-4">
+        <label class="option" onclick="selectOption(4,'static')">
+          <input type="radio" name="lens-4" value="static">
+          <div class="option-radio"></div>
+          <div>
+            <div class="option-label">Static — same for all users</div>
+            <div class="option-desc">Consistent behavior regardless of individual patterns. Predictability and fairness are prioritized over personalization.</div>
+          </div>
+        </label>
+        <label class="option" onclick="selectOption(4,'personalized')">
+          <input type="radio" name="lens-4" value="personalized">
+          <div class="option-radio"></div>
+          <div>
+            <div class="option-label">Personalized — adapts to individual patterns</div>
+            <div class="option-desc">System learns each user's style, preferences, and behavior patterns to improve relevance over time.</div>
+          </div>
+        </label>
+        <label class="option" onclick="selectOption(4,'learned')">
+          <input type="radio" name="lens-4" value="learned">
+          <div class="option-radio"></div>
+          <div>
+            <div class="option-label">Learned — improves from corrections</div>
+            <div class="option-desc">User corrections and feedback directly improve future AI outputs. The system gets smarter through use.</div>
+          </div>
+        </label>
+        <label class="option" onclick="selectOption(4,'collaborative')">
+          <input type="radio" name="lens-4" value="collaborative">
+          <div class="option-radio"></div>
+          <div>
+            <div class="option-label">Collaborative — users shape the model</div>
+            <div class="option-desc">Users have agency over how the AI evolves — through explicit feedback, ratings, or policy customization. Adaptation is a shared act.</div>
+          </div>
+        </label>
+      </div>
+      <div class="field lens-notes">
+        <label>Notes (optional)</label>
+        <textarea placeholder="Privacy constraints, ML team capacity, user expectations around personalization…" oninput="updatePreview()" id="notes-4"></textarea>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="form-footer">
+      <span class="completeness-text" id="completeness-text">Complete all 5 lenses to generate your full brief.</span>
+      <button class="btn btn-ghost" onclick="resetAll()">Reset</button>
+      <button class="btn btn-primary" onclick="exportBrief()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 6l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Export Brief
+      </button>
+    </div>
+
+  </main>
+
+  <!-- Preview Panel -->
+  <aside class="preview-panel">
+    <div class="preview-label">Live Preview</div>
+    <div class="preview-box" id="preview-box">
+      <span class="ph">Your brief will appear here as you fill in the lenses.</span>
+    </div>
+    <button class="btn btn-ghost" style="font-size:12px" onclick="copyPreview()">Copy plain text</button>
+  </aside>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const state = {
+    selections: [null, null, null, null, null],
+    notes: ['','','','',''],
+    featureName: '',
+    userType: '',
+    featureDesc: '',
+    stakes: '',
+    visibility: ''
+  };
+
+  const LENSES = [
+    { name: 'Trust Calibration', icon: '⚖️' },
+    { name: 'Agency Distribution', icon: '🎛️' },
+    { name: 'Error Recovery', icon: '🔁' },
+    { name: 'Transparency', icon: '🔍' },
+    { name: 'Long-term Adaptation', icon: '🌱' }
+  ];
+
+  const PRESCRIPTIONS = {
+    // Trust
+    trust_full: {
+      headline: 'Optimized for speed — trust scaffolding removed.',
+      recs: ['Design for expert users who understand AI limitations', 'Monitor for trust miscalibration in analytics', 'Add a "learn more" path for curious users', 'Plan a rollback mechanism if trust erodes at scale'],
+      copy: 'Users are presented with AI outputs as definitive answers. No confidence indicators are shown. The design prioritizes speed and reduction of cognitive overhead. This posture is appropriate when errors are low-consequence and reversible, or when user expertise is consistently high. Monitor closely for over-reliance patterns.'
+    },
+    trust_signal: {
+      headline: 'Confidence signals embedded — users calibrate in context.',
+      recs: ['Show source attribution or data recency where relevant', 'Use visual confidence gradients (e.g., color or opacity) on outputs', 'Avoid numeric percentages — they create false precision', 'Let users hover/tap for deeper signal rationale'],
+      copy: 'AI outputs are accompanied by calibrated confidence signals — visual, textual, or both. Users receive enough context to evaluate the output without requiring full transparency into model mechanics. This posture balances efficiency with appropriate skepticism, supporting informed use without creating friction for high-confidence outputs.'
+    },
+    trust_provisional: {
+      headline: 'Provisional trust — override path always visible.',
+      recs: ['Place edit/override controls at equal visual weight to the AI output', 'Never hide the original input after AI transforms it', 'Design "revert" as a first-class action', 'Track override rate as a primary quality signal'],
+      copy: 'AI outputs are treated as intelligent drafts, not decisions. The interface always surfaces a frictionless override or edit path — even when the output appears correct. This prevents automation bias from accumulating over time and keeps users as active participants rather than passive approvers.'
+    },
+    trust_skeptical: {
+      headline: 'Skeptical trust — human confirmation required per instance.',
+      recs: ['Design confirmation UIs that require active engagement, not passive clicking', 'Show the AI\'s reasoning before asking for confirmation', 'Log all confirmations for audit and compliance trails', 'Time-box confirmation windows to prevent rubber-stamping'],
+      copy: 'High stakes or high consequence outputs require active human confirmation before any downstream action is taken. Trust cannot be pre-granted — it must be extended deliberately for each instance. This posture is mandatory for decisions with financial, legal, safety, or reputational exposure.'
+    },
+    // Agency
+    agency_ai_decides: {
+      headline: 'Automation-first — human monitors outcomes, not decisions.',
+      recs: ['Design dashboards for exception review, not approval queues', 'Define clear escalation triggers that route to human review', 'Build in "pause automation" controls at multiple levels', 'Establish SLAs for exception resolution time'],
+      copy: 'AI drives decisions autonomously. Human involvement is scoped to monitoring outcomes, reviewing exceptions, and tuning automation thresholds over time. This posture maximizes throughput and is appropriate when error rates are low, failures are detectable, and recovery is fast. The primary design challenge is making exceptions visible without creating alert fatigue.'
+    },
+    agency_ai_recommends: {
+      headline: 'AI recommends, human pulls the trigger.',
+      recs: ['Surface the AI\'s top recommendation prominently — don\'t bury it in a list', 'Show reasoning alongside the recommendation, not after approval', 'Design the approval action to feel meaningful, not mechanical', 'Track approval rate and disagreement patterns as model signals'],
+      copy: 'AI surfaces a recommendation with supporting rationale. The human reviews and approves before any action executes. This is the most common posture for consequential but frequent decisions — it preserves human authority while dramatically reducing cognitive load. The design must avoid the "approve everything" trap by making the recommendation\'s reasoning genuinely reviewable.'
+    },
+    agency_human_leads: {
+      headline: 'Human in the driver\'s seat — AI reduces friction at key moments.',
+      recs: ['Identify 3–5 specific moments in the workflow where AI adds clear value', 'Make AI assistance opt-in or clearly dismissible at each touchpoint', 'Design for partial AI adoption — not all users will use every feature', 'Measure which AI assists are actually used vs. ignored'],
+      copy: 'The human controls the workflow. AI surfaces assistance at specific moments — suggestions, auto-completion, gap-filling — without taking initiative or altering the user\'s primary path. This posture works well when users have strong existing mental models and workflows, and AI is being introduced incrementally. Adoption is voluntary; design for graceful bypass.'
+    },
+    agency_parallel: {
+      headline: 'Parallel generation — human selects without AI pre-biasing.',
+      recs: ['Present human and AI outputs in a non-hierarchical layout', 'Don\'t pre-select or visually favor the AI output', 'Allow synthesis: users can mix elements from both paths', 'Log which path is chosen to surface systematic biases'],
+      copy: 'Human and AI generate independently. The human reviews both outputs and selects or synthesizes — without the AI having pre-filtered or ranked the options. This preserves the user\'s own creative and analytical instincts while making AI genuinely useful as a parallel perspective. It is particularly appropriate in creative, editorial, or exploratory contexts.'
+    },
+    // Error
+    error_retry: {
+      headline: 'Silent retry — users see resolution, not failure.',
+      recs: ['Define clear failure signals the system can detect (not just 500 errors)', 'Set maximum retry count before surfacing to user', 'Log silent retries for monitoring — invisible ≠ untracked', 'Design a fallback for when retries are exhausted'],
+      copy: 'System detects failure signals and retries autonomously. Users see the resolved output rather than the failure state — reducing friction for recoverable errors. This approach is appropriate when failures are frequent but fast to resolve, and when surfacing every error creates unnecessary anxiety. Invisible retries must still be logged; "invisible to user" cannot mean "invisible to ops."'
+    },
+    error_correction_ui: {
+      headline: 'Structured correction — error is surfaced, not hidden.',
+      recs: ['Design the error state as clearly distinct from success states', 'Pre-populate correction inputs with the closest valid interpretation', 'Explain what went wrong in plain language — no jargon', 'Preserve user inputs across correction cycles'],
+      copy: 'Errors are surfaced clearly with a structured path for human correction. The interface provides the tools to diagnose what went wrong and resubmit a corrected request. This posture treats users as capable problem-solvers, not passive recipients. The design challenge is making error states feel productive rather than punitive.'
+    },
+    error_graceful_degrade: {
+      headline: 'Graceful degradation — AI fails silently to a baseline flow.',
+      recs: ['Define the non-AI baseline experience explicitly before building the AI layer', 'Test the degraded path as a first-class user scenario', 'Monitor degradation frequency as a leading indicator of AI health', 'Never degrade to a broken state — the baseline must always work'],
+      copy: 'When the AI fails, the feature silently falls back to the non-AI baseline experience. Users continue their workflow without interruption. This posture prioritizes resilience and is appropriate when the AI layer is an enhancement rather than a core dependency. The degraded path must be designed and tested with the same rigor as the AI-powered path.'
+    },
+    error_transparent_fail: {
+      headline: 'Transparent failure — acknowledged, explained, escalated.',
+      recs: ['Write failure messages at a 7th-grade reading level — no stack traces', 'Always offer a human escalation path, not just a retry button', 'Log the full context of every transparent failure for root cause analysis', 'Design the escalation path to feel helpful, not like a consolation prize'],
+      copy: 'When the AI fails, it acknowledges the failure explicitly and provides a clear explanation and escalation path. Users are treated as adults who deserve honest communication over false confidence. This posture is mandatory in high-stakes contexts and builds long-term trust by demonstrating that the system knows its own limits.'
+    },
+    // Transparency
+    transparency_invisible: {
+      headline: 'Invisible — AI is an implementation detail.',
+      recs: ['Validate that users\' mental models don\'t require AI disclosure', 'Ensure non-disclosure doesn\'t create misplaced trust in impossible accuracy', 'Check regulatory requirements for your domain — some require disclosure', 'Plan a disclosure path for when the AI makes a significant mistake'],
+      copy: 'The AI implementation is not disclosed to users. They interact with a clean outcome without framing around how it was produced. This posture is appropriate when the AI is performing a well-bounded task with high reliability, and when disclosure would create unnecessary anxiety or confusion. Validate this posture against applicable regulations before shipping.'
+    },
+    transparency_attribute: {
+      headline: 'Attributed — clearly labeled as AI-generated.',
+      recs: ['Use consistent, clear labeling (e.g., "AI-generated", not "smart suggestion")', 'Place the label at point of output, not buried in settings', 'Test comprehension — users should understand what "AI-generated" means in context', 'Consider what label to use when the AI is partially involved'],
+      copy: 'AI involvement is disclosed at the point of output. Users know they\'re working with AI-generated content, giving them appropriate context to evaluate and act on it. Attribution doesn\'t include reasoning — just provenance. This posture is the minimum viable transparency for most consumer-facing AI features and is increasingly expected as a baseline norm.'
+    },
+    transparency_explain: {
+      headline: 'Explanatory — reasoning and sources shown on demand.',
+      recs: ['Use progressive disclosure: label first, explanation on demand', 'Show 2–3 key factors, not an exhaustive list', 'Design explanation UI as a trust-building feature, not a debugging tool', 'Test whether explanations actually improve user decisions, or just increase confidence'],
+      copy: 'AI outputs include access to the reasoning, sources, or key factors that shaped them. Users can evaluate outputs meaningfully rather than accepting or rejecting blindly. This posture significantly increases trust when explanations are accurate, but creates backfire risk when they\'re misleading or overly simplified. Explanation quality must be held to the same standard as output quality.'
+    },
+    transparency_audit: {
+      headline: 'Full audit — every decision logged and reproducible.',
+      recs: ['Log inputs, outputs, model version, and timestamp for every AI call', 'Design a review UI for compliance, legal, and ops teams — not just end users', 'Define retention periods aligned with regulatory requirements', 'Test reproducibility: can you replay any past decision from the log?'],
+      copy: 'Every AI decision is fully logged — inputs, outputs, model version, timestamp — and is reproducible on demand. Audit is a first-class feature, not an afterthought. This posture is required in regulated industries (healthcare, finance, legal) and in any context where decisions can be contested or reviewed after the fact. The audit trail must be tamper-evident and accessible to appropriate stakeholders.'
+    },
+    // Adaptation
+    adaptation_static: {
+      headline: 'Static — same experience for all users.',
+      recs: ['Design for the full range of users, not just power users', 'Treat predictability as a feature — document it in user-facing materials', 'Use static systems when fairness or regulatory equity is a concern', 'Version-control the model and notify users before behavioral changes'],
+      copy: 'The AI behaves consistently for all users, regardless of individual history or behavior patterns. This prioritizes predictability, fairness, and trust calibration over personalization. It is the appropriate default for contexts where users need to develop reliable mental models of system behavior, or where differential treatment would raise fairness or regulatory concerns.'
+    },
+    adaptation_personalized: {
+      headline: 'Personalized — adapts to individual patterns over time.',
+      recs: ['Be transparent about what data drives personalization', 'Give users visibility into their "profile" and the ability to reset it', 'Design for cold start: new users should still get good experiences', 'Monitor for filter bubble effects and personalization drift'],
+      copy: 'The system learns each user\'s patterns, preferences, and style over time to improve relevance and quality of output. Personalization improves the experience for established users while requiring careful cold-start design for newcomers. Transparency about what drives personalization — and user control over it — is not optional at this posture level.'
+    },
+    adaptation_learned: {
+      headline: 'Learned — user corrections directly improve future outputs.',
+      recs: ['Design correction UI to capture structured signal, not just free text', 'Show users evidence that their corrections had an effect', 'Define the correction loop latency — how long until corrections are reflected?', 'Guard against adversarial feedback that degrades model quality'],
+      copy: 'User corrections and feedback are the primary signal for model improvement. The system gets measurably better through use, and users can see the evidence. This posture creates a powerful feedback loop but requires careful design: feedback mechanisms must capture structured signal, correction latency must be visible, and adversarial or low-quality feedback must be filtered. Users who invest in corrections deserve to see the payoff.'
+    },
+    adaptation_collaborative: {
+      headline: 'Collaborative — users have explicit agency over how AI evolves.',
+      recs: ['Design feedback and policy controls as first-class UI surfaces', 'Give users a "history of my influence" view', 'Define governance: who can change what, and with what scope?', 'Communicate model updates clearly — users who shaped the model deserve notice'],
+      copy: 'Users have explicit agency over how the AI evolves — through ratings, policy customization, explicit feedback, or collective voting. Adaptation is a shared act, not something that happens to users invisibly. This posture is the most trust-intensive and operationally complex, but builds the deepest user investment in the system\'s success. Governance and transparency are non-negotiable at this level.'
+    }
+  };
+
+  const TRUST_MAP = { full: 'trust_full', signal: 'trust_signal', provisional: 'trust_provisional', skeptical: 'trust_skeptical' };
+  const AGENCY_MAP = { 'ai-decides': 'agency_ai_decides', 'ai-recommends': 'agency_ai_recommends', 'human-leads': 'agency_human_leads', 'parallel': 'agency_parallel' };
+  const ERROR_MAP = { retry: 'error_retry', 'correction-ui': 'error_correction_ui', 'graceful-degrade': 'error_graceful_degrade', 'transparent-fail': 'error_transparent_fail' };
+  const TRANSPARENCY_MAP = { invisible: 'transparency_invisible', attribute: 'transparency_attribute', explain: 'transparency_explain', audit: 'transparency_audit' };
+  const ADAPTATION_MAP = { static: 'adaptation_static', personalized: 'adaptation_personalized', learned: 'adaptation_learned', collaborative: 'adaptation_collaborative' };
+  const MAPS = [TRUST_MAP, AGENCY_MAP, ERROR_MAP, TRANSPARENCY_MAP, ADAPTATION_MAP];
+
+  function selectOption(lensIndex, value) {
+    state.selections[lensIndex] = value;
+    const options = document.querySelectorAll(`#options-${lensIndex} .option`);
+    options.forEach(opt => {
+      const radio = opt.querySelector('input[type="radio"]');
+      if (radio.value === value) {
+        opt.classList.add('selected');
+      } else {
+        opt.classList.remove('selected');
+      }
+    });
+    document.getElementById(`lens-${lensIndex}`).classList.add('active');
+    updateProgress();
+    updatePreview();
+  }
+
+  function updateProgress() {
+    const done = state.selections.filter(s => s !== null).length;
+    const pct = Math.round((done / 5) * 100);
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-pct').textContent = pct + '%';
+    document.getElementById('progress-label').textContent = `${done} of 5 lenses complete`;
+    const ct = document.getElementById('completeness-text');
+    if (done === 5) {
+      ct.textContent = 'All lenses complete. Ready to export.';
+      ct.style.color = 'var(--green)';
+    } else {
+      ct.textContent = `Complete all 5 lenses to generate your full brief.`;
+      ct.style.color = '';
+    }
+  }
+
+  function updatePreview() {
+    state.featureName = document.getElementById('feature-name').value;
+    state.userType = document.getElementById('user-type').value;
+    state.featureDesc = document.getElementById('feature-desc').value;
+    state.stakes = document.getElementById('stakes').value;
+    state.visibility = document.getElementById('ai-visibility').value;
+    for (let i = 0; i < 5; i++) {
+      const el = document.getElementById(`notes-${i}`);
+      if (el) state.notes[i] = el.value;
+    }
+    const preview = document.getElementById('preview-box');
+    preview.innerHTML = buildPreviewHTML();
+  }
+
+  const STAKES_LABELS = {
+    low: 'Low (reversible, low consequence)',
+    medium: 'Medium (moderate impact, correctable)',
+    high: 'High (significant consequence if wrong)',
+    critical: 'Critical (safety, legal, or financial exposure)'
+  };
+  const VIS_LABELS = {
+    invisible: 'Invisible — user unaware of AI involvement',
+    implicit: 'Implicit — AI implied but not stated',
+    explicit: 'Explicit — clearly labeled as AI',
+    foregrounded: 'Foregrounded — AI is the product narrative'
+  };
+
+  function buildPreviewHTML() {
+    const fn = state.featureName || '[Feature Name]';
+    const ut = state.userType || '[User Type]';
+    const fd = state.featureDesc || '[Feature description]';
+    const sk = STAKES_LABELS[state.stakes] || '[Not set]';
+    const vi = VIS_LABELS[state.visibility] || '[Not set]';
+
+    let html = `<span class="h1">AI UX DESIGN BRIEF\n</span>`;
+    html += `<span class="muted">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n</span>`;
+    html += `<span class="h2">FEATURE\n</span>${fn}\n\n`;
+    html += `<span class="h2">PRIMARY USER\n</span>${ut}\n\n`;
+    html += `<span class="h2">DESCRIPTION\n</span>${fd}\n\n`;
+    html += `<span class="h2">DECISION STAKES\n</span>${sk}\n\n`;
+    html += `<span class="h2">AI VISIBILITY\n</span>${vi}\n\n`;
+    html += `<span class="muted">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n</span>`;
+
+    const lensNames = ['Trust Calibration', 'Agency Distribution', 'Error Recovery', 'Transparency Requirements', 'Long-term Adaptation'];
+
+    for (let i = 0; i < 5; i++) {
+      const sel = state.selections[i];
+      const key = sel ? MAPS[i][sel] : null;
+      const data = key ? PRESCRIPTIONS[key] : null;
+      html += `<span class="h2">LENS ${i+1}: ${lensNames[i].toUpperCase()}\n</span>`;
+      if (!data) {
+        html += `<span class="ph">— not yet selected —\n\n</span>`;
+      } else {
+        html += `<span class="h1">◆ ${data.headline}\n</span>\n`;
+        html += `${data.copy}\n\n`;
+        html += `<span class="rec">Design Directives:\n</span>`;
+        data.recs.forEach(r => { html += `<span class="rec">• ${r}\n</span>`; });
+        if (state.notes[i]) {
+          html += `\n<span class="muted">Notes: ${state.notes[i]}\n</span>`;
+        }
+        html += '\n';
+      }
+    }
+
+    const done = state.selections.filter(s => s !== null).length;
+    if (done === 5) {
+      html += `<span class="muted">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n</span>`;
+      html += `<span class="h2">BRIEF STATUS: COMPLETE\n</span>`;
+      html += `<span class="muted">Generated by AI UX Brief Builder\nDesigning for Tomorrow — neonexperiments</span>`;
+    } else {
+      html += `<span class="muted">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n</span>`;
+      html += `<span class="muted">${done}/5 lenses complete</span>`;
+    }
+
+    return html;
+  }
+
+  function buildPlainText() {
+    const fn = state.featureName || '[Feature Name]';
+    const ut = state.userType || '[User Type]';
+    const fd = state.featureDesc || '[Feature description]';
+    const sk = STAKES_LABELS[state.stakes] || '[Not set]';
+    const vi = VIS_LABELS[state.visibility] || '[Not set]';
+
+    let txt = `AI UX DESIGN BRIEF\n`;
+    txt += `${'─'.repeat(40)}\n\n`;
+    txt += `FEATURE: ${fn}\nPRIMARY USER: ${ut}\nDESCRIPTION: ${fd}\nDECISION STAKES: ${sk}\nAI VISIBILITY: ${vi}\n\n`;
+    txt += `${'─'.repeat(40)}\n\n`;
+
+    const lensNames = ['Trust Calibration', 'Agency Distribution', 'Error Recovery', 'Transparency Requirements', 'Long-term Adaptation'];
+
+    for (let i = 0; i < 5; i++) {
+      const sel = state.selections[i];
+      const key = sel ? MAPS[i][sel] : null;
+      const data = key ? PRESCRIPTIONS[key] : null;
+      txt += `LENS ${i+1}: ${lensNames[i].toUpperCase()}\n`;
+      if (!data) {
+        txt += `[Not selected]\n\n`;
+      } else {
+        txt += `◆ ${data.headline}\n\n${data.copy}\n\nDesign Directives:\n`;
+        data.recs.forEach(r => { txt += `• ${r}\n`; });
+        if (state.notes[i]) txt += `\nNotes: ${state.notes[i]}\n`;
+        txt += '\n';
+      }
+    }
+    txt += `${'─'.repeat(40)}\n`;
+    txt += `Generated by AI UX Brief Builder — Designing for Tomorrow`;
+    return txt;
+  }
+
+  function exportBrief() {
+    const text = buildPlainText();
+    const fn = (state.featureName || 'ai-ux-brief').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g,'');
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${fn}-ai-ux-brief.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Brief exported ↓');
+  }
+
+  function copyPreview() {
+    const text = buildPlainText();
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('Copied to clipboard ✓');
+    }).catch(() => {
+      showToast('Copy failed — try selecting text manually');
+    });
+  }
+
+  function resetAll() {
+    state.selections = [null, null, null, null, null];
+    state.notes = ['','','','',''];
+    state.featureName = '';
+    state.userType = '';
+    state.featureDesc = '';
+    state.stakes = '';
+    state.visibility = '';
+
+    document.getElementById('feature-name').value = '';
+    document.getElementById('user-type').value = '';
+    document.getElementById('feature-desc').value = '';
+    document.getElementById('stakes').value = '';
+    document.getElementById('ai-visibility').value = '';
+
+    for (let i = 0; i < 5; i++) {
+      document.querySelectorAll(`#options-${i} .option`).forEach(o => o.classList.remove('selected'));
+      document.getElementById(`lens-${i}`).classList.remove('active');
+      const notesEl = document.getElementById(`notes-${i}`);
+      if (notesEl) notesEl.value = '';
+    }
+
+    updateProgress();
+    document.getElementById('preview-box').innerHTML = '<span class="ph">Your brief will appear here as you fill in the lenses.</span>';
+  }
+
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  updatePreview();
+</script>
+</body>
+</html>
