@@ -1,8 +1,6 @@
 {
   "date": "2026-06-01",
-  "title": "AI UX Brief Builder",
-  "project": "Designing for Tomorrow",
-  "description": "Answer five lenses — trust, agency, errors, transparency, adaptation — and get a complete, exportable design brief for any AI-powered feature. Built for UX practitioners navigating the human-to-AI shift.",
-  "rationale": "Every UX team building AI features reinvents the same five decisions from scratch. This tool makes those decisions explicit, forces intentionality, and outputs a shareable brief that aligns teams before a single pixel is designed. Directly useful for Designing for Tomorrow readers who are in practice.",
-  "tags": ["designing-for-tomorrow", "ux", "ai", "product", "brief", "tool", "writing"]
+  "title": "Family Game Night",
+  "description": "Four family-friendly browser games in one app — Memory Match, Word Scramble, Quick Math, and Tic-Tac-Toe. Built for all ages, zero installs, playable on any device.",
+  "tags": ["games", "family", "kids", "interactive", "memory", "word", "math", "tic-tac-toe"]
 }

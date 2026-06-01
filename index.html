@@ -1,738 +1,835 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#000000">
-  <title>Neon Builds</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Prata&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Family Game Night</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --mint: #7ec8b0;
+    --mint-light: #b8e4d6;
+    --cream: #faf6f0;
+    --warm: #f5ede0;
+    --text: #2d2d2d;
+    --muted: #7a7a7a;
+    --coral: #f4836c;
+    --lavender: #a89fd8;
+    --gold: #f0c060;
+    --radius: 16px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.08);
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
 
-    :root {
-      --font-display: "Prata", serif;
-      --font-sans: "DM Sans", sans-serif;
-      --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+  /* ── Hub ── */
+  .hub { max-width: 680px; margin: 0 auto; padding: 24px 16px 48px; }
+  .hub-header { text-align: center; padding: 32px 0 40px; }
+  .hub-header h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.03em; }
+  .hub-header p { color: var(--muted); margin-top: 8px; font-size: 1rem; }
+  .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width: 480px) { .game-grid { grid-template-columns: 1fr; } }
 
-      --color-bg: #000;
-      --color-bg-secondary: #0a0a0a;
-      --color-white: #fff;
-      --color-grey-100: #f5f5f7;
-      --color-grey-200: #e8e8ed;
-      --color-grey-300: #c7c7cc;
-      --color-grey-400: #86868b;
-      --color-grey-600: #6e6e73;
-      --color-grey-800: #1d1d1f;
+  .game-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 28px 20px 24px;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    border: 2px solid transparent;
+    text-align: center;
+  }
+  .game-card:hover { transform: translateY(-3px); box-shadow: 0 8px 32px rgba(0,0,0,0.12); }
+  .game-card .icon { font-size: 2.8rem; margin-bottom: 12px; }
+  .game-card h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; }
+  .game-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.4; }
+  .game-card .badge {
+    display: inline-block; margin-top: 12px; padding: 3px 10px;
+    border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+  }
+  .c-mint { background: var(--mint-light); color: #2a7a60; }
+  .c-coral { background: #fde0da; color: #b84a33; }
+  .c-lavender { background: #e5e1f7; color: #5a4da0; }
+  .c-gold { background: #fdf0cc; color: #8a6800; }
 
-      --color-accent: #e01a8a;
-      --color-accent-soft: rgba(224, 26, 138, 0.15);
-      --color-periwinkle: #5b93ff;
-      --color-pink: #ffb8d9;
-      --color-lavender: #c67fff;
-      --color-green: #71d45c;
+  /* ── Screen layer ── */
+  .screen {
+    display: none; position: fixed; inset: 0; background: var(--cream);
+    overflow-y: auto; z-index: 10;
+  }
+  .screen.active { display: block; }
+  .screen-inner { max-width: 680px; margin: 0 auto; padding: 16px 16px 48px; }
 
-      --glass-bg: rgba(255,255,255,0.05);
-      --glass-border: rgba(255,255,255,0.15);
-      --glass-highlight: rgba(255,255,255,0.25);
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: white; border: none; padding: 8px 16px;
+    border-radius: 24px; font-size: 0.9rem; font-weight: 600;
+    cursor: pointer; box-shadow: var(--shadow); color: var(--text);
+    margin-bottom: 20px; transition: transform 0.1s;
+  }
+  .back-btn:hover { transform: translateX(-2px); }
 
-      --radius-card: 28px;
-      --radius-pill: 999px;
-      --ease-out: cubic-bezier(0, 0, 0.2, 1);
-    }
+  .screen-title { font-size: 1.6rem; font-weight: 800; margin-bottom: 4px; }
+  .screen-sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 24px; }
 
-    html, body {
-      background: var(--color-bg);
-      color: var(--color-white);
-      font-family: var(--font-sans);
-      -webkit-font-smoothing: antialiased;
-      min-height: 100vh;
-    }
+  /* ── Buttons ── */
+  .btn {
+    display: inline-block; padding: 12px 28px; border-radius: 30px;
+    font-size: 1rem; font-weight: 700; border: none; cursor: pointer;
+    transition: transform 0.1s, opacity 0.1s;
+  }
+  .btn:hover { transform: scale(1.03); }
+  .btn:active { transform: scale(0.98); }
+  .btn-mint { background: var(--mint); color: white; }
+  .btn-coral { background: var(--coral); color: white; }
+  .btn-ghost { background: white; color: var(--text); box-shadow: var(--shadow); }
+  .btn-sm { padding: 8px 18px; font-size: 0.85rem; }
 
-    /* ── Noise texture ── */
-    .noise-overlay {
-      pointer-events: none;
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      opacity: 0.018;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    }
+  /* ── Score bar ── */
+  .score-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    background: white; border-radius: 12px; padding: 12px 20px;
+    box-shadow: var(--shadow); margin-bottom: 20px; font-weight: 700;
+  }
+  .score-val { font-size: 1.5rem; color: var(--mint); }
+  .score-label { font-size: 0.8rem; color: var(--muted); font-weight: 500; }
 
-    /* ── Mesh gradient hero bg ── */
-    .mesh-gradient {
-      pointer-events: none;
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      background:
-        radial-gradient(circle at 15% 40%, rgba(92, 148, 255, 0.20), transparent 55%),
-        radial-gradient(circle at 85% 20%, rgba(224, 26, 138, 0.18), transparent 50%),
-        radial-gradient(circle at 50% 85%, rgba(198, 127, 255, 0.15), transparent 55%),
-        var(--color-bg);
-    }
+  /* ─────────────────────────────────────────
+     GAME 1: MEMORY MATCH
+  ───────────────────────────────────────── */
+  #game-memory .card-grid {
+    display: grid; gap: 10px;
+    grid-template-columns: repeat(4, 1fr);
+  }
+  @media(max-width:400px) { #game-memory .card-grid { grid-template-columns: repeat(4, 1fr); gap: 7px; } }
 
-    /* ── Layout ── */
-    .page-wrapper {
-      position: relative;
-      overflow: hidden;
-    }
+  .mem-card {
+    aspect-ratio: 1; border-radius: 12px; cursor: pointer;
+    font-size: 2rem; display: flex; align-items: center; justify-content: center;
+    background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: transform 0.2s; user-select: none; position: relative;
+  }
+  .mem-card.flipped, .mem-card.matched { background: var(--warm); }
+  .mem-card.matched { box-shadow: 0 0 0 3px var(--mint); cursor: default; }
+  .mem-card .front { display: none; }
+  .mem-card .back { position: absolute; font-size: 1.5rem; color: var(--mint-light); }
+  .mem-card.flipped .front, .mem-card.matched .front { display: flex; align-items: center; justify-content: center; position: absolute; inset: 0; }
+  .mem-card.flipped .back, .mem-card.matched .back { display: none; }
 
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 0 24px;
-    }
+  .difficulty-row { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
 
-    /* ── Nav ── */
-    nav {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(0,0,0,0.8);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--glass-border);
-    }
+  /* ─────────────────────────────────────────
+     GAME 2: WORD SCRAMBLE
+  ───────────────────────────────────────── */
+  .word-box {
+    background: white; border-radius: var(--radius); padding: 32px 20px;
+    text-align: center; box-shadow: var(--shadow); margin-bottom: 20px;
+  }
+  .scrambled-word {
+    font-size: 2.8rem; font-weight: 900; letter-spacing: 0.15em;
+    color: var(--coral); margin-bottom: 8px; word-break: break-all;
+  }
+  .word-hint { color: var(--muted); font-size: 0.9rem; }
+  .word-input-row { display: flex; gap: 10px; margin-bottom: 16px; }
+  .word-input {
+    flex: 1; padding: 14px 18px; border-radius: 12px;
+    border: 2px solid #e5e5e5; font-size: 1.1rem; font-weight: 600;
+    outline: none; transition: border-color 0.2s; background: white;
+  }
+  .word-input:focus { border-color: var(--mint); }
+  .word-input.correct { border-color: var(--mint); background: #edfaf5; }
+  .word-input.wrong { border-color: var(--coral); background: #fef0ee; }
+  .feedback-msg { text-align: center; font-weight: 700; font-size: 1.1rem; min-height: 28px; }
+  .feedback-msg.ok { color: #2a7a60; }
+  .feedback-msg.no { color: var(--coral); }
+  .word-progress { text-align: center; color: var(--muted); font-size: 0.85rem; margin-bottom: 16px; }
+  .skip-row { text-align: center; margin-top: 10px; }
 
-    .nav-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 56px;
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 0 24px;
-    }
+  /* ─────────────────────────────────────────
+     GAME 3: QUICK MATH
+  ───────────────────────────────────────── */
+  .math-problem {
+    background: white; border-radius: var(--radius); padding: 40px 20px;
+    text-align: center; box-shadow: var(--shadow); margin-bottom: 20px;
+  }
+  .math-eq { font-size: 3rem; font-weight: 900; color: var(--lavender); margin-bottom: 8px; }
+  .math-timer-bar { height: 6px; background: #eee; border-radius: 3px; overflow: hidden; margin-top: 16px; }
+  .math-timer-fill { height: 100%; background: var(--mint); transition: width 0.1s linear; }
+  .math-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .math-choice {
+    padding: 20px; border-radius: 12px; background: white;
+    box-shadow: var(--shadow); font-size: 1.6rem; font-weight: 800;
+    border: 2px solid transparent; cursor: pointer; transition: all 0.15s;
+  }
+  .math-choice:hover { border-color: var(--lavender); transform: scale(1.03); }
+  .math-choice.correct { background: #edfaf5; border-color: var(--mint); }
+  .math-choice.wrong { background: #fef0ee; border-color: var(--coral); }
+  .math-level { display: flex; gap: 10px; margin-bottom: 20px; }
 
-    .nav-logo {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      text-decoration: none;
-    }
+  /* ─────────────────────────────────────────
+     GAME 4: TIC-TAC-TOE
+  ───────────────────────────────────────── */
+  .ttt-board {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 8px; max-width: 320px; margin: 0 auto 24px;
+  }
+  .ttt-cell {
+    aspect-ratio: 1; background: white; border-radius: 12px;
+    box-shadow: var(--shadow); font-size: 2.8rem; font-weight: 900;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: transform 0.1s, background 0.1s;
+    user-select: none;
+  }
+  .ttt-cell:hover:not(.taken) { background: var(--warm); transform: scale(1.04); }
+  .ttt-cell.taken { cursor: default; }
+  .ttt-cell.x-cell { color: var(--coral); }
+  .ttt-cell.o-cell { color: var(--lavender); }
+  .ttt-cell.win-cell { background: var(--mint-light); }
+  .ttt-status {
+    text-align: center; font-size: 1.2rem; font-weight: 700;
+    margin-bottom: 20px; min-height: 30px;
+  }
+  .ttt-score-row {
+    display: flex; justify-content: center; gap: 24px;
+    margin-bottom: 20px;
+  }
+  .ttt-score-box {
+    background: white; border-radius: 12px; padding: 12px 24px;
+    text-align: center; box-shadow: var(--shadow);
+  }
+  .ttt-score-box .player-label { font-size: 0.75rem; color: var(--muted); font-weight: 500; }
+  .ttt-score-box .player-score { font-size: 2rem; font-weight: 900; }
+  .ttt-mode-row { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+  .mode-btn {
+    padding: 8px 18px; border-radius: 24px; border: 2px solid #e5e5e5;
+    background: white; cursor: pointer; font-weight: 600; font-size: 0.85rem;
+    transition: all 0.15s;
+  }
+  .mode-btn.active { border-color: var(--lavender); background: #e5e1f7; color: #5a4da0; }
 
-    .nav-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--color-accent);
-      box-shadow: 0 0 10px rgba(224, 26, 138, 0.5);
-    }
-
-    .nav-wordmark {
-      font-family: var(--font-display);
-      font-size: 0.9rem;
-      color: var(--color-white);
-      letter-spacing: 0.04em;
-    }
-
-    .nav-meta {
-      font-family: var(--font-mono);
-      font-size: 0.7rem;
-      color: var(--color-grey-600);
-      letter-spacing: 0.08em;
-    }
-
-    /* ── Hero ── */
-    .hero {
-      position: relative;
-      padding: 100px 0 80px;
-      text-align: center;
-      overflow: hidden;
-    }
-
-    .hero-eyebrow {
-      font-family: var(--font-mono);
-      font-size: 0.7rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--color-accent);
-      margin-bottom: 24px;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .hero-eyebrow::before,
-    .hero-eyebrow::after {
-      content: '';
-      display: block;
-      width: 24px;
-      height: 1px;
-      background: var(--color-accent);
-      opacity: 0.5;
-    }
-
-    .hero-title {
-      font-family: var(--font-display);
-      font-size: clamp(2.5rem, 6vw, 4.5rem);
-      line-height: 1.08;
-      letter-spacing: -0.02em;
-      color: var(--color-white);
-      margin-bottom: 20px;
-      background: linear-gradient(105deg,
-        var(--color-white) 0%,
-        var(--color-grey-200) 30%,
-        var(--color-white) 60%,
-        var(--color-grey-300) 100%
-      );
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .hero-sub {
-      font-size: 1rem;
-      color: var(--color-grey-400);
-      max-width: 480px;
-      margin: 0 auto;
-      line-height: 1.65;
-    }
-
-    /* ── Section header ── */
-    .section-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 32px;
-    }
-
-    .section-label {
-      font-family: var(--font-mono);
-      font-size: 0.68rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--color-grey-600);
-    }
-
-    .section-line {
-      flex: 1;
-      height: 1px;
-      background: var(--glass-border);
-    }
-
-    /* ── Build grid ── */
-    .builds-section {
-      position: relative;
-      z-index: 1;
-      padding-bottom: 96px;
-    }
-
-    .builds-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 16px;
-    }
-
-    /* ── Build card ── */
-    .build-card {
-      position: relative;
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--radius-card);
-      padding: 28px;
-      text-decoration: none;
-      color: inherit;
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      transition: border-color 0.25s var(--ease-out), transform 0.25s var(--ease-out);
-      overflow: hidden;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      opacity: 0;
-      transform: translateY(20px) scale(0.97);
-    }
-
-    .build-card.loaded {
-      animation: cardEnter 0.45s var(--ease-out) both;
-    }
-
-    .build-card:hover {
-      border-color: var(--glass-highlight);
-      transform: translateY(-2px) scale(1.005);
-    }
-
-    /* Shine sweep on hover */
-    .build-card::after {
-      content: '';
-      pointer-events: none;
-      position: absolute;
-      top: -50%;
-      left: -100%;
-      width: 50%;
-      height: 200%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
-      transform: skew(-20deg);
-      transition: left 0.6s var(--ease-out);
-    }
-
-    .build-card:hover::after {
-      left: 150%;
-    }
-
-    .card-number {
-      font-family: var(--font-mono);
-      font-size: 0.65rem;
-      color: var(--color-grey-600);
-      letter-spacing: 0.06em;
-      margin-bottom: 20px;
-    }
-
-    .card-date {
-      font-family: var(--font-mono);
-      font-size: 0.68rem;
-      color: var(--color-grey-600);
-      letter-spacing: 0.08em;
-      margin-bottom: 10px;
-    }
-
-    .card-title {
-      font-family: var(--font-display);
-      font-size: 1.25rem;
-      line-height: 1.25;
-      color: var(--color-white);
-      margin-bottom: 12px;
-      letter-spacing: -0.01em;
-    }
-
-    .card-desc {
-      font-size: 0.85rem;
-      color: var(--color-grey-400);
-      line-height: 1.65;
-      flex: 1;
-      margin-bottom: 20px;
-    }
-
-    .card-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: auto;
-    }
-
-    .card-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-family: var(--font-mono);
-      font-size: 0.65rem;
-      letter-spacing: 0.06em;
-      padding: 4px 10px;
-      border-radius: var(--radius-pill);
-      border: 1px solid;
-    }
-
-    .tag-amber {
-      color: var(--color-pink);
-      border-color: rgba(255, 184, 217, 0.25);
-      background: rgba(255, 184, 217, 0.07);
-    }
-
-    .tag-ada {
-      color: var(--color-periwinkle);
-      border-color: rgba(91, 147, 255, 0.25);
-      background: rgba(91, 147, 255, 0.07);
-    }
-
-    .tag-tool {
-      color: var(--color-green);
-      border-color: rgba(113, 212, 92, 0.25);
-      background: rgba(113, 212, 92, 0.07);
-    }
-
-    .tag-substack {
-      color: var(--color-lavender);
-      border-color: rgba(198, 127, 255, 0.25);
-      background: rgba(198, 127, 255, 0.07);
-    }
-
-    .card-arrow {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      border: 1px solid var(--glass-border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: border-color 0.2s, background 0.2s, transform 0.2s;
-    }
-
-    .build-card:hover .card-arrow {
-      border-color: var(--glass-highlight);
-      background: var(--glass-bg);
-      transform: translate(2px, -2px);
-    }
-
-    .card-arrow svg {
-      width: 12px;
-      height: 12px;
-      stroke: var(--color-grey-400);
-      fill: none;
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      transition: stroke 0.2s;
-    }
-
-    .build-card:hover .card-arrow svg {
-      stroke: var(--color-white);
-    }
-
-    /* Colored top accent bar */
-    .card-accent-bar {
-      position: absolute;
-      top: 0;
-      left: 24px;
-      right: 24px;
-      height: 1px;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-
-    .build-card:hover .card-accent-bar {
-      opacity: 1;
-    }
-
-    .bar-amber    { background: linear-gradient(90deg, transparent, var(--color-pink), transparent); }
-    .bar-ada      { background: linear-gradient(90deg, transparent, var(--color-periwinkle), transparent); }
-    .bar-tool     { background: linear-gradient(90deg, transparent, var(--color-green), transparent); }
-    .bar-substack { background: linear-gradient(90deg, transparent, var(--color-lavender), transparent); }
-
-    /* ── Footer ── */
-    footer {
-      border-top: 1px solid var(--glass-border);
-      padding: 32px 24px;
-    }
-
-    .footer-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .footer-copy {
-      font-family: var(--font-mono);
-      font-size: 0.68rem;
-      color: var(--color-grey-600);
-      letter-spacing: 0.06em;
-    }
-
-    .footer-link {
-      font-family: var(--font-mono);
-      font-size: 0.68rem;
-      color: var(--color-grey-600);
-      text-decoration: none;
-      letter-spacing: 0.06em;
-      transition: color 0.2s;
-    }
-
-    .footer-link:hover { color: var(--color-grey-300); }
-
-    /* ── Animations ── */
-    @keyframes cardEnter {
-      from { opacity: 0; transform: translateY(20px) scale(0.97); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .animate-in {
-      opacity: 0;
-      animation: fadeUp 0.55s var(--ease-out) both;
-    }
-
-    /* ── Responsive ── */
-    @media (max-width: 640px) {
-      .hero { padding: 72px 0 56px; }
-      .builds-grid { grid-template-columns: 1fr; }
-      .footer-inner { flex-direction: column; gap: 8px; text-align: center; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .build-card, .build-card::after, .card-arrow, .card-accent-bar {
-        transition: none !important;
-        animation: none !important;
-        opacity: 1 !important;
-        transform: none !important;
-      }
-      .animate-in { animation: none !important; opacity: 1 !important; }
-    }
-  </style>
+  /* ── Result overlay ── */
+  .result-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    z-index: 50; align-items: center; justify-content: center;
+  }
+  .result-overlay.active { display: flex; }
+  .result-card {
+    background: white; border-radius: 24px; padding: 48px 40px;
+    text-align: center; max-width: 340px; margin: 16px;
+    box-shadow: 0 16px 64px rgba(0,0,0,0.2);
+  }
+  .result-card .result-emoji { font-size: 4rem; margin-bottom: 16px; }
+  .result-card h2 { font-size: 1.8rem; font-weight: 900; margin-bottom: 8px; }
+  .result-card p { color: var(--muted); margin-bottom: 24px; font-size: 1rem; }
+  .result-card .btn-row { display: flex; gap: 10px; justify-content: center; }
+</style>
 </head>
 <body>
 
-  <!-- Noise texture -->
-  <div class="noise-overlay" aria-hidden="true"></div>
-
-  <!-- Nav -->
-  <nav>
-    <div class="nav-inner">
-      <a href="#" class="nav-logo">
-        <div class="nav-dot"></div>
-        <span class="nav-wordmark">neon builds</span>
-      </a>
-      <span class="nav-meta">amber miro os</span>
-    </div>
-  </nav>
-
-  <div class="page-wrapper">
-    <div class="mesh-gradient" aria-hidden="true"></div>
-
-    <!-- Hero -->
-    <section class="hero">
-      <div class="container">
-        <div class="animate-in" style="animation-delay: 0.05s">
-          <p class="hero-eyebrow">nightly builds</p>
-        </div>
-        <h1 class="hero-title animate-in" style="animation-delay: 0.12s">
-          Built while you slept.
-        </h1>
-        <p class="hero-sub animate-in" style="animation-delay: 0.2s">
-          Every night, one real artifact — a tool, a system, a working experiment — shipped toward something that compounds.
-        </p>
-      </div>
-    </section>
-
-    <!-- Builds -->
-    <section class="builds-section">
-      <div class="container">
-
-        <div class="section-header animate-in" style="animation-delay: 0.28s">
-          <span class="section-label">archive</span>
-          <div class="section-line"></div>
-          <span class="section-label" id="build-count">14 builds</span>
-        </div>
-
-        <div class="builds-grid">
-
-          <!-- Build 14: AI UX Brief Builder -->
-          <a class="build-card loaded" href="builds/2026-06-01/" style="animation-delay: 0.02s">
-            <div class="card-accent-bar bar-substack"></div>
-            <div class="card-date">June 1, 2026</div>
-            <h2 class="card-title">AI UX Brief Builder</h2>
-            <p class="card-desc">Answer five lenses — trust, agency, errors, transparency, adaptation — and get a complete, exportable design brief for any AI-powered feature. For UX practitioners navigating the human-to-AI shift.</p>
-            <div class="card-footer">
-              <span class="card-tag tag-substack">designing for tomorrow · ux</span>
-              <div class="card-arrow">
-                <svg viewBox="0 0 12 12"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
-              </div>
-            </div>
-          </a>
-
-          <!-- Build 13: Release Playbook -->
-          <a class="build-card loaded" href="builds/2026-05-13/" style="animation-delay: 0.02s">
-            <div class="card-accent-bar bar-ada"></div>
-            <div class="card-date">May 13, 2026</div>
-            <h2 class="card-title">Release Playbook</h2>
-            <p class="card-desc">An interactive 8-week single release timeline for independent artists. Set your track title and drop date, then work through phased checklists covering production, cover art, distribution, press outreach, social content, and post-release analytics — with per-task notes, progress tracking, and a full text export.</p>
-            <div class="card-footer">
-              <span class="card-tag tag-ada">ada fen · music</span>
-              <div class="card-arrow">
-                <svg viewBox="0 0 12 12"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
-              </div>
-            </div>
-          </a>
-
-          <!-- Build 12: Brief Machine -->
-          <a class="build-card loaded" href="builds/2026-05-12/" style="animation-delay: 0.02s">
-            <div class="card-accent-bar bar-substack"></div>
-            <div class="card-date">May 12, 2026</div>
-            <h2 class="card-title">Brief Machine</h2>
-            <p class="card-desc">A structured AI product brief generator for UX practitioners. Walk through five sections — feature context, user trust posture, failure modes with mitigations, transparency mechanisms, and success criteria — and get a complete copyable brief ready for engineering and PM.</p>
-            <div class="card-footer">
-              <span class="card-tag tag-substack">designing for tomorrow · ux</span>
-              <div class="card-arrow">
-                <svg viewBox="0 0 12 12"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
-              </div>
-            </div>
-          </a>
-
-          <!-- Build 11: Ritual -->
-          <a class="build-card loaded" href="builds/2026-05-11/" style="animation-delay: 0.02s">
-            <div class="card-accent-bar bar-tool"></div>
-            <div class="card-date">May 11, 2026</div>
-            <h2 class="card-title">Ritual</h2>
-            <p class="card-desc">A daily operating system in a single file. Set your three focus priorities, run timed work sessions with a visual Pomodoro ring, capture thoughts as they surface tagged think/do/later/note, and reflect at day's end with a rotating prompt. Everything persists across sessions.</p>
-            <div class="card-footer">
-              <span class="card-tag tag-tool">productivity · focus</span>
-              <div class="card-arrow">
-                <svg viewBox="0 0 12 12"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
-              </div>
-            </div>
-          </a>
-
-          <!-- Build 10: Picross -->
-          <a class="build-card loaded" href="builds/2026-05-10/" style="animation-delay: 0.02s">
-            <div class="card-accent-bar bar-tool"></div>
-            <div class="card-date">May 10, 2026</div>
-            <h2 class="card-title">Picross</h2>
-            <p class="card-desc">A clean nonogram logic puzzle game with five handcrafted puzzles. Left click to fill, right click to mark empty — complete each grid to reveal the hidden pixel art.</p>
-            <div class="card-footer">
-              <span class="card-tag tag-tool">game · puzzle</span>
-              <div class="card-arrow">
-                <svg viewBox="0 0 12 12"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
-              </div>
-            </div>
-          </a>
-
-          <!-- Build 09: Print Edition Pricing Studio -->
-          <a class="build-card loaded" href="builds/2026-05-08/" style="animation-delay: 0.02s">
-            <div class="card-accent-bar bar-amber"></div>
-            <div class="card-date">May 8, 2026</div>
-            <h2 class="card-title">Print Edition Pricing Studio</h2>
-            <p class="card-desc">Model limited edition print releases with tiered pricing, margin analysis, and a revenue waterfall. Set your COGs, add pricing tiers, and see exactly what you make before you list. Built for Amber Miro Creative.</p>
-            <div class="card-footer">
-              <span class="card-tag tag-amber">amber miro creative</span>
-              <div class="card-arrow">
-                <svg viewBox="0 0 12 12"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
-              </div>
-            </div>
-          </a>
-
-          <!-- Build 08: Song Structure Workshop -->
-          <a class="build-card loaded" href="builds/2026-05-07/" style="animation-delay: 0.02s">
-            <div class="card-accent-bar bar-ada"></div>
-            <div class="card-date">May 7, 2026</div>
-            <h2 class="card-title">Song Structure Workshop</h2>
-            <p class="card-desc">A lyric scratchpad with section tagging (verse/chorus/bridge/hook), live syllable counts per line, end-rhyme detection, drag-to-reorder, and clean text export. Built for Ada Fen.</p>
-            <div class="card-footer">
-              <span class="card-tag tag-ada">ada fen · music</span>
-              <div class="card-arrow">
-                <svg viewBox="0 0 12 12"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
-              </div>
-            </div>
-          </a>
-
-          <!-- Build 07: Agentic UX Audit Kit -->
-          <a class="build-card loaded" href="builds/2026-05-06/" style="animation-delay: 0.02s">
-            <div class="card-accent-bar bar-substack"></div>
-            <div class="card-date">May 6, 2026</div>
-            <h2 class="card-title">Agentic UX Audit Kit</h2>
-            <p class="card-desc">Evaluate AI-powered interfaces against 12 heuristics designed for the post-LLM era. Live radar chart, category breakdown, critical flags, and an exportable text report. Built for UX practitioners.</p>
-            <div class="card-footer">
-              <span class="card-tag tag-substack">designing for tomorrow · ux</span>
-              <div class="card-arrow">
-                <svg viewBox="0 0 12 12"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
-              </div>
-            </div>
-          </a>
-
-          <!-- Build 06: Neon Drift -->
-          <a class="build-card loaded" href="builds/2026-05-05/" style="animation-delay: 0.02s">
-            <div class="card-accent-bar bar-tool"></div>
-            <div class="card-date">May 5, 2026</div>
-            <h2 class="card-title">Neon Drift</h2>
-            <p class="card-desc">Synthwave endless runner — dodge neon obstacles on an infinite glowing highway. Lane-switch to survive, speed builds, high score saved. Pure canvas, zero dependencies.</p>
-            <div class="card-footer">
-              <span class="card-tag tag-tool">game · synthwave</span>
-              <div class="card-arrow">
-                <svg viewBox="0 0 12 12"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
-              </div>
-            </div>
-          </a>
-
-          <!-- Build 05: Ada Fen EPK -->
-          <a class="build-card loaded" href="builds/2026-05-04/" style="animation-delay: 0.1s">
-            <div class="card-accent-bar bar-ada"></div>
-            <div class="card-date">May 4, 2026</div>
-            <h2 class="card-title">Ada Fen Electronic Press Kit</h2>
-            <p class="card-desc">Full synthwave EPK — bio, discography, booking contact, press links, and embedded player. Moody, dark, ready to send to labels and playlist curators.</p>
-            <div class="card-footer">
-              <span class="card-tag tag-ada">ada fen · music</span>
-              <div class="card-arrow">
-                <svg viewBox="0 0 12 12"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
-              </div>
-            </div>
-          </a>
-
-          <!-- Build 04: Commission Quote Generator -->
-          <a class="build-card loaded" href="builds/2026-05-03/" style="animation-delay: 0.1s">
-            <div class="card-accent-bar bar-amber"></div>
-            <div class="card-date">May 3, 2026</div>
-            <h2 class="card-title">Commission Quote Generator</h2>
-            <p class="card-desc">Interactive commission configurator — client fills the work details, gets an instant quote and a ready-to-send message. Your brand, your pricing, zero back-and-forth.</p>
-            <div class="card-footer">
-              <span class="card-tag tag-amber">amber miro creative</span>
-              <div class="card-arrow">
-                <svg viewBox="0 0 12 12"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
-              </div>
-            </div>
-          </a>
-
-          <!-- Build 03: Ada Fen Content Engine -->
-          <a class="build-card loaded" href="builds/2026-05-02/" style="animation-delay: 0.18s">
-            <div class="card-accent-bar bar-ada"></div>
-            <div class="card-date">May 2, 2026</div>
-            <h2 class="card-title">Ada Fen Content Engine</h2>
-            <p class="card-desc">4-week interactive content calendar, platform strategy, and growth milestones for Ada Fen's moody electronic pop rollout. Built to run, not just read.</p>
-            <div class="card-footer">
-              <span class="card-tag tag-ada">ada fen · music</span>
-              <div class="card-arrow">
-                <svg viewBox="0 0 12 12"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
-              </div>
-            </div>
-          </a>
-
-          <!-- Build 02: Skill Crystallizer -->
-          <a class="build-card loaded" href="builds/2026-05-01/" style="animation-delay: 0.26s">
-            <div class="card-accent-bar bar-tool"></div>
-            <div class="card-date">May 1, 2026</div>
-            <h2 class="card-title">Skill Crystallizer</h2>
-            <p class="card-desc">Voice dictation → intent extraction → clarifying questions → SKILL.md. Converts raw ideas and workflows into deployable agent skills. Powered by Gemma 4 via Ollama.</p>
-            <div class="card-footer">
-              <span class="card-tag tag-tool">tool · agent · voice</span>
-              <div class="card-arrow">
-                <svg viewBox="0 0 12 12"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
-              </div>
-            </div>
-          </a>
-
-          <!-- Build 01: The $25K Map -->
-          <a class="build-card loaded" href="builds/2026-04-30/" style="animation-delay: 0.34s">
-            <div class="card-accent-bar bar-amber"></div>
-            <div class="card-date">April 30, 2026</div>
-            <h2 class="card-title">The $25K Map</h2>
-            <p class="card-desc">Interactive revenue scenario planner for Amber Miro Creative. Five streams — originals, prints, POD, workshops, commissions — real-time modeling, one clear path to $25K/year.</p>
-            <div class="card-footer">
-              <span class="card-tag tag-amber">amber miro creative</span>
-              <div class="card-arrow">
-                <svg viewBox="0 0 12 12"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
-              </div>
-            </div>
-          </a>
-
-        </div>
-      </div>
-    </section>
-
+<!-- ─── HUB ─── -->
+<div id="hub" class="hub">
+  <div class="hub-header">
+    <h1>🎮 Family Game Night</h1>
+    <p>Four games, zero downloads. Pick one and play.</p>
   </div>
-
-  <!-- Footer -->
-  <footer>
-    <div class="footer-inner">
-      <span class="footer-copy">built by neon · amber miro os</span>
-      <a class="footer-link" href="https://github.com/agentneonazul/neonexperiments" target="_blank" rel="noopener">github ↗</a>
+  <div class="game-grid">
+    <div class="game-card" onclick="openGame('memory')">
+      <div class="icon">🃏</div>
+      <h2>Memory Match</h2>
+      <p>Flip cards and find every matching pair before time runs out.</p>
+      <span class="badge c-mint">Ages 4+</span>
     </div>
-  </footer>
+    <div class="game-card" onclick="openGame('scramble')">
+      <div class="icon">🔤</div>
+      <h2>Word Scramble</h2>
+      <p>Unscramble the letters and guess the word before you run out of tries.</p>
+      <span class="badge c-coral">Ages 7+</span>
+    </div>
+    <div class="game-card" onclick="openGame('math')">
+      <div class="icon">🧮</div>
+      <h2>Quick Math</h2>
+      <p>Beat the clock — pick the right answer before time runs out.</p>
+      <span class="badge c-lavender">Ages 6+</span>
+    </div>
+    <div class="game-card" onclick="openGame('ttt')">
+      <div class="icon">⭕</div>
+      <h2>Tic-Tac-Toe</h2>
+      <p>Classic two-player or challenge the computer. Three in a row wins.</p>
+      <span class="badge c-gold">2 Players</span>
+    </div>
+  </div>
+</div>
 
-  <script>
-    // Stagger card entrance on load
-    document.addEventListener('DOMContentLoaded', () => {
-      const cards = document.querySelectorAll('.build-card.loaded');
-      cards.forEach((card, i) => {
-        setTimeout(() => {
-          card.style.animation = `cardEnter 0.45s cubic-bezier(0,0,0.2,1) both`;
-        }, 300 + i * 80);
-      });
-    });
-  </script>
+<!-- ─── MEMORY MATCH ─── -->
+<div id="game-memory" class="screen">
+  <div class="screen-inner">
+    <button class="back-btn" onclick="closeGame('memory')">← Back</button>
+    <div class="screen-title">🃏 Memory Match</div>
+    <div class="screen-sub">Flip cards to find matching pairs.</div>
+    <div class="difficulty-row">
+      <button class="btn btn-sm btn-mint" onclick="startMemory(8)">Easy (8)</button>
+      <button class="btn btn-sm btn-ghost" onclick="startMemory(16)">Medium (16)</button>
+      <button class="btn btn-sm btn-ghost" onclick="startMemory(24)">Hard (24)</button>
+    </div>
+    <div class="score-bar">
+      <div><div class="score-label">Pairs Found</div><div class="score-val" id="mem-pairs">0</div></div>
+      <div><div class="score-label">Moves</div><div class="score-val" id="mem-moves">0</div></div>
+      <div><div class="score-label">Time</div><div class="score-val" id="mem-time">0:00</div></div>
+    </div>
+    <div class="card-grid" id="mem-grid"></div>
+  </div>
+</div>
 
+<!-- ─── WORD SCRAMBLE ─── -->
+<div id="game-scramble" class="screen">
+  <div class="screen-inner">
+    <button class="back-btn" onclick="closeGame('scramble')">← Back</button>
+    <div class="screen-title">🔤 Word Scramble</div>
+    <div class="screen-sub">Unscramble 10 words. 3 wrong guesses per word.</div>
+    <div class="score-bar">
+      <div><div class="score-label">Score</div><div class="score-val" id="ws-score">0</div></div>
+      <div><div class="score-label">Word</div><div class="score-val" id="ws-progress">1/10</div></div>
+      <div><div class="score-label">Lives</div><div class="score-val" id="ws-lives">❤️❤️❤️</div></div>
+    </div>
+    <div class="word-box">
+      <div class="scrambled-word" id="ws-word">—</div>
+      <div class="word-hint" id="ws-hint"></div>
+    </div>
+    <div class="word-input-row">
+      <input class="word-input" id="ws-input" type="text" placeholder="Type your answer…" autocapitalize="none" autocomplete="off" spellcheck="false">
+      <button class="btn btn-coral" onclick="submitWord()">Go</button>
+    </div>
+    <div class="feedback-msg" id="ws-feedback"></div>
+    <div class="skip-row"><button class="btn btn-ghost btn-sm" onclick="skipWord()">Skip →</button></div>
+  </div>
+</div>
+
+<!-- ─── QUICK MATH ─── -->
+<div id="game-math" class="screen">
+  <div class="screen-inner">
+    <button class="back-btn" onclick="closeGame('math')">← Back</button>
+    <div class="screen-title">🧮 Quick Math</div>
+    <div class="screen-sub">Tap the right answer before the bar runs out.</div>
+    <div class="math-level">
+      <button class="btn btn-sm btn-mint" onclick="startMath('easy')">Easy</button>
+      <button class="btn btn-sm btn-ghost" onclick="startMath('medium')">Medium</button>
+      <button class="btn btn-sm btn-ghost" onclick="startMath('hard')">Hard</button>
+    </div>
+    <div class="score-bar">
+      <div><div class="score-label">Score</div><div class="score-val" id="math-score">0</div></div>
+      <div><div class="score-label">Streak</div><div class="score-val" id="math-streak">0</div></div>
+      <div><div class="score-label">Lives</div><div class="score-val" id="math-lives">❤️❤️❤️</div></div>
+    </div>
+    <div class="math-problem">
+      <div class="math-eq" id="math-eq">—</div>
+      <div class="math-timer-bar"><div class="math-timer-fill" id="math-bar" style="width:100%"></div></div>
+    </div>
+    <div class="math-choices" id="math-choices"></div>
+  </div>
+</div>
+
+<!-- ─── TIC-TAC-TOE ─── -->
+<div id="game-ttt" class="screen">
+  <div class="screen-inner">
+    <button class="back-btn" onclick="closeGame('ttt')">← Back</button>
+    <div class="screen-title">⭕ Tic-Tac-Toe</div>
+    <div class="screen-sub">Three in a row wins.</div>
+    <div class="ttt-mode-row">
+      <button class="mode-btn active" id="ttt-mode-2p" onclick="setTTTMode('2p')">👥 2 Players</button>
+      <button class="mode-btn" id="ttt-mode-cpu" onclick="setTTTMode('cpu')">🤖 vs Computer</button>
+    </div>
+    <div class="ttt-score-row">
+      <div class="ttt-score-box">
+        <div class="player-label" id="ttt-p1-label">Player X</div>
+        <div class="player-score" style="color:var(--coral)" id="ttt-score-x">0</div>
+      </div>
+      <div class="ttt-score-box">
+        <div class="player-label">Draws</div>
+        <div class="player-score" style="color:var(--muted)" id="ttt-score-d">0</div>
+      </div>
+      <div class="ttt-score-box">
+        <div class="player-label" id="ttt-p2-label">Player O</div>
+        <div class="player-score" style="color:var(--lavender)" id="ttt-score-o">0</div>
+      </div>
+    </div>
+    <div class="ttt-status" id="ttt-status">X goes first</div>
+    <div class="ttt-board" id="ttt-board"></div>
+    <div style="text-align:center"><button class="btn btn-ghost" onclick="resetTTT()">New Game</button></div>
+  </div>
+</div>
+
+<!-- ─── RESULT OVERLAY ─── -->
+<div class="result-overlay" id="result-overlay">
+  <div class="result-card">
+    <div class="result-emoji" id="res-emoji">🎉</div>
+    <h2 id="res-title">Nice!</h2>
+    <p id="res-msg"></p>
+    <div class="btn-row">
+      <button class="btn btn-mint" id="res-play-again">Play Again</button>
+      <button class="btn btn-ghost" onclick="closeResult()">Menu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ────────────────────────────────────────────────────────────
+// NAVIGATION
+// ────────────────────────────────────────────────────────────
+let currentGame = null;
+
+function openGame(id) {
+  document.getElementById('hub').style.display = 'none';
+  document.getElementById('game-' + id).classList.add('active');
+  currentGame = id;
+  if (id === 'memory') startMemory(8);
+  if (id === 'scramble') startScramble();
+  if (id === 'math') startMath('easy');
+  if (id === 'ttt') initTTT();
+}
+
+function closeGame(id) {
+  document.getElementById('game-' + id).classList.remove('active');
+  document.getElementById('hub').style.display = '';
+  currentGame = null;
+  clearAllTimers();
+}
+
+function clearAllTimers() {
+  if (memTimer) clearInterval(memTimer);
+  if (mathTimer) clearInterval(mathTimer);
+}
+
+function showResult(emoji, title, msg, playAgainFn) {
+  document.getElementById('res-emoji').textContent = emoji;
+  document.getElementById('res-title').textContent = title;
+  document.getElementById('res-msg').textContent = msg;
+  document.getElementById('res-play-again').onclick = () => { closeResult(); playAgainFn(); };
+  document.getElementById('result-overlay').classList.add('active');
+}
+
+function closeResult() {
+  document.getElementById('result-overlay').classList.remove('active');
+  if (currentGame === null) { document.getElementById('hub').style.display = ''; }
+}
+
+// ────────────────────────────────────────────────────────────
+// GAME 1: MEMORY MATCH
+// ────────────────────────────────────────────────────────────
+const MEM_EMOJIS = ['🐶','🐱','🦊','🐻','🐼','🦁','🐸','🐵','🦋','🌈','⭐','🍕'];
+let memTimer = null, memStart = 0, memMoves = 0, memPairs = 0, memTotal = 0;
+let memFlipped = [], memLocked = false;
+
+function startMemory(count) {
+  clearInterval(memTimer);
+  memMoves = 0; memPairs = 0; memFlipped = []; memLocked = false;
+  memTotal = count / 2;
+  document.getElementById('mem-pairs').textContent = '0';
+  document.getElementById('mem-moves').textContent = '0';
+  document.getElementById('mem-time').textContent = '0:00';
+
+  const emojis = MEM_EMOJIS.slice(0, count / 2);
+  const cards = shuffle([...emojis, ...emojis]);
+  const grid = document.getElementById('mem-grid');
+  grid.style.gridTemplateColumns = count <= 8 ? 'repeat(4,1fr)' : count <= 16 ? 'repeat(4,1fr)' : 'repeat(6,1fr)';
+  grid.innerHTML = '';
+  cards.forEach((e, i) => {
+    const card = document.createElement('div');
+    card.className = 'mem-card';
+    card.dataset.emoji = e;
+    card.dataset.idx = i;
+    card.innerHTML = `<span class="front">${e}</span><span class="back">?</span>`;
+    card.addEventListener('click', () => flipCard(card));
+    grid.appendChild(card);
+  });
+
+  memStart = Date.now();
+  memTimer = setInterval(() => {
+    const s = Math.floor((Date.now() - memStart) / 1000);
+    document.getElementById('mem-time').textContent = `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+  }, 500);
+}
+
+function flipCard(card) {
+  if (memLocked || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+  card.classList.add('flipped');
+  memFlipped.push(card);
+  if (memFlipped.length === 2) {
+    memLocked = true;
+    memMoves++;
+    document.getElementById('mem-moves').textContent = memMoves;
+    const [a, b] = memFlipped;
+    if (a.dataset.emoji === b.dataset.emoji) {
+      a.classList.add('matched'); b.classList.add('matched');
+      memPairs++;
+      document.getElementById('mem-pairs').textContent = memPairs;
+      memFlipped = []; memLocked = false;
+      if (memPairs === memTotal) {
+        clearInterval(memTimer);
+        const s = Math.floor((Date.now() - memStart) / 1000);
+        showResult('🎉', 'All matched!', `${memMoves} moves · ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`, () => startMemory(memTotal * 2));
+      }
+    } else {
+      setTimeout(() => {
+        a.classList.remove('flipped'); b.classList.remove('flipped');
+        memFlipped = []; memLocked = false;
+      }, 900);
+    }
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+// GAME 2: WORD SCRAMBLE
+// ────────────────────────────────────────────────────────────
+const WS_WORDS = [
+  {w:'apple', h:'🍎 A fruit'},
+  {w:'rainbow', h:'🌈 After rain'},
+  {w:'dolphin', h:'🐬 Ocean mammal'},
+  {w:'castle', h:'🏰 Where kings live'},
+  {w:'guitar', h:'🎸 Musical instrument'},
+  {w:'blanket', h:'🛏️ Keeps you warm'},
+  {w:'volcano', h:'🌋 Erupts with lava'},
+  {w:'umbrella', h:'☂️ Keeps rain off'},
+  {w:'penguin', h:'🐧 Arctic bird'},
+  {w:'compass', h:'🧭 Shows direction'},
+  {w:'lantern', h:'🏮 Glowing light'},
+  {w:'dragon', h:'🐉 Mythical beast'},
+  {w:'jungle', h:'🌿 Dense forest'},
+  {w:'frozen', h:'🧊 Ice cold'},
+  {w:'planet', h:'🪐 Orbits a star'},
+];
+
+let wsWords = [], wsIdx = 0, wsLives = 3, wsScore = 0;
+
+function startScramble() {
+  wsWords = shuffle([...WS_WORDS]).slice(0, 10);
+  wsIdx = 0; wsLives = 3; wsScore = 0;
+  nextWord();
+}
+
+function nextWord() {
+  if (wsIdx >= wsWords.length) {
+    showResult('🏆', 'Finished!', `Score: ${wsScore} / 10`, startScramble);
+    return;
+  }
+  wsLives = 3;
+  updateWSUI();
+  const {w, h} = wsWords[wsIdx];
+  document.getElementById('ws-word').textContent = scramble(w);
+  document.getElementById('ws-hint').textContent = h;
+  document.getElementById('ws-input').value = '';
+  document.getElementById('ws-input').className = 'word-input';
+  document.getElementById('ws-feedback').textContent = '';
+  document.getElementById('ws-feedback').className = 'feedback-msg';
+  document.getElementById('ws-input').focus();
+}
+
+function updateWSUI() {
+  document.getElementById('ws-score').textContent = wsScore;
+  document.getElementById('ws-progress').textContent = `${wsIdx+1}/10`;
+  document.getElementById('ws-lives').textContent = '❤️'.repeat(wsLives) + '🖤'.repeat(3 - wsLives);
+}
+
+function submitWord() {
+  const inp = document.getElementById('ws-input');
+  const guess = inp.value.trim().toLowerCase();
+  const answer = wsWords[wsIdx].w;
+  if (!guess) return;
+  if (guess === answer) {
+    inp.className = 'word-input correct';
+    document.getElementById('ws-feedback').textContent = '✓ Correct!';
+    document.getElementById('ws-feedback').className = 'feedback-msg ok';
+    wsScore++;
+    wsIdx++;
+    setTimeout(nextWord, 700);
+  } else {
+    wsLives--;
+    inp.className = 'word-input wrong';
+    if (wsLives <= 0) {
+      document.getElementById('ws-feedback').textContent = `Answer: ${answer}`;
+      document.getElementById('ws-feedback').className = 'feedback-msg no';
+      wsIdx++;
+      updateWSUI();
+      setTimeout(nextWord, 1200);
+    } else {
+      document.getElementById('ws-feedback').textContent = 'Try again!';
+      document.getElementById('ws-feedback').className = 'feedback-msg no';
+      updateWSUI();
+      setTimeout(() => { inp.className = 'word-input'; inp.value = ''; }, 400);
+    }
+  }
+}
+
+function skipWord() {
+  const answer = wsWords[wsIdx].w;
+  document.getElementById('ws-feedback').textContent = `Skipped — answer: ${answer}`;
+  document.getElementById('ws-feedback').className = 'feedback-msg no';
+  wsIdx++;
+  setTimeout(nextWord, 900);
+}
+
+document.getElementById('ws-input').addEventListener('keydown', e => { if (e.key === 'Enter') submitWord(); });
+
+// ────────────────────────────────────────────────────────────
+// GAME 3: QUICK MATH
+// ────────────────────────────────────────────────────────────
+let mathScore = 0, mathStreak = 0, mathLives = 3, mathLevel = 'easy';
+let mathTimer = null, mathTimeLeft = 0, mathTimerTotal = 0;
+let mathAnswer = 0, mathLocked = false;
+
+const MATH_CONFIGS = {
+  easy:   { range: [1,10],   ops:['+','-'],        time: 8000 },
+  medium: { range: [1,20],   ops:['+','-','×'],    time: 6000 },
+  hard:   { range: [2,30],   ops:['+','-','×','÷'],time: 5000 },
+};
+
+function startMath(level) {
+  mathLevel = level;
+  mathScore = 0; mathStreak = 0; mathLives = 3;
+  document.getElementById('math-score').textContent = 0;
+  document.getElementById('math-streak').textContent = 0;
+  document.getElementById('math-lives').textContent = '❤️❤️❤️';
+  nextMathQ();
+}
+
+function nextMathQ() {
+  clearInterval(mathTimer);
+  mathLocked = false;
+  const cfg = MATH_CONFIGS[mathLevel];
+  const [lo, hi] = cfg.range;
+  const op = cfg.ops[Math.floor(Math.random() * cfg.ops.length)];
+  let a = randInt(lo, hi), b = randInt(lo, hi), eq, ans;
+
+  if (op === '-') { if (a < b) [a,b] = [b,a]; ans = a - b; eq = `${a} − ${b}`; }
+  else if (op === '×') { a = randInt(2,10); b = randInt(2,10); ans = a*b; eq = `${a} × ${b}`; }
+  else if (op === '÷') {
+    b = randInt(2,9); ans = randInt(2,9); a = ans*b;
+    eq = `${a} ÷ ${b}`;
+  } else { ans = a + b; eq = `${a} + ${b}`; }
+
+  mathAnswer = ans;
+  document.getElementById('math-eq').textContent = `${eq} = ?`;
+
+  const wrong1 = ans + randInt(1,5) * (Math.random()<0.5?1:-1);
+  const wrong2 = ans + randInt(6,12) * (Math.random()<0.5?1:-1);
+  const wrong3 = ans + randInt(13,20) * (Math.random()<0.5?1:-1);
+  const choices = shuffle([ans, wrong1, Math.max(0,wrong2), Math.max(0,wrong3)]);
+
+  const container = document.getElementById('math-choices');
+  container.innerHTML = '';
+  choices.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'math-choice';
+    btn.textContent = c;
+    btn.onclick = () => pickMath(btn, c);
+    container.appendChild(btn);
+  });
+
+  mathTimerTotal = cfg.time;
+  mathTimeLeft = cfg.time;
+  const bar = document.getElementById('math-bar');
+  bar.style.transition = 'none';
+  bar.style.width = '100%';
+  requestAnimationFrame(() => {
+    bar.style.transition = `width ${cfg.time}ms linear`;
+    bar.style.width = '0%';
+  });
+  mathTimer = setInterval(() => {
+    mathTimeLeft -= 100;
+    if (mathTimeLeft <= 0) { clearInterval(mathTimer); timeoutMath(); }
+  }, 100);
+}
+
+function pickMath(btn, val) {
+  if (mathLocked) return;
+  mathLocked = true;
+  clearInterval(mathTimer);
+  document.getElementById('math-bar').style.width = '0%';
+  if (val === mathAnswer) {
+    btn.classList.add('correct');
+    mathScore += 1 + mathStreak;
+    mathStreak++;
+    document.getElementById('math-score').textContent = mathScore;
+    document.getElementById('math-streak').textContent = mathStreak;
+    setTimeout(nextMathQ, 600);
+  } else {
+    btn.classList.add('wrong');
+    highlightCorrectMath();
+    mathStreak = 0;
+    mathLives--;
+    document.getElementById('math-streak').textContent = 0;
+    document.getElementById('math-lives').textContent = '❤️'.repeat(mathLives) + '🖤'.repeat(3-mathLives);
+    if (mathLives <= 0) {
+      setTimeout(() => showResult('🧮', 'Game Over', `Final score: ${mathScore}`, () => startMath(mathLevel)), 800);
+    } else { setTimeout(nextMathQ, 900); }
+  }
+}
+
+function timeoutMath() {
+  if (mathLocked) return;
+  mathLocked = true;
+  highlightCorrectMath();
+  mathStreak = 0;
+  mathLives--;
+  document.getElementById('math-streak').textContent = 0;
+  document.getElementById('math-lives').textContent = '❤️'.repeat(mathLives) + '🖤'.repeat(3-mathLives);
+  if (mathLives <= 0) {
+    setTimeout(() => showResult('⏰', 'Time\'s Up!', `Final score: ${mathScore}`, () => startMath(mathLevel)), 800);
+  } else { setTimeout(nextMathQ, 900); }
+}
+
+function highlightCorrectMath() {
+  document.querySelectorAll('.math-choice').forEach(b => {
+    if (parseInt(b.textContent) === mathAnswer) b.classList.add('correct');
+  });
+}
+
+// ────────────────────────────────────────────────────────────
+// GAME 4: TIC-TAC-TOE
+// ────────────────────────────────────────────────────────────
+let tttBoard = Array(9).fill(null);
+let tttCurrent = 'X', tttMode = '2p', tttOver = false;
+let tttScores = { X: 0, O: 0, D: 0 };
+const WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+
+function initTTT() {
+  tttScores = { X: 0, O: 0, D: 0 };
+  updateTTTScores();
+  resetTTT();
+}
+
+function setTTTMode(mode) {
+  tttMode = mode;
+  document.getElementById('ttt-mode-2p').classList.toggle('active', mode === '2p');
+  document.getElementById('ttt-mode-cpu').classList.toggle('active', mode === 'cpu');
+  document.getElementById('ttt-p2-label').textContent = mode === 'cpu' ? '🤖 Computer' : 'Player O';
+  resetTTT();
+}
+
+function resetTTT() {
+  tttBoard = Array(9).fill(null);
+  tttCurrent = 'X'; tttOver = false;
+  renderTTT();
+  document.getElementById('ttt-status').textContent = 'X goes first';
+}
+
+function renderTTT() {
+  const board = document.getElementById('ttt-board');
+  board.innerHTML = '';
+  tttBoard.forEach((v, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'ttt-cell' + (v ? ' taken' : '') + (v === 'X' ? ' x-cell' : v === 'O' ? ' o-cell' : '');
+    cell.textContent = v || '';
+    cell.addEventListener('click', () => tttClick(i));
+    board.appendChild(cell);
+  });
+}
+
+function tttClick(i) {
+  if (tttOver || tttBoard[i]) return;
+  if (tttMode === 'cpu' && tttCurrent === 'O') return;
+  tttBoard[i] = tttCurrent;
+  renderTTT();
+  const result = checkTTT();
+  if (result) { endTTT(result); return; }
+  tttCurrent = tttCurrent === 'X' ? 'O' : 'X';
+  document.getElementById('ttt-status').textContent = `${tttCurrent}'s turn`;
+  if (tttMode === 'cpu' && tttCurrent === 'O') {
+    setTimeout(cpuMove, 400);
+  }
+}
+
+function cpuMove() {
+  const best = minimax(tttBoard, 'O');
+  tttBoard[best.idx] = 'O';
+  renderTTT();
+  const result = checkTTT();
+  if (result) { endTTT(result); return; }
+  tttCurrent = 'X';
+  document.getElementById('ttt-status').textContent = `X's turn`;
+}
+
+function minimax(board, player) {
+  const opp = player === 'O' ? 'X' : 'O';
+  const winner = checkWinner(board);
+  if (winner === 'O') return { score: 10 };
+  if (winner === 'X') return { score: -10 };
+  const empty = board.map((v,i) => v ? null : i).filter(v => v !== null);
+  if (!empty.length) return { score: 0 };
+  const moves = empty.map(idx => {
+    const b = [...board]; b[idx] = player;
+    const s = minimax(b, opp).score;
+    return { idx, score: s };
+  });
+  return moves.reduce((best, m) =>
+    player === 'O' ? (m.score > best.score ? m : best) : (m.score < best.score ? m : best)
+  );
+}
+
+function checkWinner(board) {
+  for (const [a,b,c] of WINS) {
+    if (board[a] && board[a] === board[b] && board[a] === board[c]) return board[a];
+  }
+  return null;
+}
+
+function checkTTT() {
+  for (const [a,b,c] of WINS) {
+    if (tttBoard[a] && tttBoard[a] === tttBoard[b] && tttBoard[a] === tttBoard[c]) {
+      return { winner: tttBoard[a], line: [a,b,c] };
+    }
+  }
+  if (tttBoard.every(v => v)) return { winner: 'draw' };
+  return null;
+}
+
+function endTTT(result) {
+  tttOver = true;
+  if (result.winner === 'draw') {
+    document.getElementById('ttt-status').textContent = "It's a draw!";
+    tttScores.D++;
+  } else {
+    const label = result.winner === 'X' ? 'X' : (tttMode === 'cpu' ? '🤖 Computer' : 'O');
+    document.getElementById('ttt-status').textContent = `${label} wins! 🎉`;
+    tttScores[result.winner]++;
+    if (result.line) {
+      const cells = document.getElementById('ttt-board').children;
+      result.line.forEach(i => cells[i].classList.add('win-cell'));
+    }
+  }
+  updateTTTScores();
+  setTimeout(resetTTT, 2200);
+}
+
+function updateTTTScores() {
+  document.getElementById('ttt-score-x').textContent = tttScores.X;
+  document.getElementById('ttt-score-o').textContent = tttScores.O;
+  document.getElementById('ttt-score-d').textContent = tttScores.D;
+}
+
+// ────────────────────────────────────────────────────────────
+// UTILS
+// ────────────────────────────────────────────────────────────
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function scramble(word) {
+  let arr = word.split('');
+  let tries = 0;
+  do { shuffle(arr); tries++; } while (arr.join('') === word && tries < 20);
+  return arr.join('').toUpperCase();
+}
+
+function randInt(lo, hi) { return Math.floor(Math.random() * (hi - lo + 1)) + lo; }
+</script>
 </body>
 </html>

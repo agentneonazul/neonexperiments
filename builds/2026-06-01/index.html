@@ -3,1179 +3,833 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI UX Brief Builder — Designing for Tomorrow</title>
+<title>Family Game Night</title>
 <style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg: #0f0f11;
-    --surface: #18181c;
-    --surface-2: #222228;
-    --border: rgba(255,255,255,0.08);
-    --border-hover: rgba(255,255,255,0.18);
-    --text: #e8e8ec;
-    --text-muted: #888898;
-    --text-faint: #555565;
-    --accent: #b69df8;
-    --accent-warm: #f0a6ca;
-    --accent-dim: rgba(182,157,248,0.12);
-    --accent-dim-hover: rgba(182,157,248,0.2);
-    --green: #7ed4a8;
-    --yellow: #f4d06f;
-    --radius: 12px;
-    --radius-sm: 8px;
-    --shadow: 0 2px 20px rgba(0,0,0,0.4);
+    --mint: #7ec8b0;
+    --mint-light: #b8e4d6;
+    --cream: #faf6f0;
+    --warm: #f5ede0;
+    --text: #2d2d2d;
+    --muted: #7a7a7a;
+    --coral: #f4836c;
+    --lavender: #a89fd8;
+    --gold: #f0c060;
+    --radius: 16px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.08);
   }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-    background: var(--bg);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--cream);
     color: var(--text);
     min-height: 100vh;
-    line-height: 1.6;
   }
 
-  /* ── Layout ── */
-  .app {
-    display: grid;
-    grid-template-columns: 1fr 380px;
-    grid-template-rows: auto 1fr;
-    min-height: 100vh;
-  }
+  /* ── Hub ── */
+  .hub { max-width: 680px; margin: 0 auto; padding: 24px 16px 48px; }
+  .hub-header { text-align: center; padding: 32px 0 40px; }
+  .hub-header h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.03em; }
+  .hub-header p { color: var(--muted); margin-top: 8px; font-size: 1rem; }
+  .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width: 480px) { .game-grid { grid-template-columns: 1fr; } }
 
-  header {
-    grid-column: 1 / -1;
-    padding: 28px 40px 24px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: baseline;
-    gap: 20px;
-  }
-
-  .header-left { flex: 1; }
-
-  .eyebrow {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 6px;
-  }
-
-  h1 {
-    font-size: 24px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    color: var(--text);
-  }
-
-  .header-desc {
-    font-size: 14px;
-    color: var(--text-muted);
-    margin-top: 4px;
-    max-width: 560px;
-  }
-
-  .header-actions {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-shrink: 0;
-  }
-
-  /* ── Main form panel ── */
-  .form-panel {
-    padding: 40px;
-    overflow-y: auto;
-    border-right: 1px solid var(--border);
-  }
-
-  /* ── Preview panel ── */
-  .preview-panel {
-    padding: 28px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    position: sticky;
-    top: 0;
-    height: calc(100vh - 89px);
-    overflow-y: auto;
-  }
-
-  .preview-label {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text-faint);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .preview-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  .preview-box {
-    flex: 1;
-    background: var(--surface);
-    border: 1px solid var(--border);
+  .game-card {
+    background: white;
     border-radius: var(--radius);
-    padding: 20px;
-    font-family: "SF Mono", "Fira Code", "Cascadia Code", Consolas, monospace;
-    font-size: 11.5px;
-    line-height: 1.7;
-    color: var(--text-muted);
-    white-space: pre-wrap;
-    word-break: break-word;
-    overflow-y: auto;
-  }
-
-  .preview-box .ph { color: var(--text-faint); font-style: italic; }
-
-  /* ── Section ── */
-  .section {
-    margin-bottom: 48px;
-  }
-
-  .section-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-
-  .section-num {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: var(--accent-dim);
-    color: var(--accent);
-    font-size: 12px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-
-  .section-title {
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-  }
-
-  .section-subtitle {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-top: 2px;
-  }
-
-  /* ── Context inputs ── */
-  .context-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-  }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .field.full { grid-column: 1 / -1; }
-
-  label {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-muted);
-    letter-spacing: 0.03em;
-  }
-
-  input[type="text"],
-  textarea,
-  select {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    color: var(--text);
-    font-size: 14px;
-    font-family: inherit;
-    padding: 10px 14px;
-    width: 100%;
-    transition: border-color 0.2s;
-    outline: none;
-    resize: vertical;
-  }
-
-  input[type="text"]:focus,
-  textarea:focus,
-  select:focus {
-    border-color: var(--accent);
-  }
-
-  textarea { min-height: 72px; }
-
-  input::placeholder, textarea::placeholder { color: var(--text-faint); }
-
-  /* ── Lens cards ── */
-  .lens-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 24px;
-    margin-bottom: 16px;
-    transition: border-color 0.2s;
-  }
-
-  .lens-card.active { border-color: var(--accent); }
-
-  .lens-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-
-  .lens-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: var(--radius-sm);
-    background: var(--accent-dim);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    flex-shrink: 0;
-  }
-
-  .lens-name {
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-  }
-
-  .lens-question {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-top: 2px;
-  }
-
-  /* ── Radio options ── */
-  .options {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 14px;
-  }
-
-  .option {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 12px 14px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
+    padding: 28px 20px 24px;
+    box-shadow: var(--shadow);
     cursor: pointer;
-    transition: all 0.15s;
-    background: transparent;
+    transition: transform 0.15s, box-shadow 0.15s;
+    border: 2px solid transparent;
+    text-align: center;
   }
-
-  .option:hover {
-    border-color: var(--border-hover);
-    background: rgba(255,255,255,0.02);
+  .game-card:hover { transform: translateY(-3px); box-shadow: 0 8px 32px rgba(0,0,0,0.12); }
+  .game-card .icon { font-size: 2.8rem; margin-bottom: 12px; }
+  .game-card h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; }
+  .game-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.4; }
+  .game-card .badge {
+    display: inline-block; margin-top: 12px; padding: 3px 10px;
+    border-radius: 20px; font-size: 0.75rem; font-weight: 600;
   }
+  .c-mint { background: var(--mint-light); color: #2a7a60; }
+  .c-coral { background: #fde0da; color: #b84a33; }
+  .c-lavender { background: #e5e1f7; color: #5a4da0; }
+  .c-gold { background: #fdf0cc; color: #8a6800; }
 
-  .option input[type="radio"] {
-    display: none;
+  /* ── Screen layer ── */
+  .screen {
+    display: none; position: fixed; inset: 0; background: var(--cream);
+    overflow-y: auto; z-index: 10;
   }
+  .screen.active { display: block; }
+  .screen-inner { max-width: 680px; margin: 0 auto; padding: 16px 16px 48px; }
 
-  .option.selected {
-    border-color: var(--accent);
-    background: var(--accent-dim);
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: white; border: none; padding: 8px 16px;
+    border-radius: 24px; font-size: 0.9rem; font-weight: 600;
+    cursor: pointer; box-shadow: var(--shadow); color: var(--text);
+    margin-bottom: 20px; transition: transform 0.1s;
   }
+  .back-btn:hover { transform: translateX(-2px); }
 
-  .option-radio {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    border: 2px solid var(--text-faint);
-    flex-shrink: 0;
-    margin-top: 2px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.15s;
-  }
-
-  .option.selected .option-radio {
-    border-color: var(--accent);
-    background: var(--accent);
-  }
-
-  .option.selected .option-radio::after {
-    content: '';
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #fff;
-  }
-
-  .option-label {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-    line-height: 1.4;
-  }
-
-  .option-desc {
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-top: 2px;
-    line-height: 1.5;
-  }
-
-  /* ── Notes field ── */
-  .lens-notes label { font-size: 11px; letter-spacing: 0.08em; }
-
-  /* ── Completion meter ── */
-  .progress-bar-wrap {
-    margin-bottom: 32px;
-  }
-
-  .progress-meta {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-bottom: 8px;
-  }
-
-  .progress-bar {
-    height: 3px;
-    background: var(--surface-2);
-    border-radius: 99px;
-    overflow: hidden;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--accent-warm));
-    border-radius: 99px;
-    transition: width 0.4s ease;
-  }
+  .screen-title { font-size: 1.6rem; font-weight: 800; margin-bottom: 4px; }
+  .screen-sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 24px; }
 
   /* ── Buttons ── */
   .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 9px 18px;
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-    font-weight: 600;
-    font-family: inherit;
-    cursor: pointer;
-    border: none;
+    display: inline-block; padding: 12px 28px; border-radius: 30px;
+    font-size: 1rem; font-weight: 700; border: none; cursor: pointer;
+    transition: transform 0.1s, opacity 0.1s;
+  }
+  .btn:hover { transform: scale(1.03); }
+  .btn:active { transform: scale(0.98); }
+  .btn-mint { background: var(--mint); color: white; }
+  .btn-coral { background: var(--coral); color: white; }
+  .btn-ghost { background: white; color: var(--text); box-shadow: var(--shadow); }
+  .btn-sm { padding: 8px 18px; font-size: 0.85rem; }
+
+  /* ── Score bar ── */
+  .score-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    background: white; border-radius: 12px; padding: 12px 20px;
+    box-shadow: var(--shadow); margin-bottom: 20px; font-weight: 700;
+  }
+  .score-val { font-size: 1.5rem; color: var(--mint); }
+  .score-label { font-size: 0.8rem; color: var(--muted); font-weight: 500; }
+
+  /* ─────────────────────────────────────────
+     GAME 1: MEMORY MATCH
+  ───────────────────────────────────────── */
+  #game-memory .card-grid {
+    display: grid; gap: 10px;
+    grid-template-columns: repeat(4, 1fr);
+  }
+  @media(max-width:400px) { #game-memory .card-grid { grid-template-columns: repeat(4, 1fr); gap: 7px; } }
+
+  .mem-card {
+    aspect-ratio: 1; border-radius: 12px; cursor: pointer;
+    font-size: 2rem; display: flex; align-items: center; justify-content: center;
+    background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: transform 0.2s; user-select: none; position: relative;
+  }
+  .mem-card.flipped, .mem-card.matched { background: var(--warm); }
+  .mem-card.matched { box-shadow: 0 0 0 3px var(--mint); cursor: default; }
+  .mem-card .front { display: none; }
+  .mem-card .back { position: absolute; font-size: 1.5rem; color: var(--mint-light); }
+  .mem-card.flipped .front, .mem-card.matched .front { display: flex; align-items: center; justify-content: center; position: absolute; inset: 0; }
+  .mem-card.flipped .back, .mem-card.matched .back { display: none; }
+
+  .difficulty-row { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+
+  /* ─────────────────────────────────────────
+     GAME 2: WORD SCRAMBLE
+  ───────────────────────────────────────── */
+  .word-box {
+    background: white; border-radius: var(--radius); padding: 32px 20px;
+    text-align: center; box-shadow: var(--shadow); margin-bottom: 20px;
+  }
+  .scrambled-word {
+    font-size: 2.8rem; font-weight: 900; letter-spacing: 0.15em;
+    color: var(--coral); margin-bottom: 8px; word-break: break-all;
+  }
+  .word-hint { color: var(--muted); font-size: 0.9rem; }
+  .word-input-row { display: flex; gap: 10px; margin-bottom: 16px; }
+  .word-input {
+    flex: 1; padding: 14px 18px; border-radius: 12px;
+    border: 2px solid #e5e5e5; font-size: 1.1rem; font-weight: 600;
+    outline: none; transition: border-color 0.2s; background: white;
+  }
+  .word-input:focus { border-color: var(--mint); }
+  .word-input.correct { border-color: var(--mint); background: #edfaf5; }
+  .word-input.wrong { border-color: var(--coral); background: #fef0ee; }
+  .feedback-msg { text-align: center; font-weight: 700; font-size: 1.1rem; min-height: 28px; }
+  .feedback-msg.ok { color: #2a7a60; }
+  .feedback-msg.no { color: var(--coral); }
+  .word-progress { text-align: center; color: var(--muted); font-size: 0.85rem; margin-bottom: 16px; }
+  .skip-row { text-align: center; margin-top: 10px; }
+
+  /* ─────────────────────────────────────────
+     GAME 3: QUICK MATH
+  ───────────────────────────────────────── */
+  .math-problem {
+    background: white; border-radius: var(--radius); padding: 40px 20px;
+    text-align: center; box-shadow: var(--shadow); margin-bottom: 20px;
+  }
+  .math-eq { font-size: 3rem; font-weight: 900; color: var(--lavender); margin-bottom: 8px; }
+  .math-timer-bar { height: 6px; background: #eee; border-radius: 3px; overflow: hidden; margin-top: 16px; }
+  .math-timer-fill { height: 100%; background: var(--mint); transition: width 0.1s linear; }
+  .math-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .math-choice {
+    padding: 20px; border-radius: 12px; background: white;
+    box-shadow: var(--shadow); font-size: 1.6rem; font-weight: 800;
+    border: 2px solid transparent; cursor: pointer; transition: all 0.15s;
+  }
+  .math-choice:hover { border-color: var(--lavender); transform: scale(1.03); }
+  .math-choice.correct { background: #edfaf5; border-color: var(--mint); }
+  .math-choice.wrong { background: #fef0ee; border-color: var(--coral); }
+  .math-level { display: flex; gap: 10px; margin-bottom: 20px; }
+
+  /* ─────────────────────────────────────────
+     GAME 4: TIC-TAC-TOE
+  ───────────────────────────────────────── */
+  .ttt-board {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 8px; max-width: 320px; margin: 0 auto 24px;
+  }
+  .ttt-cell {
+    aspect-ratio: 1; background: white; border-radius: 12px;
+    box-shadow: var(--shadow); font-size: 2.8rem; font-weight: 900;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: transform 0.1s, background 0.1s;
+    user-select: none;
+  }
+  .ttt-cell:hover:not(.taken) { background: var(--warm); transform: scale(1.04); }
+  .ttt-cell.taken { cursor: default; }
+  .ttt-cell.x-cell { color: var(--coral); }
+  .ttt-cell.o-cell { color: var(--lavender); }
+  .ttt-cell.win-cell { background: var(--mint-light); }
+  .ttt-status {
+    text-align: center; font-size: 1.2rem; font-weight: 700;
+    margin-bottom: 20px; min-height: 30px;
+  }
+  .ttt-score-row {
+    display: flex; justify-content: center; gap: 24px;
+    margin-bottom: 20px;
+  }
+  .ttt-score-box {
+    background: white; border-radius: 12px; padding: 12px 24px;
+    text-align: center; box-shadow: var(--shadow);
+  }
+  .ttt-score-box .player-label { font-size: 0.75rem; color: var(--muted); font-weight: 500; }
+  .ttt-score-box .player-score { font-size: 2rem; font-weight: 900; }
+  .ttt-mode-row { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+  .mode-btn {
+    padding: 8px 18px; border-radius: 24px; border: 2px solid #e5e5e5;
+    background: white; cursor: pointer; font-weight: 600; font-size: 0.85rem;
     transition: all 0.15s;
-    white-space: nowrap;
-    text-decoration: none;
   }
+  .mode-btn.active { border-color: var(--lavender); background: #e5e1f7; color: #5a4da0; }
 
-  .btn-primary {
-    background: var(--accent);
-    color: #13002a;
+  /* ── Result overlay ── */
+  .result-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    z-index: 50; align-items: center; justify-content: center;
   }
-
-  .btn-primary:hover { background: #c8b1ff; }
-
-  .btn-ghost {
-    background: transparent;
-    color: var(--text-muted);
-    border: 1px solid var(--border);
+  .result-overlay.active { display: flex; }
+  .result-card {
+    background: white; border-radius: 24px; padding: 48px 40px;
+    text-align: center; max-width: 340px; margin: 16px;
+    box-shadow: 0 16px 64px rgba(0,0,0,0.2);
   }
-
-  .btn-ghost:hover {
-    color: var(--text);
-    border-color: var(--border-hover);
-    background: var(--surface);
-  }
-
-  .btn-success {
-    background: var(--green);
-    color: #001a0d;
-  }
-
-  /* ── Preview highlights ── */
-  .preview-box .h1 { color: var(--text); font-weight: bold; }
-  .preview-box .h2 { color: var(--accent); }
-  .preview-box .rec { color: var(--green); }
-  .preview-box .muted { color: var(--text-faint); }
-
-  /* ── Divider ── */
-  .divider {
-    height: 1px;
-    background: var(--border);
-    margin: 40px 0;
-  }
-
-  /* ── Footer ── */
-  .form-footer {
-    padding-top: 20px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    gap: 12px;
-    align-items: center;
-  }
-
-  .completeness-text {
-    font-size: 13px;
-    color: var(--text-muted);
-    flex: 1;
-  }
-
-  /* ── Toast ── */
-  .toast {
-    position: fixed;
-    bottom: 28px;
-    left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: var(--surface-2);
-    border: 1px solid var(--border-hover);
-    border-radius: var(--radius-sm);
-    padding: 12px 20px;
-    font-size: 13px;
-    color: var(--text);
-    box-shadow: var(--shadow);
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    z-index: 999;
-    white-space: nowrap;
-  }
-
-  .toast.show { transform: translateX(-50%) translateY(0); }
-
-  /* ── Recommendation pills ── */
-  .rec-pills {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 10px;
-  }
-
-  .rec-pill {
-    font-size: 11px;
-    padding: 3px 10px;
-    border-radius: 99px;
-    background: var(--accent-dim);
-    color: var(--accent);
-    border: 1px solid rgba(182,157,248,0.2);
-  }
-
-  /* ── Responsive ── */
-  @media (max-width: 900px) {
-    .app { grid-template-columns: 1fr; }
-    .preview-panel { display: none; }
-    header { padding: 20px 24px; }
-    .form-panel { padding: 24px; }
-  }
-
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--surface-2); border-radius: 99px; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+  .result-card .result-emoji { font-size: 4rem; margin-bottom: 16px; }
+  .result-card h2 { font-size: 1.8rem; font-weight: 900; margin-bottom: 8px; }
+  .result-card p { color: var(--muted); margin-bottom: 24px; font-size: 1rem; }
+  .result-card .btn-row { display: flex; gap: 10px; justify-content: center; }
 </style>
 </head>
 <body>
 
-<div class="app">
-
-  <!-- Header -->
-  <header>
-    <div class="header-left">
-      <div class="eyebrow">Designing for Tomorrow</div>
-      <h1>AI UX Brief Builder</h1>
-      <p class="header-desc">Answer five lenses. Get a complete, exportable design brief for any AI-powered feature. Built for practitioners navigating the human-to-AI shift.</p>
+<!-- ─── HUB ─── -->
+<div id="hub" class="hub">
+  <div class="hub-header">
+    <h1>🎮 Family Game Night</h1>
+    <p>Four games, zero downloads. Pick one and play.</p>
+  </div>
+  <div class="game-grid">
+    <div class="game-card" onclick="openGame('memory')">
+      <div class="icon">🃏</div>
+      <h2>Memory Match</h2>
+      <p>Flip cards and find every matching pair before time runs out.</p>
+      <span class="badge c-mint">Ages 4+</span>
     </div>
-    <div class="header-actions">
-      <button class="btn btn-ghost" onclick="resetAll()">Reset</button>
-      <button class="btn btn-primary" onclick="exportBrief()">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 6l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Export Brief
-      </button>
+    <div class="game-card" onclick="openGame('scramble')">
+      <div class="icon">🔤</div>
+      <h2>Word Scramble</h2>
+      <p>Unscramble the letters and guess the word before you run out of tries.</p>
+      <span class="badge c-coral">Ages 7+</span>
     </div>
-  </header>
-
-  <!-- Form Panel -->
-  <main class="form-panel">
-
-    <!-- Progress -->
-    <div class="progress-bar-wrap">
-      <div class="progress-meta">
-        <span id="progress-label">0 of 5 lenses complete</span>
-        <span id="progress-pct" style="color: var(--accent)">0%</span>
-      </div>
-      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="game-card" onclick="openGame('math')">
+      <div class="icon">🧮</div>
+      <h2>Quick Math</h2>
+      <p>Beat the clock — pick the right answer before time runs out.</p>
+      <span class="badge c-lavender">Ages 6+</span>
     </div>
-
-    <!-- Context -->
-    <div class="section">
-      <div class="section-header">
-        <div class="section-num">✦</div>
-        <div>
-          <div class="section-title">Product Context</div>
-          <div class="section-subtitle">What are you designing? Who's it for?</div>
-        </div>
-      </div>
-
-      <div class="context-grid">
-        <div class="field">
-          <label for="feature-name">Feature Name</label>
-          <input type="text" id="feature-name" placeholder="e.g. Smart Reply Suggestions" oninput="updatePreview()">
-        </div>
-        <div class="field">
-          <label for="user-type">Primary User</label>
-          <input type="text" id="user-type" placeholder="e.g. Customer support agents" oninput="updatePreview()">
-        </div>
-        <div class="field full">
-          <label for="feature-desc">What does it do?</label>
-          <textarea id="feature-desc" placeholder="Describe the feature in plain language — what AI capability is involved and what user problem it solves." oninput="updatePreview()"></textarea>
-        </div>
-        <div class="field">
-          <label for="stakes">Decision Stakes</label>
-          <select id="stakes" onchange="updatePreview()">
-            <option value="">Select stakes level</option>
-            <option value="low">Low — reversible, low consequence</option>
-            <option value="medium">Medium — moderate impact, correctable</option>
-            <option value="high">High — significant consequence if wrong</option>
-            <option value="critical">Critical — safety, legal, or financial exposure</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="ai-visibility">AI Visibility to User</label>
-          <select id="ai-visibility" onchange="updatePreview()">
-            <option value="">Select visibility</option>
-            <option value="invisible">Invisible — user doesn't know AI is involved</option>
-            <option value="implicit">Implicit — AI implied but not stated</option>
-            <option value="explicit">Explicit — clearly labeled as AI</option>
-            <option value="foregrounded">Foregrounded — AI is the product narrative</option>
-          </select>
-        </div>
-      </div>
+    <div class="game-card" onclick="openGame('ttt')">
+      <div class="icon">⭕</div>
+      <h2>Tic-Tac-Toe</h2>
+      <p>Classic two-player or challenge the computer. Three in a row wins.</p>
+      <span class="badge c-gold">2 Players</span>
     </div>
-
-    <div class="divider"></div>
-
-    <!-- Lens 1: Trust Calibration -->
-    <div class="lens-card" id="lens-0">
-      <div class="lens-header">
-        <div class="lens-icon">⚖️</div>
-        <div>
-          <div class="lens-name">Lens 1 — Trust Calibration</div>
-          <div class="lens-question">How much should users trust this AI output by default?</div>
-        </div>
-      </div>
-      <div class="options" id="options-0">
-        <label class="option" onclick="selectOption(0,'full')">
-          <input type="radio" name="lens-0" value="full">
-          <div class="option-radio"></div>
-          <div>
-            <div class="option-label">Full trust by default</div>
-            <div class="option-desc">Output is treated as ground truth unless user actively challenges it. No scaffolding shown.</div>
-          </div>
-        </label>
-        <label class="option" onclick="selectOption(0,'signal')">
-          <input type="radio" name="lens-0" value="signal">
-          <div class="option-radio"></div>
-          <div>
-            <div class="option-label">Trust with confidence signals</div>
-            <div class="option-desc">Show confidence indicators, source attribution, or quality markers so users can calibrate appropriately.</div>
-          </div>
-        </label>
-        <label class="option" onclick="selectOption(0,'provisional')">
-          <input type="radio" name="lens-0" value="provisional">
-          <div class="option-radio"></div>
-          <div>
-            <div class="option-label">Provisional trust</div>
-            <div class="option-desc">AI output is a starting point. Interface always surfaces an easy override path, even when the output looks good.</div>
-          </div>
-        </label>
-        <label class="option" onclick="selectOption(0,'skeptical')">
-          <input type="radio" name="lens-0" value="skeptical">
-          <div class="option-radio"></div>
-          <div>
-            <div class="option-label">Skeptical trust</div>
-            <div class="option-desc">High-stakes outputs require human confirmation before any action is taken. Trust must be actively granted per instance.</div>
-          </div>
-        </label>
-      </div>
-      <div class="field lens-notes">
-        <label>Notes (optional)</label>
-        <textarea placeholder="Edge cases, user research insights, stakeholder constraints…" oninput="updatePreview()" id="notes-0"></textarea>
-      </div>
-    </div>
-
-    <!-- Lens 2: Agency Distribution -->
-    <div class="lens-card" id="lens-1">
-      <div class="lens-header">
-        <div class="lens-icon">🎛️</div>
-        <div>
-          <div class="lens-name">Lens 2 — Agency Distribution</div>
-          <div class="lens-question">Who holds decision authority in this feature?</div>
-        </div>
-      </div>
-      <div class="options" id="options-1">
-        <label class="option" onclick="selectOption(1,'ai-decides')">
-          <input type="radio" name="lens-1" value="ai-decides">
-          <div class="option-radio"></div>
-          <div>
-            <div class="option-label">AI decides, human monitors</div>
-            <div class="option-desc">Automation runs by default. Human reviews exceptions or outcomes on a cadence, not per decision.</div>
-          </div>
-        </label>
-        <label class="option" onclick="selectOption(1,'ai-recommends')">
-          <input type="radio" name="lens-1" value="ai-recommends">
-          <div class="option-radio"></div>
-          <div>
-            <div class="option-label">AI recommends, human approves</div>
-            <div class="option-desc">AI surfaces the best option with reasoning. Human retains the final trigger. Approval is the default pattern.</div>
-          </div>
-        </label>
-        <label class="option" onclick="selectOption(1,'human-leads')">
-          <input type="radio" name="lens-1" value="human-leads">
-          <div class="option-radio"></div>
-          <div>
-            <div class="option-label">Human leads, AI assists</div>
-            <div class="option-desc">Human drives the workflow. AI surfaces options, fills gaps, and reduces friction at specific moments.</div>
-          </div>
-        </label>
-        <label class="option" onclick="selectOption(1,'parallel')">
-          <input type="radio" name="lens-1" value="parallel">
-          <div class="option-radio"></div>
-          <div>
-            <div class="option-label">Parallel paths</div>
-            <div class="option-desc">AI and human generate independently. Human reviews both and chooses — or synthesizes — without AI pre-selection bias.</div>
-          </div>
-        </label>
-      </div>
-      <div class="field lens-notes">
-        <label>Notes (optional)</label>
-        <textarea placeholder="Regulatory constraints, organizational approval flows, automation appetite…" oninput="updatePreview()" id="notes-1"></textarea>
-      </div>
-    </div>
-
-    <!-- Lens 3: Error Recovery -->
-    <div class="lens-card" id="lens-2">
-      <div class="lens-header">
-        <div class="lens-icon">🔁</div>
-        <div>
-          <div class="lens-name">Lens 3 — Error Recovery</div>
-          <div class="lens-question">When the AI gets it wrong, what's the recovery path?</div>
-        </div>
-      </div>
-      <div class="options" id="options-2">
-        <label class="option" onclick="selectOption(2,'retry')">
-          <input type="radio" name="lens-2" value="retry">
-          <div class="option-radio"></div>
-          <div>
-            <div class="option-label">Automatic retry</div>
-            <div class="option-desc">System detects failure signals and retries autonomously. User sees the resolved output, not the failure.</div>
-          </div>
-        </label>
-        <label class="option" onclick="selectOption(2,'correction-ui')">
-          <input type="radio" name="lens-2" value="correction-ui">
-          <div class="option-radio"></div>
-          <div>
-            <div class="option-label">Human correction UI</div>
-            <div class="option-desc">Clear error state with structured input for the human to correct and resubmit. Error is surfaced, not hidden.</div>
-          </div>
-        </label>
-        <label class="option" onclick="selectOption(2,'graceful-degrade')">
-          <input type="radio" name="lens-2" value="graceful-degrade">
-          <div class="option-radio"></div>
-          <div>
-            <div class="option-label">Graceful degradation</div>
-            <div class="option-desc">AI failure silently falls back to the non-AI baseline flow. User experience continues without interruption.</div>
-          </div>
-        </label>
-        <label class="option" onclick="selectOption(2,'transparent-fail')">
-          <input type="radio" name="lens-2" value="transparent-fail">
-          <div class="option-radio"></div>
-          <div>
-            <div class="option-label">Transparent failure with escalation</div>
-            <div class="option-desc">Failure is acknowledged explicitly. User gets an explanation and a clear path to human support or alternative resolution.</div>
-          </div>
-        </label>
-      </div>
-      <div class="field lens-notes">
-        <label>Notes (optional)</label>
-        <textarea placeholder="Known failure modes, user expectations around error, SLA requirements…" oninput="updatePreview()" id="notes-2"></textarea>
-      </div>
-    </div>
-
-    <!-- Lens 4: Transparency -->
-    <div class="lens-card" id="lens-3">
-      <div class="lens-header">
-        <div class="lens-icon">🔍</div>
-        <div>
-          <div class="lens-name">Lens 4 — Transparency Requirements</div>
-          <div class="lens-question">How much should users know about how this works?</div>
-        </div>
-      </div>
-      <div class="options" id="options-3">
-        <label class="option" onclick="selectOption(3,'invisible')">
-          <input type="radio" name="lens-3" value="invisible">
-          <div class="option-radio"></div>
-          <div>
-            <div class="option-label">Invisible — outcome only</div>
-            <div class="option-desc">AI implementation is an internal detail. User sees a clean result without any AI framing or attribution.</div>
-          </div>
-        </label>
-        <label class="option" onclick="selectOption(3,'attribute')">
-          <input type="radio" name="lens-3" value="attribute">
-          <div class="option-radio"></div>
-          <div>
-            <div class="option-label">Attribute — label as AI-generated</div>
-            <div class="option-desc">Output is clearly labeled as AI-generated so users know what they're working with. No reasoning shown.</div>
-          </div>
-        </label>
-        <label class="option" onclick="selectOption(3,'explain')">
-          <input type="radio" name="lens-3" value="explain">
-          <div class="option-radio"></div>
-          <div>
-            <div class="option-label">Explain — show reasoning or sources</div>
-            <div class="option-desc">AI shares the basis for its output — data sources, key factors, confidence rationale — so users can evaluate it meaningfully.</div>
-          </div>
-        </label>
-        <label class="option" onclick="selectOption(3,'audit')">
-          <input type="radio" name="lens-3" value="audit">
-          <div class="option-radio"></div>
-          <div>
-            <div class="option-label">Audit — full log and reproducibility</div>
-            <div class="option-desc">Every AI decision is logged with inputs, outputs, timestamp, and model version. Reproducibility and review are first-class features.</div>
-          </div>
-        </label>
-      </div>
-      <div class="field lens-notes">
-        <label>Notes (optional)</label>
-        <textarea placeholder="Regulatory requirements, user research on explanation needs, trust dynamics…" oninput="updatePreview()" id="notes-3"></textarea>
-      </div>
-    </div>
-
-    <!-- Lens 5: Long-term Adaptation -->
-    <div class="lens-card" id="lens-4">
-      <div class="lens-header">
-        <div class="lens-icon">🌱</div>
-        <div>
-          <div class="lens-name">Lens 5 — Long-term Adaptation</div>
-          <div class="lens-question">How should this feature evolve with user behavior over time?</div>
-        </div>
-      </div>
-      <div class="options" id="options-4">
-        <label class="option" onclick="selectOption(4,'static')">
-          <input type="radio" name="lens-4" value="static">
-          <div class="option-radio"></div>
-          <div>
-            <div class="option-label">Static — same for all users</div>
-            <div class="option-desc">Consistent behavior regardless of individual patterns. Predictability and fairness are prioritized over personalization.</div>
-          </div>
-        </label>
-        <label class="option" onclick="selectOption(4,'personalized')">
-          <input type="radio" name="lens-4" value="personalized">
-          <div class="option-radio"></div>
-          <div>
-            <div class="option-label">Personalized — adapts to individual patterns</div>
-            <div class="option-desc">System learns each user's style, preferences, and behavior patterns to improve relevance over time.</div>
-          </div>
-        </label>
-        <label class="option" onclick="selectOption(4,'learned')">
-          <input type="radio" name="lens-4" value="learned">
-          <div class="option-radio"></div>
-          <div>
-            <div class="option-label">Learned — improves from corrections</div>
-            <div class="option-desc">User corrections and feedback directly improve future AI outputs. The system gets smarter through use.</div>
-          </div>
-        </label>
-        <label class="option" onclick="selectOption(4,'collaborative')">
-          <input type="radio" name="lens-4" value="collaborative">
-          <div class="option-radio"></div>
-          <div>
-            <div class="option-label">Collaborative — users shape the model</div>
-            <div class="option-desc">Users have agency over how the AI evolves — through explicit feedback, ratings, or policy customization. Adaptation is a shared act.</div>
-          </div>
-        </label>
-      </div>
-      <div class="field lens-notes">
-        <label>Notes (optional)</label>
-        <textarea placeholder="Privacy constraints, ML team capacity, user expectations around personalization…" oninput="updatePreview()" id="notes-4"></textarea>
-      </div>
-    </div>
-
-    <!-- Footer -->
-    <div class="form-footer">
-      <span class="completeness-text" id="completeness-text">Complete all 5 lenses to generate your full brief.</span>
-      <button class="btn btn-ghost" onclick="resetAll()">Reset</button>
-      <button class="btn btn-primary" onclick="exportBrief()">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 6l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Export Brief
-      </button>
-    </div>
-
-  </main>
-
-  <!-- Preview Panel -->
-  <aside class="preview-panel">
-    <div class="preview-label">Live Preview</div>
-    <div class="preview-box" id="preview-box">
-      <span class="ph">Your brief will appear here as you fill in the lenses.</span>
-    </div>
-    <button class="btn btn-ghost" style="font-size:12px" onclick="copyPreview()">Copy plain text</button>
-  </aside>
-
+  </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<!-- ─── MEMORY MATCH ─── -->
+<div id="game-memory" class="screen">
+  <div class="screen-inner">
+    <button class="back-btn" onclick="closeGame('memory')">← Back</button>
+    <div class="screen-title">🃏 Memory Match</div>
+    <div class="screen-sub">Flip cards to find matching pairs.</div>
+    <div class="difficulty-row">
+      <button class="btn btn-sm btn-mint" onclick="startMemory(8)">Easy (8)</button>
+      <button class="btn btn-sm btn-ghost" onclick="startMemory(16)">Medium (16)</button>
+      <button class="btn btn-sm btn-ghost" onclick="startMemory(24)">Hard (24)</button>
+    </div>
+    <div class="score-bar">
+      <div><div class="score-label">Pairs Found</div><div class="score-val" id="mem-pairs">0</div></div>
+      <div><div class="score-label">Moves</div><div class="score-val" id="mem-moves">0</div></div>
+      <div><div class="score-label">Time</div><div class="score-val" id="mem-time">0:00</div></div>
+    </div>
+    <div class="card-grid" id="mem-grid"></div>
+  </div>
+</div>
+
+<!-- ─── WORD SCRAMBLE ─── -->
+<div id="game-scramble" class="screen">
+  <div class="screen-inner">
+    <button class="back-btn" onclick="closeGame('scramble')">← Back</button>
+    <div class="screen-title">🔤 Word Scramble</div>
+    <div class="screen-sub">Unscramble 10 words. 3 wrong guesses per word.</div>
+    <div class="score-bar">
+      <div><div class="score-label">Score</div><div class="score-val" id="ws-score">0</div></div>
+      <div><div class="score-label">Word</div><div class="score-val" id="ws-progress">1/10</div></div>
+      <div><div class="score-label">Lives</div><div class="score-val" id="ws-lives">❤️❤️❤️</div></div>
+    </div>
+    <div class="word-box">
+      <div class="scrambled-word" id="ws-word">—</div>
+      <div class="word-hint" id="ws-hint"></div>
+    </div>
+    <div class="word-input-row">
+      <input class="word-input" id="ws-input" type="text" placeholder="Type your answer…" autocapitalize="none" autocomplete="off" spellcheck="false">
+      <button class="btn btn-coral" onclick="submitWord()">Go</button>
+    </div>
+    <div class="feedback-msg" id="ws-feedback"></div>
+    <div class="skip-row"><button class="btn btn-ghost btn-sm" onclick="skipWord()">Skip →</button></div>
+  </div>
+</div>
+
+<!-- ─── QUICK MATH ─── -->
+<div id="game-math" class="screen">
+  <div class="screen-inner">
+    <button class="back-btn" onclick="closeGame('math')">← Back</button>
+    <div class="screen-title">🧮 Quick Math</div>
+    <div class="screen-sub">Tap the right answer before the bar runs out.</div>
+    <div class="math-level">
+      <button class="btn btn-sm btn-mint" onclick="startMath('easy')">Easy</button>
+      <button class="btn btn-sm btn-ghost" onclick="startMath('medium')">Medium</button>
+      <button class="btn btn-sm btn-ghost" onclick="startMath('hard')">Hard</button>
+    </div>
+    <div class="score-bar">
+      <div><div class="score-label">Score</div><div class="score-val" id="math-score">0</div></div>
+      <div><div class="score-label">Streak</div><div class="score-val" id="math-streak">0</div></div>
+      <div><div class="score-label">Lives</div><div class="score-val" id="math-lives">❤️❤️❤️</div></div>
+    </div>
+    <div class="math-problem">
+      <div class="math-eq" id="math-eq">—</div>
+      <div class="math-timer-bar"><div class="math-timer-fill" id="math-bar" style="width:100%"></div></div>
+    </div>
+    <div class="math-choices" id="math-choices"></div>
+  </div>
+</div>
+
+<!-- ─── TIC-TAC-TOE ─── -->
+<div id="game-ttt" class="screen">
+  <div class="screen-inner">
+    <button class="back-btn" onclick="closeGame('ttt')">← Back</button>
+    <div class="screen-title">⭕ Tic-Tac-Toe</div>
+    <div class="screen-sub">Three in a row wins.</div>
+    <div class="ttt-mode-row">
+      <button class="mode-btn active" id="ttt-mode-2p" onclick="setTTTMode('2p')">👥 2 Players</button>
+      <button class="mode-btn" id="ttt-mode-cpu" onclick="setTTTMode('cpu')">🤖 vs Computer</button>
+    </div>
+    <div class="ttt-score-row">
+      <div class="ttt-score-box">
+        <div class="player-label" id="ttt-p1-label">Player X</div>
+        <div class="player-score" style="color:var(--coral)" id="ttt-score-x">0</div>
+      </div>
+      <div class="ttt-score-box">
+        <div class="player-label">Draws</div>
+        <div class="player-score" style="color:var(--muted)" id="ttt-score-d">0</div>
+      </div>
+      <div class="ttt-score-box">
+        <div class="player-label" id="ttt-p2-label">Player O</div>
+        <div class="player-score" style="color:var(--lavender)" id="ttt-score-o">0</div>
+      </div>
+    </div>
+    <div class="ttt-status" id="ttt-status">X goes first</div>
+    <div class="ttt-board" id="ttt-board"></div>
+    <div style="text-align:center"><button class="btn btn-ghost" onclick="resetTTT()">New Game</button></div>
+  </div>
+</div>
+
+<!-- ─── RESULT OVERLAY ─── -->
+<div class="result-overlay" id="result-overlay">
+  <div class="result-card">
+    <div class="result-emoji" id="res-emoji">🎉</div>
+    <h2 id="res-title">Nice!</h2>
+    <p id="res-msg"></p>
+    <div class="btn-row">
+      <button class="btn btn-mint" id="res-play-again">Play Again</button>
+      <button class="btn btn-ghost" onclick="closeResult()">Menu</button>
+    </div>
+  </div>
+</div>
 
 <script>
-  const state = {
-    selections: [null, null, null, null, null],
-    notes: ['','','','',''],
-    featureName: '',
-    userType: '',
-    featureDesc: '',
-    stakes: '',
-    visibility: ''
-  };
+// ────────────────────────────────────────────────────────────
+// NAVIGATION
+// ────────────────────────────────────────────────────────────
+let currentGame = null;
 
-  const LENSES = [
-    { name: 'Trust Calibration', icon: '⚖️' },
-    { name: 'Agency Distribution', icon: '🎛️' },
-    { name: 'Error Recovery', icon: '🔁' },
-    { name: 'Transparency', icon: '🔍' },
-    { name: 'Long-term Adaptation', icon: '🌱' }
-  ];
+function openGame(id) {
+  document.getElementById('hub').style.display = 'none';
+  document.getElementById('game-' + id).classList.add('active');
+  currentGame = id;
+  if (id === 'memory') startMemory(8);
+  if (id === 'scramble') startScramble();
+  if (id === 'math') startMath('easy');
+  if (id === 'ttt') initTTT();
+}
 
-  const PRESCRIPTIONS = {
-    // Trust
-    trust_full: {
-      headline: 'Optimized for speed — trust scaffolding removed.',
-      recs: ['Design for expert users who understand AI limitations', 'Monitor for trust miscalibration in analytics', 'Add a "learn more" path for curious users', 'Plan a rollback mechanism if trust erodes at scale'],
-      copy: 'Users are presented with AI outputs as definitive answers. No confidence indicators are shown. The design prioritizes speed and reduction of cognitive overhead. This posture is appropriate when errors are low-consequence and reversible, or when user expertise is consistently high. Monitor closely for over-reliance patterns.'
-    },
-    trust_signal: {
-      headline: 'Confidence signals embedded — users calibrate in context.',
-      recs: ['Show source attribution or data recency where relevant', 'Use visual confidence gradients (e.g., color or opacity) on outputs', 'Avoid numeric percentages — they create false precision', 'Let users hover/tap for deeper signal rationale'],
-      copy: 'AI outputs are accompanied by calibrated confidence signals — visual, textual, or both. Users receive enough context to evaluate the output without requiring full transparency into model mechanics. This posture balances efficiency with appropriate skepticism, supporting informed use without creating friction for high-confidence outputs.'
-    },
-    trust_provisional: {
-      headline: 'Provisional trust — override path always visible.',
-      recs: ['Place edit/override controls at equal visual weight to the AI output', 'Never hide the original input after AI transforms it', 'Design "revert" as a first-class action', 'Track override rate as a primary quality signal'],
-      copy: 'AI outputs are treated as intelligent drafts, not decisions. The interface always surfaces a frictionless override or edit path — even when the output appears correct. This prevents automation bias from accumulating over time and keeps users as active participants rather than passive approvers.'
-    },
-    trust_skeptical: {
-      headline: 'Skeptical trust — human confirmation required per instance.',
-      recs: ['Design confirmation UIs that require active engagement, not passive clicking', 'Show the AI\'s reasoning before asking for confirmation', 'Log all confirmations for audit and compliance trails', 'Time-box confirmation windows to prevent rubber-stamping'],
-      copy: 'High stakes or high consequence outputs require active human confirmation before any downstream action is taken. Trust cannot be pre-granted — it must be extended deliberately for each instance. This posture is mandatory for decisions with financial, legal, safety, or reputational exposure.'
-    },
-    // Agency
-    agency_ai_decides: {
-      headline: 'Automation-first — human monitors outcomes, not decisions.',
-      recs: ['Design dashboards for exception review, not approval queues', 'Define clear escalation triggers that route to human review', 'Build in "pause automation" controls at multiple levels', 'Establish SLAs for exception resolution time'],
-      copy: 'AI drives decisions autonomously. Human involvement is scoped to monitoring outcomes, reviewing exceptions, and tuning automation thresholds over time. This posture maximizes throughput and is appropriate when error rates are low, failures are detectable, and recovery is fast. The primary design challenge is making exceptions visible without creating alert fatigue.'
-    },
-    agency_ai_recommends: {
-      headline: 'AI recommends, human pulls the trigger.',
-      recs: ['Surface the AI\'s top recommendation prominently — don\'t bury it in a list', 'Show reasoning alongside the recommendation, not after approval', 'Design the approval action to feel meaningful, not mechanical', 'Track approval rate and disagreement patterns as model signals'],
-      copy: 'AI surfaces a recommendation with supporting rationale. The human reviews and approves before any action executes. This is the most common posture for consequential but frequent decisions — it preserves human authority while dramatically reducing cognitive load. The design must avoid the "approve everything" trap by making the recommendation\'s reasoning genuinely reviewable.'
-    },
-    agency_human_leads: {
-      headline: 'Human in the driver\'s seat — AI reduces friction at key moments.',
-      recs: ['Identify 3–5 specific moments in the workflow where AI adds clear value', 'Make AI assistance opt-in or clearly dismissible at each touchpoint', 'Design for partial AI adoption — not all users will use every feature', 'Measure which AI assists are actually used vs. ignored'],
-      copy: 'The human controls the workflow. AI surfaces assistance at specific moments — suggestions, auto-completion, gap-filling — without taking initiative or altering the user\'s primary path. This posture works well when users have strong existing mental models and workflows, and AI is being introduced incrementally. Adoption is voluntary; design for graceful bypass.'
-    },
-    agency_parallel: {
-      headline: 'Parallel generation — human selects without AI pre-biasing.',
-      recs: ['Present human and AI outputs in a non-hierarchical layout', 'Don\'t pre-select or visually favor the AI output', 'Allow synthesis: users can mix elements from both paths', 'Log which path is chosen to surface systematic biases'],
-      copy: 'Human and AI generate independently. The human reviews both outputs and selects or synthesizes — without the AI having pre-filtered or ranked the options. This preserves the user\'s own creative and analytical instincts while making AI genuinely useful as a parallel perspective. It is particularly appropriate in creative, editorial, or exploratory contexts.'
-    },
-    // Error
-    error_retry: {
-      headline: 'Silent retry — users see resolution, not failure.',
-      recs: ['Define clear failure signals the system can detect (not just 500 errors)', 'Set maximum retry count before surfacing to user', 'Log silent retries for monitoring — invisible ≠ untracked', 'Design a fallback for when retries are exhausted'],
-      copy: 'System detects failure signals and retries autonomously. Users see the resolved output rather than the failure state — reducing friction for recoverable errors. This approach is appropriate when failures are frequent but fast to resolve, and when surfacing every error creates unnecessary anxiety. Invisible retries must still be logged; "invisible to user" cannot mean "invisible to ops."'
-    },
-    error_correction_ui: {
-      headline: 'Structured correction — error is surfaced, not hidden.',
-      recs: ['Design the error state as clearly distinct from success states', 'Pre-populate correction inputs with the closest valid interpretation', 'Explain what went wrong in plain language — no jargon', 'Preserve user inputs across correction cycles'],
-      copy: 'Errors are surfaced clearly with a structured path for human correction. The interface provides the tools to diagnose what went wrong and resubmit a corrected request. This posture treats users as capable problem-solvers, not passive recipients. The design challenge is making error states feel productive rather than punitive.'
-    },
-    error_graceful_degrade: {
-      headline: 'Graceful degradation — AI fails silently to a baseline flow.',
-      recs: ['Define the non-AI baseline experience explicitly before building the AI layer', 'Test the degraded path as a first-class user scenario', 'Monitor degradation frequency as a leading indicator of AI health', 'Never degrade to a broken state — the baseline must always work'],
-      copy: 'When the AI fails, the feature silently falls back to the non-AI baseline experience. Users continue their workflow without interruption. This posture prioritizes resilience and is appropriate when the AI layer is an enhancement rather than a core dependency. The degraded path must be designed and tested with the same rigor as the AI-powered path.'
-    },
-    error_transparent_fail: {
-      headline: 'Transparent failure — acknowledged, explained, escalated.',
-      recs: ['Write failure messages at a 7th-grade reading level — no stack traces', 'Always offer a human escalation path, not just a retry button', 'Log the full context of every transparent failure for root cause analysis', 'Design the escalation path to feel helpful, not like a consolation prize'],
-      copy: 'When the AI fails, it acknowledges the failure explicitly and provides a clear explanation and escalation path. Users are treated as adults who deserve honest communication over false confidence. This posture is mandatory in high-stakes contexts and builds long-term trust by demonstrating that the system knows its own limits.'
-    },
-    // Transparency
-    transparency_invisible: {
-      headline: 'Invisible — AI is an implementation detail.',
-      recs: ['Validate that users\' mental models don\'t require AI disclosure', 'Ensure non-disclosure doesn\'t create misplaced trust in impossible accuracy', 'Check regulatory requirements for your domain — some require disclosure', 'Plan a disclosure path for when the AI makes a significant mistake'],
-      copy: 'The AI implementation is not disclosed to users. They interact with a clean outcome without framing around how it was produced. This posture is appropriate when the AI is performing a well-bounded task with high reliability, and when disclosure would create unnecessary anxiety or confusion. Validate this posture against applicable regulations before shipping.'
-    },
-    transparency_attribute: {
-      headline: 'Attributed — clearly labeled as AI-generated.',
-      recs: ['Use consistent, clear labeling (e.g., "AI-generated", not "smart suggestion")', 'Place the label at point of output, not buried in settings', 'Test comprehension — users should understand what "AI-generated" means in context', 'Consider what label to use when the AI is partially involved'],
-      copy: 'AI involvement is disclosed at the point of output. Users know they\'re working with AI-generated content, giving them appropriate context to evaluate and act on it. Attribution doesn\'t include reasoning — just provenance. This posture is the minimum viable transparency for most consumer-facing AI features and is increasingly expected as a baseline norm.'
-    },
-    transparency_explain: {
-      headline: 'Explanatory — reasoning and sources shown on demand.',
-      recs: ['Use progressive disclosure: label first, explanation on demand', 'Show 2–3 key factors, not an exhaustive list', 'Design explanation UI as a trust-building feature, not a debugging tool', 'Test whether explanations actually improve user decisions, or just increase confidence'],
-      copy: 'AI outputs include access to the reasoning, sources, or key factors that shaped them. Users can evaluate outputs meaningfully rather than accepting or rejecting blindly. This posture significantly increases trust when explanations are accurate, but creates backfire risk when they\'re misleading or overly simplified. Explanation quality must be held to the same standard as output quality.'
-    },
-    transparency_audit: {
-      headline: 'Full audit — every decision logged and reproducible.',
-      recs: ['Log inputs, outputs, model version, and timestamp for every AI call', 'Design a review UI for compliance, legal, and ops teams — not just end users', 'Define retention periods aligned with regulatory requirements', 'Test reproducibility: can you replay any past decision from the log?'],
-      copy: 'Every AI decision is fully logged — inputs, outputs, model version, timestamp — and is reproducible on demand. Audit is a first-class feature, not an afterthought. This posture is required in regulated industries (healthcare, finance, legal) and in any context where decisions can be contested or reviewed after the fact. The audit trail must be tamper-evident and accessible to appropriate stakeholders.'
-    },
-    // Adaptation
-    adaptation_static: {
-      headline: 'Static — same experience for all users.',
-      recs: ['Design for the full range of users, not just power users', 'Treat predictability as a feature — document it in user-facing materials', 'Use static systems when fairness or regulatory equity is a concern', 'Version-control the model and notify users before behavioral changes'],
-      copy: 'The AI behaves consistently for all users, regardless of individual history or behavior patterns. This prioritizes predictability, fairness, and trust calibration over personalization. It is the appropriate default for contexts where users need to develop reliable mental models of system behavior, or where differential treatment would raise fairness or regulatory concerns.'
-    },
-    adaptation_personalized: {
-      headline: 'Personalized — adapts to individual patterns over time.',
-      recs: ['Be transparent about what data drives personalization', 'Give users visibility into their "profile" and the ability to reset it', 'Design for cold start: new users should still get good experiences', 'Monitor for filter bubble effects and personalization drift'],
-      copy: 'The system learns each user\'s patterns, preferences, and style over time to improve relevance and quality of output. Personalization improves the experience for established users while requiring careful cold-start design for newcomers. Transparency about what drives personalization — and user control over it — is not optional at this posture level.'
-    },
-    adaptation_learned: {
-      headline: 'Learned — user corrections directly improve future outputs.',
-      recs: ['Design correction UI to capture structured signal, not just free text', 'Show users evidence that their corrections had an effect', 'Define the correction loop latency — how long until corrections are reflected?', 'Guard against adversarial feedback that degrades model quality'],
-      copy: 'User corrections and feedback are the primary signal for model improvement. The system gets measurably better through use, and users can see the evidence. This posture creates a powerful feedback loop but requires careful design: feedback mechanisms must capture structured signal, correction latency must be visible, and adversarial or low-quality feedback must be filtered. Users who invest in corrections deserve to see the payoff.'
-    },
-    adaptation_collaborative: {
-      headline: 'Collaborative — users have explicit agency over how AI evolves.',
-      recs: ['Design feedback and policy controls as first-class UI surfaces', 'Give users a "history of my influence" view', 'Define governance: who can change what, and with what scope?', 'Communicate model updates clearly — users who shaped the model deserve notice'],
-      copy: 'Users have explicit agency over how the AI evolves — through ratings, policy customization, explicit feedback, or collective voting. Adaptation is a shared act, not something that happens to users invisibly. This posture is the most trust-intensive and operationally complex, but builds the deepest user investment in the system\'s success. Governance and transparency are non-negotiable at this level.'
-    }
-  };
+function closeGame(id) {
+  document.getElementById('game-' + id).classList.remove('active');
+  document.getElementById('hub').style.display = '';
+  currentGame = null;
+  clearAllTimers();
+}
 
-  const TRUST_MAP = { full: 'trust_full', signal: 'trust_signal', provisional: 'trust_provisional', skeptical: 'trust_skeptical' };
-  const AGENCY_MAP = { 'ai-decides': 'agency_ai_decides', 'ai-recommends': 'agency_ai_recommends', 'human-leads': 'agency_human_leads', 'parallel': 'agency_parallel' };
-  const ERROR_MAP = { retry: 'error_retry', 'correction-ui': 'error_correction_ui', 'graceful-degrade': 'error_graceful_degrade', 'transparent-fail': 'error_transparent_fail' };
-  const TRANSPARENCY_MAP = { invisible: 'transparency_invisible', attribute: 'transparency_attribute', explain: 'transparency_explain', audit: 'transparency_audit' };
-  const ADAPTATION_MAP = { static: 'adaptation_static', personalized: 'adaptation_personalized', learned: 'adaptation_learned', collaborative: 'adaptation_collaborative' };
-  const MAPS = [TRUST_MAP, AGENCY_MAP, ERROR_MAP, TRANSPARENCY_MAP, ADAPTATION_MAP];
+function clearAllTimers() {
+  if (memTimer) clearInterval(memTimer);
+  if (mathTimer) clearInterval(mathTimer);
+}
 
-  function selectOption(lensIndex, value) {
-    state.selections[lensIndex] = value;
-    const options = document.querySelectorAll(`#options-${lensIndex} .option`);
-    options.forEach(opt => {
-      const radio = opt.querySelector('input[type="radio"]');
-      if (radio.value === value) {
-        opt.classList.add('selected');
-      } else {
-        opt.classList.remove('selected');
+function showResult(emoji, title, msg, playAgainFn) {
+  document.getElementById('res-emoji').textContent = emoji;
+  document.getElementById('res-title').textContent = title;
+  document.getElementById('res-msg').textContent = msg;
+  document.getElementById('res-play-again').onclick = () => { closeResult(); playAgainFn(); };
+  document.getElementById('result-overlay').classList.add('active');
+}
+
+function closeResult() {
+  document.getElementById('result-overlay').classList.remove('active');
+  if (currentGame === null) { document.getElementById('hub').style.display = ''; }
+}
+
+// ────────────────────────────────────────────────────────────
+// GAME 1: MEMORY MATCH
+// ────────────────────────────────────────────────────────────
+const MEM_EMOJIS = ['🐶','🐱','🦊','🐻','🐼','🦁','🐸','🐵','🦋','🌈','⭐','🍕'];
+let memTimer = null, memStart = 0, memMoves = 0, memPairs = 0, memTotal = 0;
+let memFlipped = [], memLocked = false;
+
+function startMemory(count) {
+  clearInterval(memTimer);
+  memMoves = 0; memPairs = 0; memFlipped = []; memLocked = false;
+  memTotal = count / 2;
+  document.getElementById('mem-pairs').textContent = '0';
+  document.getElementById('mem-moves').textContent = '0';
+  document.getElementById('mem-time').textContent = '0:00';
+
+  const emojis = MEM_EMOJIS.slice(0, count / 2);
+  const cards = shuffle([...emojis, ...emojis]);
+  const grid = document.getElementById('mem-grid');
+  grid.style.gridTemplateColumns = count <= 8 ? 'repeat(4,1fr)' : count <= 16 ? 'repeat(4,1fr)' : 'repeat(6,1fr)';
+  grid.innerHTML = '';
+  cards.forEach((e, i) => {
+    const card = document.createElement('div');
+    card.className = 'mem-card';
+    card.dataset.emoji = e;
+    card.dataset.idx = i;
+    card.innerHTML = `<span class="front">${e}</span><span class="back">?</span>`;
+    card.addEventListener('click', () => flipCard(card));
+    grid.appendChild(card);
+  });
+
+  memStart = Date.now();
+  memTimer = setInterval(() => {
+    const s = Math.floor((Date.now() - memStart) / 1000);
+    document.getElementById('mem-time').textContent = `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+  }, 500);
+}
+
+function flipCard(card) {
+  if (memLocked || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+  card.classList.add('flipped');
+  memFlipped.push(card);
+  if (memFlipped.length === 2) {
+    memLocked = true;
+    memMoves++;
+    document.getElementById('mem-moves').textContent = memMoves;
+    const [a, b] = memFlipped;
+    if (a.dataset.emoji === b.dataset.emoji) {
+      a.classList.add('matched'); b.classList.add('matched');
+      memPairs++;
+      document.getElementById('mem-pairs').textContent = memPairs;
+      memFlipped = []; memLocked = false;
+      if (memPairs === memTotal) {
+        clearInterval(memTimer);
+        const s = Math.floor((Date.now() - memStart) / 1000);
+        showResult('🎉', 'All matched!', `${memMoves} moves · ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`, () => startMemory(memTotal * 2));
       }
-    });
-    document.getElementById(`lens-${lensIndex}`).classList.add('active');
-    updateProgress();
-    updatePreview();
-  }
-
-  function updateProgress() {
-    const done = state.selections.filter(s => s !== null).length;
-    const pct = Math.round((done / 5) * 100);
-    document.getElementById('progress-fill').style.width = pct + '%';
-    document.getElementById('progress-pct').textContent = pct + '%';
-    document.getElementById('progress-label').textContent = `${done} of 5 lenses complete`;
-    const ct = document.getElementById('completeness-text');
-    if (done === 5) {
-      ct.textContent = 'All lenses complete. Ready to export.';
-      ct.style.color = 'var(--green)';
     } else {
-      ct.textContent = `Complete all 5 lenses to generate your full brief.`;
-      ct.style.color = '';
+      setTimeout(() => {
+        a.classList.remove('flipped'); b.classList.remove('flipped');
+        memFlipped = []; memLocked = false;
+      }, 900);
     }
   }
+}
 
-  function updatePreview() {
-    state.featureName = document.getElementById('feature-name').value;
-    state.userType = document.getElementById('user-type').value;
-    state.featureDesc = document.getElementById('feature-desc').value;
-    state.stakes = document.getElementById('stakes').value;
-    state.visibility = document.getElementById('ai-visibility').value;
-    for (let i = 0; i < 5; i++) {
-      const el = document.getElementById(`notes-${i}`);
-      if (el) state.notes[i] = el.value;
-    }
-    const preview = document.getElementById('preview-box');
-    preview.innerHTML = buildPreviewHTML();
+// ────────────────────────────────────────────────────────────
+// GAME 2: WORD SCRAMBLE
+// ────────────────────────────────────────────────────────────
+const WS_WORDS = [
+  {w:'apple', h:'🍎 A fruit'},
+  {w:'rainbow', h:'🌈 After rain'},
+  {w:'dolphin', h:'🐬 Ocean mammal'},
+  {w:'castle', h:'🏰 Where kings live'},
+  {w:'guitar', h:'🎸 Musical instrument'},
+  {w:'blanket', h:'🛏️ Keeps you warm'},
+  {w:'volcano', h:'🌋 Erupts with lava'},
+  {w:'umbrella', h:'☂️ Keeps rain off'},
+  {w:'penguin', h:'🐧 Arctic bird'},
+  {w:'compass', h:'🧭 Shows direction'},
+  {w:'lantern', h:'🏮 Glowing light'},
+  {w:'dragon', h:'🐉 Mythical beast'},
+  {w:'jungle', h:'🌿 Dense forest'},
+  {w:'frozen', h:'🧊 Ice cold'},
+  {w:'planet', h:'🪐 Orbits a star'},
+];
+
+let wsWords = [], wsIdx = 0, wsLives = 3, wsScore = 0;
+
+function startScramble() {
+  wsWords = shuffle([...WS_WORDS]).slice(0, 10);
+  wsIdx = 0; wsLives = 3; wsScore = 0;
+  nextWord();
+}
+
+function nextWord() {
+  if (wsIdx >= wsWords.length) {
+    showResult('🏆', 'Finished!', `Score: ${wsScore} / 10`, startScramble);
+    return;
   }
+  wsLives = 3;
+  updateWSUI();
+  const {w, h} = wsWords[wsIdx];
+  document.getElementById('ws-word').textContent = scramble(w);
+  document.getElementById('ws-hint').textContent = h;
+  document.getElementById('ws-input').value = '';
+  document.getElementById('ws-input').className = 'word-input';
+  document.getElementById('ws-feedback').textContent = '';
+  document.getElementById('ws-feedback').className = 'feedback-msg';
+  document.getElementById('ws-input').focus();
+}
 
-  const STAKES_LABELS = {
-    low: 'Low (reversible, low consequence)',
-    medium: 'Medium (moderate impact, correctable)',
-    high: 'High (significant consequence if wrong)',
-    critical: 'Critical (safety, legal, or financial exposure)'
-  };
-  const VIS_LABELS = {
-    invisible: 'Invisible — user unaware of AI involvement',
-    implicit: 'Implicit — AI implied but not stated',
-    explicit: 'Explicit — clearly labeled as AI',
-    foregrounded: 'Foregrounded — AI is the product narrative'
-  };
+function updateWSUI() {
+  document.getElementById('ws-score').textContent = wsScore;
+  document.getElementById('ws-progress').textContent = `${wsIdx+1}/10`;
+  document.getElementById('ws-lives').textContent = '❤️'.repeat(wsLives) + '🖤'.repeat(3 - wsLives);
+}
 
-  function buildPreviewHTML() {
-    const fn = state.featureName || '[Feature Name]';
-    const ut = state.userType || '[User Type]';
-    const fd = state.featureDesc || '[Feature description]';
-    const sk = STAKES_LABELS[state.stakes] || '[Not set]';
-    const vi = VIS_LABELS[state.visibility] || '[Not set]';
-
-    let html = `<span class="h1">AI UX DESIGN BRIEF\n</span>`;
-    html += `<span class="muted">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n</span>`;
-    html += `<span class="h2">FEATURE\n</span>${fn}\n\n`;
-    html += `<span class="h2">PRIMARY USER\n</span>${ut}\n\n`;
-    html += `<span class="h2">DESCRIPTION\n</span>${fd}\n\n`;
-    html += `<span class="h2">DECISION STAKES\n</span>${sk}\n\n`;
-    html += `<span class="h2">AI VISIBILITY\n</span>${vi}\n\n`;
-    html += `<span class="muted">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n</span>`;
-
-    const lensNames = ['Trust Calibration', 'Agency Distribution', 'Error Recovery', 'Transparency Requirements', 'Long-term Adaptation'];
-
-    for (let i = 0; i < 5; i++) {
-      const sel = state.selections[i];
-      const key = sel ? MAPS[i][sel] : null;
-      const data = key ? PRESCRIPTIONS[key] : null;
-      html += `<span class="h2">LENS ${i+1}: ${lensNames[i].toUpperCase()}\n</span>`;
-      if (!data) {
-        html += `<span class="ph">— not yet selected —\n\n</span>`;
-      } else {
-        html += `<span class="h1">◆ ${data.headline}\n</span>\n`;
-        html += `${data.copy}\n\n`;
-        html += `<span class="rec">Design Directives:\n</span>`;
-        data.recs.forEach(r => { html += `<span class="rec">• ${r}\n</span>`; });
-        if (state.notes[i]) {
-          html += `\n<span class="muted">Notes: ${state.notes[i]}\n</span>`;
-        }
-        html += '\n';
-      }
-    }
-
-    const done = state.selections.filter(s => s !== null).length;
-    if (done === 5) {
-      html += `<span class="muted">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n</span>`;
-      html += `<span class="h2">BRIEF STATUS: COMPLETE\n</span>`;
-      html += `<span class="muted">Generated by AI UX Brief Builder\nDesigning for Tomorrow — neonexperiments</span>`;
+function submitWord() {
+  const inp = document.getElementById('ws-input');
+  const guess = inp.value.trim().toLowerCase();
+  const answer = wsWords[wsIdx].w;
+  if (!guess) return;
+  if (guess === answer) {
+    inp.className = 'word-input correct';
+    document.getElementById('ws-feedback').textContent = '✓ Correct!';
+    document.getElementById('ws-feedback').className = 'feedback-msg ok';
+    wsScore++;
+    wsIdx++;
+    setTimeout(nextWord, 700);
+  } else {
+    wsLives--;
+    inp.className = 'word-input wrong';
+    if (wsLives <= 0) {
+      document.getElementById('ws-feedback').textContent = `Answer: ${answer}`;
+      document.getElementById('ws-feedback').className = 'feedback-msg no';
+      wsIdx++;
+      updateWSUI();
+      setTimeout(nextWord, 1200);
     } else {
-      html += `<span class="muted">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n</span>`;
-      html += `<span class="muted">${done}/5 lenses complete</span>`;
+      document.getElementById('ws-feedback').textContent = 'Try again!';
+      document.getElementById('ws-feedback').className = 'feedback-msg no';
+      updateWSUI();
+      setTimeout(() => { inp.className = 'word-input'; inp.value = ''; }, 400);
     }
-
-    return html;
   }
+}
 
-  function buildPlainText() {
-    const fn = state.featureName || '[Feature Name]';
-    const ut = state.userType || '[User Type]';
-    const fd = state.featureDesc || '[Feature description]';
-    const sk = STAKES_LABELS[state.stakes] || '[Not set]';
-    const vi = VIS_LABELS[state.visibility] || '[Not set]';
+function skipWord() {
+  const answer = wsWords[wsIdx].w;
+  document.getElementById('ws-feedback').textContent = `Skipped — answer: ${answer}`;
+  document.getElementById('ws-feedback').className = 'feedback-msg no';
+  wsIdx++;
+  setTimeout(nextWord, 900);
+}
 
-    let txt = `AI UX DESIGN BRIEF\n`;
-    txt += `${'─'.repeat(40)}\n\n`;
-    txt += `FEATURE: ${fn}\nPRIMARY USER: ${ut}\nDESCRIPTION: ${fd}\nDECISION STAKES: ${sk}\nAI VISIBILITY: ${vi}\n\n`;
-    txt += `${'─'.repeat(40)}\n\n`;
+document.getElementById('ws-input').addEventListener('keydown', e => { if (e.key === 'Enter') submitWord(); });
 
-    const lensNames = ['Trust Calibration', 'Agency Distribution', 'Error Recovery', 'Transparency Requirements', 'Long-term Adaptation'];
+// ────────────────────────────────────────────────────────────
+// GAME 3: QUICK MATH
+// ────────────────────────────────────────────────────────────
+let mathScore = 0, mathStreak = 0, mathLives = 3, mathLevel = 'easy';
+let mathTimer = null, mathTimeLeft = 0, mathTimerTotal = 0;
+let mathAnswer = 0, mathLocked = false;
 
-    for (let i = 0; i < 5; i++) {
-      const sel = state.selections[i];
-      const key = sel ? MAPS[i][sel] : null;
-      const data = key ? PRESCRIPTIONS[key] : null;
-      txt += `LENS ${i+1}: ${lensNames[i].toUpperCase()}\n`;
-      if (!data) {
-        txt += `[Not selected]\n\n`;
-      } else {
-        txt += `◆ ${data.headline}\n\n${data.copy}\n\nDesign Directives:\n`;
-        data.recs.forEach(r => { txt += `• ${r}\n`; });
-        if (state.notes[i]) txt += `\nNotes: ${state.notes[i]}\n`;
-        txt += '\n';
-      }
+const MATH_CONFIGS = {
+  easy:   { range: [1,10],   ops:['+','-'],        time: 8000 },
+  medium: { range: [1,20],   ops:['+','-','×'],    time: 6000 },
+  hard:   { range: [2,30],   ops:['+','-','×','÷'],time: 5000 },
+};
+
+function startMath(level) {
+  mathLevel = level;
+  mathScore = 0; mathStreak = 0; mathLives = 3;
+  document.getElementById('math-score').textContent = 0;
+  document.getElementById('math-streak').textContent = 0;
+  document.getElementById('math-lives').textContent = '❤️❤️❤️';
+  nextMathQ();
+}
+
+function nextMathQ() {
+  clearInterval(mathTimer);
+  mathLocked = false;
+  const cfg = MATH_CONFIGS[mathLevel];
+  const [lo, hi] = cfg.range;
+  const op = cfg.ops[Math.floor(Math.random() * cfg.ops.length)];
+  let a = randInt(lo, hi), b = randInt(lo, hi), eq, ans;
+
+  if (op === '-') { if (a < b) [a,b] = [b,a]; ans = a - b; eq = `${a} − ${b}`; }
+  else if (op === '×') { a = randInt(2,10); b = randInt(2,10); ans = a*b; eq = `${a} × ${b}`; }
+  else if (op === '÷') {
+    b = randInt(2,9); ans = randInt(2,9); a = ans*b;
+    eq = `${a} ÷ ${b}`;
+  } else { ans = a + b; eq = `${a} + ${b}`; }
+
+  mathAnswer = ans;
+  document.getElementById('math-eq').textContent = `${eq} = ?`;
+
+  const wrong1 = ans + randInt(1,5) * (Math.random()<0.5?1:-1);
+  const wrong2 = ans + randInt(6,12) * (Math.random()<0.5?1:-1);
+  const wrong3 = ans + randInt(13,20) * (Math.random()<0.5?1:-1);
+  const choices = shuffle([ans, wrong1, Math.max(0,wrong2), Math.max(0,wrong3)]);
+
+  const container = document.getElementById('math-choices');
+  container.innerHTML = '';
+  choices.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'math-choice';
+    btn.textContent = c;
+    btn.onclick = () => pickMath(btn, c);
+    container.appendChild(btn);
+  });
+
+  mathTimerTotal = cfg.time;
+  mathTimeLeft = cfg.time;
+  const bar = document.getElementById('math-bar');
+  bar.style.transition = 'none';
+  bar.style.width = '100%';
+  requestAnimationFrame(() => {
+    bar.style.transition = `width ${cfg.time}ms linear`;
+    bar.style.width = '0%';
+  });
+  mathTimer = setInterval(() => {
+    mathTimeLeft -= 100;
+    if (mathTimeLeft <= 0) { clearInterval(mathTimer); timeoutMath(); }
+  }, 100);
+}
+
+function pickMath(btn, val) {
+  if (mathLocked) return;
+  mathLocked = true;
+  clearInterval(mathTimer);
+  document.getElementById('math-bar').style.width = '0%';
+  if (val === mathAnswer) {
+    btn.classList.add('correct');
+    mathScore += 1 + mathStreak;
+    mathStreak++;
+    document.getElementById('math-score').textContent = mathScore;
+    document.getElementById('math-streak').textContent = mathStreak;
+    setTimeout(nextMathQ, 600);
+  } else {
+    btn.classList.add('wrong');
+    highlightCorrectMath();
+    mathStreak = 0;
+    mathLives--;
+    document.getElementById('math-streak').textContent = 0;
+    document.getElementById('math-lives').textContent = '❤️'.repeat(mathLives) + '🖤'.repeat(3-mathLives);
+    if (mathLives <= 0) {
+      setTimeout(() => showResult('🧮', 'Game Over', `Final score: ${mathScore}`, () => startMath(mathLevel)), 800);
+    } else { setTimeout(nextMathQ, 900); }
+  }
+}
+
+function timeoutMath() {
+  if (mathLocked) return;
+  mathLocked = true;
+  highlightCorrectMath();
+  mathStreak = 0;
+  mathLives--;
+  document.getElementById('math-streak').textContent = 0;
+  document.getElementById('math-lives').textContent = '❤️'.repeat(mathLives) + '🖤'.repeat(3-mathLives);
+  if (mathLives <= 0) {
+    setTimeout(() => showResult('⏰', 'Time\'s Up!', `Final score: ${mathScore}`, () => startMath(mathLevel)), 800);
+  } else { setTimeout(nextMathQ, 900); }
+}
+
+function highlightCorrectMath() {
+  document.querySelectorAll('.math-choice').forEach(b => {
+    if (parseInt(b.textContent) === mathAnswer) b.classList.add('correct');
+  });
+}
+
+// ────────────────────────────────────────────────────────────
+// GAME 4: TIC-TAC-TOE
+// ────────────────────────────────────────────────────────────
+let tttBoard = Array(9).fill(null);
+let tttCurrent = 'X', tttMode = '2p', tttOver = false;
+let tttScores = { X: 0, O: 0, D: 0 };
+const WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+
+function initTTT() {
+  tttScores = { X: 0, O: 0, D: 0 };
+  updateTTTScores();
+  resetTTT();
+}
+
+function setTTTMode(mode) {
+  tttMode = mode;
+  document.getElementById('ttt-mode-2p').classList.toggle('active', mode === '2p');
+  document.getElementById('ttt-mode-cpu').classList.toggle('active', mode === 'cpu');
+  document.getElementById('ttt-p2-label').textContent = mode === 'cpu' ? '🤖 Computer' : 'Player O';
+  resetTTT();
+}
+
+function resetTTT() {
+  tttBoard = Array(9).fill(null);
+  tttCurrent = 'X'; tttOver = false;
+  renderTTT();
+  document.getElementById('ttt-status').textContent = 'X goes first';
+}
+
+function renderTTT() {
+  const board = document.getElementById('ttt-board');
+  board.innerHTML = '';
+  tttBoard.forEach((v, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'ttt-cell' + (v ? ' taken' : '') + (v === 'X' ? ' x-cell' : v === 'O' ? ' o-cell' : '');
+    cell.textContent = v || '';
+    cell.addEventListener('click', () => tttClick(i));
+    board.appendChild(cell);
+  });
+}
+
+function tttClick(i) {
+  if (tttOver || tttBoard[i]) return;
+  if (tttMode === 'cpu' && tttCurrent === 'O') return;
+  tttBoard[i] = tttCurrent;
+  renderTTT();
+  const result = checkTTT();
+  if (result) { endTTT(result); return; }
+  tttCurrent = tttCurrent === 'X' ? 'O' : 'X';
+  document.getElementById('ttt-status').textContent = `${tttCurrent}'s turn`;
+  if (tttMode === 'cpu' && tttCurrent === 'O') {
+    setTimeout(cpuMove, 400);
+  }
+}
+
+function cpuMove() {
+  const best = minimax(tttBoard, 'O');
+  tttBoard[best.idx] = 'O';
+  renderTTT();
+  const result = checkTTT();
+  if (result) { endTTT(result); return; }
+  tttCurrent = 'X';
+  document.getElementById('ttt-status').textContent = `X's turn`;
+}
+
+function minimax(board, player) {
+  const opp = player === 'O' ? 'X' : 'O';
+  const winner = checkWinner(board);
+  if (winner === 'O') return { score: 10 };
+  if (winner === 'X') return { score: -10 };
+  const empty = board.map((v,i) => v ? null : i).filter(v => v !== null);
+  if (!empty.length) return { score: 0 };
+  const moves = empty.map(idx => {
+    const b = [...board]; b[idx] = player;
+    const s = minimax(b, opp).score;
+    return { idx, score: s };
+  });
+  return moves.reduce((best, m) =>
+    player === 'O' ? (m.score > best.score ? m : best) : (m.score < best.score ? m : best)
+  );
+}
+
+function checkWinner(board) {
+  for (const [a,b,c] of WINS) {
+    if (board[a] && board[a] === board[b] && board[a] === board[c]) return board[a];
+  }
+  return null;
+}
+
+function checkTTT() {
+  for (const [a,b,c] of WINS) {
+    if (tttBoard[a] && tttBoard[a] === tttBoard[b] && tttBoard[a] === tttBoard[c]) {
+      return { winner: tttBoard[a], line: [a,b,c] };
     }
-    txt += `${'─'.repeat(40)}\n`;
-    txt += `Generated by AI UX Brief Builder — Designing for Tomorrow`;
-    return txt;
   }
+  if (tttBoard.every(v => v)) return { winner: 'draw' };
+  return null;
+}
 
-  function exportBrief() {
-    const text = buildPlainText();
-    const fn = (state.featureName || 'ai-ux-brief').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g,'');
-    const blob = new Blob([text], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${fn}-ai-ux-brief.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast('Brief exported ↓');
-  }
-
-  function copyPreview() {
-    const text = buildPlainText();
-    navigator.clipboard.writeText(text).then(() => {
-      showToast('Copied to clipboard ✓');
-    }).catch(() => {
-      showToast('Copy failed — try selecting text manually');
-    });
-  }
-
-  function resetAll() {
-    state.selections = [null, null, null, null, null];
-    state.notes = ['','','','',''];
-    state.featureName = '';
-    state.userType = '';
-    state.featureDesc = '';
-    state.stakes = '';
-    state.visibility = '';
-
-    document.getElementById('feature-name').value = '';
-    document.getElementById('user-type').value = '';
-    document.getElementById('feature-desc').value = '';
-    document.getElementById('stakes').value = '';
-    document.getElementById('ai-visibility').value = '';
-
-    for (let i = 0; i < 5; i++) {
-      document.querySelectorAll(`#options-${i} .option`).forEach(o => o.classList.remove('selected'));
-      document.getElementById(`lens-${i}`).classList.remove('active');
-      const notesEl = document.getElementById(`notes-${i}`);
-      if (notesEl) notesEl.value = '';
+function endTTT(result) {
+  tttOver = true;
+  if (result.winner === 'draw') {
+    document.getElementById('ttt-status').textContent = "It's a draw!";
+    tttScores.D++;
+  } else {
+    const label = result.winner === 'X' ? 'X' : (tttMode === 'cpu' ? '🤖 Computer' : 'O');
+    document.getElementById('ttt-status').textContent = `${label} wins! 🎉`;
+    tttScores[result.winner]++;
+    if (result.line) {
+      const cells = document.getElementById('ttt-board').children;
+      result.line.forEach(i => cells[i].classList.add('win-cell'));
     }
-
-    updateProgress();
-    document.getElementById('preview-box').innerHTML = '<span class="ph">Your brief will appear here as you fill in the lenses.</span>';
   }
+  updateTTTScores();
+  setTimeout(resetTTT, 2200);
+}
 
-  let toastTimer;
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+function updateTTTScores() {
+  document.getElementById('ttt-score-x').textContent = tttScores.X;
+  document.getElementById('ttt-score-o').textContent = tttScores.O;
+  document.getElementById('ttt-score-d').textContent = tttScores.D;
+}
+
+// ────────────────────────────────────────────────────────────
+// UTILS
+// ────────────────────────────────────────────────────────────
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   }
+  return arr;
+}
 
-  updatePreview();
+function scramble(word) {
+  let arr = word.split('');
+  let tries = 0;
+  do { shuffle(arr); tries++; } while (arr.join('') === word && tries < 20);
+  return arr.join('').toUpperCase();
+}
+
+function randInt(lo, hi) { return Math.floor(Math.random() * (hi - lo + 1)) + lo; }
 </script>
 </body>
 </html>
