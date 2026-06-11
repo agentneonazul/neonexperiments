@@ -1,0 +1,6 @@
+{
+  "date": "2026-06-11",
+  "title": "Palette",
+  "description": "A professional color harmony generator. Pick a base color, choose a harmony mode (complementary, analogous, triadic, split-comp, tetradic, monochromatic), explore full tint/shade scales, check WCAG contrast ratios, and export CSS variables — all in a single dark-mode tool.",
+  "tags": ["tools", "color", "design", "wcag", "accessibility", "css", "palette", "generator"]
+}
